@@ -1,29 +1,33 @@
-from sqlalchemy import Column, Integer, String, DATETIME, Time, Float
+from sqlalchemy import Column, Integer, String, DATETIME, Time, Float, Enum
 from sqlalchemy import create_engine, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
+
 import enum
 
 engine = create_engine('sqlite:///sample.db', echo=True)
 Base = declarative_base()
 
 
-class EnumCourseStatus(enum.Enum):
-    finish = "Finish"
-    remove = "remove"
-    in_process = "in_process"
+class EnumCourseStatus(enum.IntEnum):
+    finish = 0
+    remove = 1
+    in_process = 2
 
 
-class Semester(enum.Enum):
+class Semester(enum.IntEnum):
     First = 1
     Second = 2
     Summer = 3
 
 
-class StatusStep(enum.Enum):
+class StatusStep(enum.IntEnum):
     Unread = 1
     Read = 2
-    Answered = 3
+    Accept = 3
+    Reject = 4
+    Answered = 5
+    Finish = 6
 
 
 class Chart(Base):
@@ -31,6 +35,15 @@ class Chart(Base):
     id = Column(Integer, primary_key=True)
 
     courses = relationship('Course', secondary='chartLinkCourse')
+
+
+class Orientation(Base):
+    __tablename__ = 'orientations'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+
+    courses = relationship('Course', backref=backref('orientations'))
 
 
 class Course(Base):
@@ -44,6 +57,9 @@ class Course(Base):
 
     prerequisites_courses = relationship('Course', secondary='preCourseLinkCourse')
     needed_courses = relationship('Course', secondary='needCourseLinkCourse')
+
+    orientation_id = Column(Integer, ForeignKey('orientations.id'))
+    orientation = relationship(Orientation, backref=backref('courses'))
 
 
 class PresentedCourse(Base):
@@ -62,7 +78,8 @@ class PresentedCourse(Base):
 class TimePresentedCourse(Base):
     __tablename__ = 'timePresentedCourse'
 
-    presented_course_id = Column(Integer, ForeignKey('timePresentedCourse.id'))
+    id = Column(Integer, primary_key=True)
+    presented_course_id = Column(Integer, ForeignKey('presentedCourse.id'))
     presented_course = relationship(PresentedCourse, backref=backref('timePresentedCourse', cascade="all,delete"))
 
     string_name_day = Column(String, nullable=False)
@@ -128,6 +145,12 @@ class User(Base):
     birthday = Column(DATETIME)
     email_show_all = Column(String)
 
+    student = relationship('Student', backref=backref('users', uselist=False))
+    professor = relationship('Professor', backref=backref('users', uselist=False))
+
+    responsibleTrainings = relationship('ResponsibleTraining', backref=backref('users'))
+    educationAssistants = relationship('EducationAssistant', backref=backref('users'))
+
     # email = Column(String)
 
     # educationAssistants = relationship(
@@ -148,6 +171,16 @@ class EducationAssistant(Base):
     date_end_duty = Column(DATETIME)
 
 
+class ResponsibleTraining(Base):
+    __tablename__ = 'responsibleTrainings'
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String, ForeignKey('users.username'))
+    user = relationship("User", backref=backref("responsibleTrainings", cascade="all,delete"))
+    date_start_duty = Column(DATETIME, nullable=False)
+    date_end_duty = Column(DATETIME)
+
+
 class Student(Base):
     __tablename__ = 'students'
 
@@ -155,7 +188,12 @@ class Student(Base):
     user = relationship('User', backref=backref('students', uselist=False, cascade="all,delete"))
     time_enter = Column(String, nullable=False)
     chart_id = Column(Integer, ForeignKey('charts.id'))
-    chart = relationship("Chart", backref("students"))
+    chart = relationship("Chart", backref=backref("students"))
+    cross_section = Column(String, nullable=False)
+    orientation = Column(String, nullable=False)
+
+    supervisor_id = Column(Integer, ForeignKey('supervisor.id'))
+    supervisors = relationship('Supervisor', backref=backref('students'))
 
 
 # User.educationAssistants = relationship("EducationAssistant", order_by=EducationAssistant.id, back_populates='User')
@@ -166,16 +204,22 @@ class Professor(Base):
     email = Column(String, ForeignKey('users.username'), primary_key=True)
     user = relationship('User', backref=backref('professors', uselist=False, cascade="all,delete"))
 
+    advisors = relationship('Advisor', backref=backref('professors'))
+    departmentHeads = relationship('DepartmentHead', backref=backref('professors'))
+    supervisor = relationship('supervisor', backref=backref('professors'))
+
+    PresentedCourses = relationship(PresentedCourse, secondary='professorLinkPresentedCourse')
+
 
 class ProfessorLinkPresentedCourse(Base):
     __tablename__ = 'professorLinkPresentedCourse'
 
-    professor_email = relationship(
+    professor_email = Column(
         String,
         ForeignKey('professors.email'),
         primary_key=True
     )
-    presentedCourse = relationship(
+    presentedCourse = Column(
         Integer,
         ForeignKey('presentedCourse.id'),
         primary_key=True
@@ -186,9 +230,24 @@ class Advisor(Base):
     __tablename__ = 'advisor'
     id = Column(Integer, primary_key=True)
 
+    cross_section = Column(String, nullable=False)
+    orientation = Column(String, nullable=False)
+
     email = Column(String, ForeignKey('professors.email'), nullable=False)
     professor = relationship('Professor', backref=backref('advisor'))
     time_enter_student = Column(String, nullable=False)
+
+
+class Supervisor(Base):
+    __tablename__ = 'supervisor'
+    id = Column(Integer, primary_key=True)
+
+    cross_section = Column(String, nullable=False)
+    orientation = Column(String, nullable=False)
+
+    email = Column(String, ForeignKey('professors.email'), nullable=False)
+    professor = relationship('Professor', backref=backref('supervisor'))
+    students = relationship(Student, backref=backref('supervisor'))
 
 
 class DepartmentHead(Base):
@@ -202,26 +261,26 @@ class DepartmentHead(Base):
     date_end_duty = Column(DATETIME)
 
 
-class StudentCourseDate(Base):
-    __tablename__ = 'studentCourseDates'
+class StudentCourseData(Base):
+    __tablename__ = 'studentCourseDatas'
 
     presentedCourse_id = Column(Integer, ForeignKey('presentedCourse.id'), primary_key=True)
-    presentedCourse = relationship(PresentedCourse, backref=backref('studentCourseDates'))
+    presentedCourse = relationship(PresentedCourse, backref=backref('studentCourseDatas'))
 
     student_number = Column(String, ForeignKey('students.student_number'), primary_key=True)
-    student = relationship(Student, backref=backref('studentCourseDates'))
+    student = relationship(Student, backref=backref('studentCourseDatas'))
 
     mark = Column(Float)
-    status = Column(EnumCourseStatus)
+    status = Column(Enum(EnumCourseStatus), default=EnumCourseStatus.in_process)
 
 
 class PermittedCourse(Base):
     __tablename__ = 'permittedCourses'
 
     year = Column(Integer, primary_key=True)
-    semester = Column(Semester, primary_key=True)
+    semester = Column(Enum(Semester), primary_key=True)
 
-    course_id = Column(Integer, ForeignKey('students.id'), primary_key=True)
+    course_id = Column(Integer, ForeignKey('students.student_number'), primary_key=True)
     course = relationship(Course, backref=backref('permittedCourses'))
 
     educationAssistant_id = Column(String, ForeignKey('educationAssistants.id'))
@@ -268,7 +327,10 @@ class Step(Base):
 
     attach_file = Column(String)
     message = Column(String)
-    status_step = Column(StatusStep)
+    status_step = Column(Enum(StatusStep),default=StatusStep.Unread)
 
     step_before_id = Column(Integer, ForeignKey('step.id'))
     step = relationship('Step', backref=backref('step'))
+
+
+Base.metadata.create_all(engine)
