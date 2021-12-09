@@ -43,7 +43,7 @@ class Orientation(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
 
-    courses = relationship('Course', backref=backref('orientations'))
+    # courses = relationship('Course', backref=backref('orientations'))
 
 
 class Course(Base):
@@ -55,8 +55,11 @@ class Course(Base):
 
     charts = relationship(Chart, secondary='chartLinkCourse')
 
-    prerequisites_courses = relationship('Course', secondary='preCourseLinkCourse')
-    needed_courses = relationship('Course', secondary='needCourseLinkCourse')
+    # prerequisites_courses = relationship
+    # prerequisites_courses_parent = relationship('Course', secondary='preCourseLinkCourse')
+
+    # needed_courses_first = relationship('Course', secondary='needCourseLinkCourse')
+    # needed_courses_second = relationship('Course', secondary='needCourseLinkCourse')
 
     orientation_id = Column(Integer, ForeignKey('orientations.id'))
     orientation = relationship(Orientation, backref=backref('courses'))
@@ -99,6 +102,8 @@ class PreCourseLinkCourse(Base):
         ForeignKey('courses.id'),
         primary_key=True
     )
+    course = relationship(Course, foreign_keys='PreCourseLinkCourse.course_parent')
+    preCourse = relationship(Course, foreign_keys='PreCourseLinkCourse.course_child')
 
 
 class NeedCourseLinkCourse(Base):
@@ -114,6 +119,8 @@ class NeedCourseLinkCourse(Base):
         ForeignKey('courses.id'),
         primary_key=True
     )
+    course = relationship(Course, foreign_keys='NeedCourseLinkCourse.first_course')
+    needCourse = relationship(Course, foreign_keys='NeedCourseLinkCourse.second_course')
 
 
 class ChartLinkCourse(Base):
@@ -145,11 +152,11 @@ class User(Base):
     birthday = Column(DATETIME)
     email_show_all = Column(String)
 
-    student = relationship('Student', backref=backref('users', uselist=False))
-    professor = relationship('Professor', backref=backref('users', uselist=False))
+    # student = relationship('Student', backref=backref('users', uselist=False))
+    # professor = relationship('Professor', backref=backref('users', uselist=False))
 
-    responsibleTrainings = relationship('ResponsibleTraining', backref=backref('users'))
-    educationAssistants = relationship('EducationAssistant', backref=backref('users'))
+    # responsibleTrainings = relationship('ResponsibleTraining', backref=backref('users'))
+    # educationAssistants = relationship('EducationAssistant', backref=backref('users'))
 
     # email = Column(String)
 
@@ -192,8 +199,8 @@ class Student(Base):
     cross_section = Column(String, nullable=False)
     orientation = Column(String, nullable=False)
 
-    supervisor_id = Column(Integer, ForeignKey('supervisor.id'))
-    supervisors = relationship('Supervisor', backref=backref('students'))
+    supervisor_id = Column(Integer, ForeignKey('supervisors.id'))
+    supervisor = relationship('Supervisor', backref=backref('students'))
 
 
 # User.educationAssistants = relationship("EducationAssistant", order_by=EducationAssistant.id, back_populates='User')
@@ -204,9 +211,9 @@ class Professor(Base):
     email = Column(String, ForeignKey('users.username'), primary_key=True)
     user = relationship('User', backref=backref('professors', uselist=False, cascade="all,delete"))
 
-    advisors = relationship('Advisor', backref=backref('professors'))
-    departmentHeads = relationship('DepartmentHead', backref=backref('professors'))
-    supervisor = relationship('supervisor', backref=backref('professors'))
+    # advisors = relationship('Advisor', backref=backref('professors'))
+    # departmentHeads = relationship('DepartmentHead', backref=backref('professors'))
+    # supervisors = relationship('Supervisor', backref=backref('professors'))
 
     PresentedCourses = relationship(PresentedCourse, secondary='professorLinkPresentedCourse')
 
@@ -239,15 +246,15 @@ class Advisor(Base):
 
 
 class Supervisor(Base):
-    __tablename__ = 'supervisor'
+    __tablename__ = 'supervisors'
     id = Column(Integer, primary_key=True)
 
     cross_section = Column(String, nullable=False)
     orientation = Column(String, nullable=False)
 
     email = Column(String, ForeignKey('professors.email'), nullable=False)
-    professor = relationship('Professor', backref=backref('supervisor'))
-    students = relationship(Student, backref=backref('supervisor'))
+    professor = relationship('Professor', backref=backref('supervisors'))
+    # students = relationship(Student, backref=backref('supervisor'))
 
 
 class DepartmentHead(Base):
@@ -277,28 +284,30 @@ class StudentCourseData(Base):
 class PermittedCourse(Base):
     __tablename__ = 'permittedCourses'
 
-    year = Column(Integer, primary_key=True)
-    semester = Column(Enum(Semester), primary_key=True)
+    permittedCourse_id = Column(Integer, primary_key=True)
+    year = Column(Integer, nullable=False)
+    semester = Column(Enum(Semester), nullable=False)
 
-    course_id = Column(Integer, ForeignKey('students.student_number'), primary_key=True)
+    course_id = Column(Integer, ForeignKey('courses.id'), nullable=False)
     course = relationship(Course, backref=backref('permittedCourses'))
 
     educationAssistant_id = Column(String, ForeignKey('educationAssistants.id'))
     educationAssistants = relationship(EducationAssistant, backref=backref('permittedCourses'))
 
-    initialCourseSelections = relationship('InitialCourseSelection', back_populates='permittedCourses')
+    # initialCourseSelections = relationship('InitialCourseSelection', back_populates='permittedCourses')
 
 
 class InitialCourseSelection(Base):
     __tablename__ = 'initialCourseSelection'
-
-    student_number = Column(String, ForeignKey('students.student_number'), primary_key=True)
+    id = Column(Integer, primary_key=True)
+    student_number = Column(String, ForeignKey('students.student_number'), nullable=False)
     student = relationship(Student, backref=backref('initialCourseSelection'))
 
-    permittedCourse_year = Column(Integer, ForeignKey('permittedCourses.year'), primary_key=True)
-    permittedCourse_semester = Column(Integer, ForeignKey('permittedCourses.semester'), primary_key=True)
-    permittedCourse_id = Column(Integer, ForeignKey('permittedCourses.course_id'), primary_key=True)
+    # permittedCourse_year = Column(Integer, ForeignKey('permittedCourses.year'), primary_key=True)
+    # permittedCourse_semester = Column(Integer, ForeignKey('permittedCourses.semester'), primary_key=True)
+    # permittedCourse_id = Column(Integer, ForeignKey('permittedCourses.course_id'), primary_key=True)
 
+    permittedCourse_id = Column(Integer, ForeignKey('permittedCourses.permittedCourse_id'), nullable=False)
     permittedCourse = relationship(PermittedCourse, backref=backref('initialCourseSelection', cascade="all,delete"))
 
 
@@ -327,10 +336,10 @@ class Step(Base):
 
     attach_file = Column(String)
     message = Column(String)
-    status_step = Column(Enum(StatusStep),default=StatusStep.Unread)
+    status_step = Column(Enum(StatusStep), default=StatusStep.Unread)
 
-    step_before_id = Column(Integer, ForeignKey('step.id'))
-    step = relationship('Step', backref=backref('step'))
+    parent_id = Column(Integer, ForeignKey('step.id'))
+    parent_step = relationship('Step', backref=backref('step', remote_side=[id]))
 
 
 Base.metadata.create_all(engine)
