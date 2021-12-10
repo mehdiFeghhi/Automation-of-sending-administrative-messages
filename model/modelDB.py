@@ -33,6 +33,11 @@ class StatusStep(enum.IntEnum):
 class Chart(Base):
     __tablename__ = 'charts'
     id = Column(Integer, primary_key=True)
+    educationAssistants_create_id = Column(Integer, ForeignKey('educationAssistants.id'))
+    educationAssistants_create = relationship('EducationAssistant', backref=backref('charts'))
+
+    name = Column(String(50), nullable=False)
+    year_create = Column(String(20), nullable=False)
 
     courses = relationship('Course', secondary='chartLinkCourse')
 
