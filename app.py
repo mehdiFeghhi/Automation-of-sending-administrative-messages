@@ -17,20 +17,25 @@ jwt = JWTManager(app)
 def login():
     try:
         params = request.get_json()
-        username = params['username']
-        password = params['password']
+        username = str(params['username'])
+        password = str(params['password'])
     except Exception as ex:
         print(ex)
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
-    response = find_user_by_username_and_password(username, password)
-    access_token = create_access_token(identity=username)
-
-    if response.get('status') == 'OK':
-        response['token'] = access_token
-        return jsonify(response), 200
-
-    return jsonify(response), 403
+    try:
+        response = find_user_by_username_and_password(username, password)
+        access_token = create_access_token(identity=username)
+        if response.get('Status') == 'OK':
+            response['token'] = access_token
+            # print(response)
+            return jsonify(response), 200
+        else:
+            # print(response)
+            return jsonify(response), 403
+    except Exception as ex:
+        # print(ex)
+        return jsonify(status='ERROR', message='مشکلی رخ داده هست'), 400
 
 
 if __name__ == '__main__':

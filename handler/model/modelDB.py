@@ -257,6 +257,7 @@ class Supervisor(Base):
     cross_section = Column(String, nullable=False)
     orientation = Column(String, nullable=False)
 
+
     email = Column(String, ForeignKey('professors.email'), nullable=False)
     professor = relationship('Professor', backref=backref('supervisors'))
     # students = relationship(Student, backref=backref('supervisor'))

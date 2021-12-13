@@ -1,8 +1,9 @@
 import hashlib
 
-from connect_db import session
-from sqlalchemy import and_
-from model.modelDB import User, Student, Professor, Advisor, EducationAssistant, Supervisor, DepartmentHead, \
+from sqlalchemy.orm import sessionmaker
+from handler.connect_db import session
+from sqlalchemy import and_, create_engine
+from handler.model.modelDB import User, Student, Professor, Advisor, EducationAssistant, Supervisor, DepartmentHead, \
     ResponsibleTraining
 
 
@@ -19,6 +20,8 @@ def find_main_role_of_person_information(user):
     if len(educationAssistants) == 1:
         role = educationAssistants[0]
         dic_role = vars(role)
+        dic_role.pop('_sa_instance_state')
+
         dic_role_name = {'name_role': 'educationAssistants'}
         dic_role_name.update(dic_role)
         return dic_role_name
@@ -26,20 +29,27 @@ def find_main_role_of_person_information(user):
     elif len(professor) == 1:
         role = professor[0]
         dic_role = vars(role)
+        dic_role.pop('_sa_instance_state')
+
         dic_role_name = {'name_role': 'professor'}
         dic_role_name.update(dic_role)
 
         dic_other_type_of_professor = {}
         departmentHead = session.query(DepartmentHead).filter(and_(DepartmentHead.email == role.email,
-                                                                   DepartmentHead.date_start_duty.is_(None)))
+                                                                   DepartmentHead.date_end_duty.is_(None))).all()
         if len(departmentHead) == 1:
-            dic_other_type_of_professor['departmentHead'] = vars(departmentHead[0])
+            dic_departmentHead = vars(departmentHead[0])
+            dic_departmentHead.pop('_sa_instance_state')
+
+            dic_other_type_of_professor['departmentHead'] = dic_departmentHead
+
         advisers = session.query(Advisor).filter(Advisor.email == role.email).all()
         if len(advisers) > 0:
             advisers_of_year_item = []
 
             for item in advisers:
-                advisers_of_year_item.append({item.time_enter_student: vars(item)})
+                advisers_of_year_item.append(
+                    {'advisers_id': item.id, 'adviser_time_enter_student': item.time_enter_student})
 
             dic_other_type_of_professor['advisers'] = advisers_of_year_item
         supervisor = session.query(Supervisor).filter(Supervisor.email == role.email).all()
@@ -47,7 +57,7 @@ def find_main_role_of_person_information(user):
             supervisor_of_year_item = []
 
             for item in supervisor:
-                supervisor_of_year_item.append({item.time_enter_student: vars(item)})
+                supervisor_of_year_item.append({'supervisor_id': item.id})
 
             dic_other_type_of_professor['supervisor'] = supervisor_of_year_item
 
@@ -58,14 +68,18 @@ def find_main_role_of_person_information(user):
     elif len(responsibleTrainings) == 1:
         role = responsibleTrainings[0]
         dic_role = vars(role)
+        dic_role.pop('_sa_instance_state')
+
         dic_role_name = {'name_role': 'responsibleTrainings'}
         dic_role_name.update(dic_role)
         return dic_role_name
 
 
     elif len(student) == 1:
-        role = responsibleTrainings[0]
+        role = student[0]
         dic_role = vars(role)
+        dic_role.pop('_sa_instance_state')
+
         dic_role_name = {'name_role': 'student'}
         dic_role_name.update(dic_role)
         return dic_role_name
@@ -76,7 +90,7 @@ def find_main_role_of_person_information(user):
 
 def find_user_by_username_and_password(user_name: str, password: str):
     hash_password = str(hashlib.sha256(password.encode()).hexdigest())
-    result = session.query(User).filter(and_(User.username == user_name, User.password == hash_password))
+    result = session.query(User).filter(and_(User.username == user_name, User.password == hash_password)).all()
 
     if len(result) == 0:
         return {'status': 'ERROR'}

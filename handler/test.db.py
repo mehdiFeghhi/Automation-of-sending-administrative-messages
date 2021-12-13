@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from sqlalchemy import create_engine
@@ -7,7 +8,8 @@ import hashlib
 from model.modelDB import User, Student, Advisor, Professor, Supervisor, DepartmentHead, EducationAssistant, \
     ResponsibleTraining, Chart, Course, Orientation, ChartLinkCourse, PreCourseLinkCourse, NeedCourseLinkCourse
 
-engine = create_engine('sqlite:///sample.db', echo=True)
+file_path = os.path.abspath(os.getcwd())+"/sample.db"
+engine = create_engine('sqlite:///'+file_path, echo=True)
 
 Session = sessionmaker(bind=engine)
 
