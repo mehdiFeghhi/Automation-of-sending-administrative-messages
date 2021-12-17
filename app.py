@@ -3,7 +3,8 @@ from flask import Flask, jsonify, request, send_file
 from flask_jwt_extended import (JWTManager, create_access_token, get_jwt_identity, jwt_required)
 from flask_cors import CORS
 
-from handler.ticket_handler import capacity_increase_by_student, lessons_from_another_section
+from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
+    master_course_request, course_from_another_orientation, exam_time_change, normal_ticket
 from handler.user_handler import find_user_by_username_and_password
 
 app = Flask(__name__)
@@ -44,7 +45,10 @@ def login():
 def create_ticket():
     try:
         user_id = get_jwt_identity()
+        print(user_id)
         params = request.get_json()
+        receiver_id = params['receiver_id']
+        description = params['description']
         subject = str(params['subject'])
     except Exception as ex:
         print(ex)
@@ -52,43 +56,68 @@ def create_ticket():
 
     if subject == 'capacity_increase':
         try:
-            receiver_id = params['receiver_id']
-            description = params['description']
             course_id = params['course_id']
         except Exception as ex:
             print(ex)
             return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
-        response = capacity_increase_by_student(user_id, receiver_id, description, course_id)
-        if response.get('Status') == 'OK':
-            return jsonify(response), 200
-        else:
-            return jsonify(response), 403
+        response = capacity_incresessase_by_student(user_id, receiver_id, description, course_id)
 
-    elif subject == 'lessons_from_another_section':
-        try:
-            receiver_id = params['receiver_id']
-            description = params['description']
-            course_id = params['course_id']
-            url = params['url']
-        except Exception as ex:
-            print(ex)
-            return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
-
-        response = lessons_from_another_section(user_id, receiver_id, description, course_id,url)
-        if response.get('Status') == 'OK':
-            return jsonify(response), 200
-        else:
-            return jsonify(response), 403
-
+    elif subject == 'lessons_fromnother_section':
+        # try:
+        #     course_id = params['course_id']
+        #     url = params.get('url')
+        # except Exception as ex:
+        #     print(ex)
+        #     return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+        url = params.get('url')
+        response = lessons_from_another_section(user_id, receiver_id, description, url)
     elif subject == 'class_change_time':
         try:
-            receiver_id = params['receiver_id']
-            description = params['description']
             course_id = params['course_id']
         except Exception as ex:
             print(ex)
             return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+        response = class_change_time(user_id, receiver_id, description, course_id)
+
+    elif subject == 'exam_time_change':
+        try:
+            course_id = params['course_id']
+        except Exception as ex:
+            print(ex)
+            return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+        response = exam_time_change(user_id, receiver_id, description, course_id)
+
+    elif subject == 'master_course_request':
+        try:
+            course_id = params['course_id']
+        except Exception as ex:
+            print(ex)
+            return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+        response = master_course_request(user_id, receiver_id, description, course_id)
+
+    elif subject == 'course_from_another_orientation':
+        try:
+            course_id = params['course_id']
+        except Exception as ex:
+            print(ex)
+            return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+        response = course_from_another_orientation(user_id, receiver_id, description, course_id)
+
+    else:
+
+        course_id = params.get('course_id')
+        url = params.get('url')
+        response = normal_ticket(user_id, receiver_id,subject,description, course_id, url)
+
+    if response.get('Status') == 'OK':
+        return jsonify(response), 201
+    else:
+        return jsonify(response), 500
 
 
 if __name__ == '__main__':

@@ -29,6 +29,7 @@ class StatusStep(enum.IntEnum):
     Reject = 4
     Answered = 5
     Finish = 6
+    Ended_step = 7
 
 
 class Chart(Base):
@@ -349,6 +350,8 @@ class Step(Base):
     __tablename__ = 'step'
 
     id = Column(Integer, primary_key=True)
+    receiver_id = Column(String, ForeignKey('users.username'), nullable=False)
+    user = relationship(User, backref=backref('step'))
 
     ticket_id = Column(Integer, ForeignKey('ticket.id'))
     ticket = relationship(Ticket, backref=backref('step'))

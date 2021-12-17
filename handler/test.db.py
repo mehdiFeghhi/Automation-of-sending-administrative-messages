@@ -127,11 +127,11 @@ def add_item_to_db():
                                                 date_start_duty=datetime(2017, 5, 17))
 
     session.add_all([
-        user_student_one, user_student_two, user_student_three, user_student_four, user_student_five,
+        user_student_one, user_student_two, user_student_three, user_student_four, user_student_five,user_student_six,user_student_seven,
         user_professor_one, user_professor_two,user_professor_five,
         user_professor_three, user_professor_four, user_ResponsibleTraining_one, user_educationAssistant_one
     ])
-    session.add_all([student_one, student_tow, student_three, student_four, student_five, student_six])
+    session.add_all([student_one, student_tow, student_three, student_four, student_five, student_six,student_seven])
     session.add_all([professor_one, professor_two, professor_three, professor_four, professor_five])
     session.add_all([advisor_one_professor_one, advisor_one_professor_three, advisor_two_professor_three,
                      advisor_one_professor_four, advisor_two_professor_four])
