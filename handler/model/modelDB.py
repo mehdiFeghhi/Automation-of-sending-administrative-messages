@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, DATETIME, Time, Float, Enum
 from sqlalchemy import create_engine, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
+import jdatetime
 
 import enum
 
@@ -76,6 +77,9 @@ class PresentedCourse(Base):
     id = Column(Integer, primary_key=True)
     course_id = Column(Integer, ForeignKey('courses.id'))
     courses = relationship(Course, backref=backref('presentedCourse', cascade="all,delete"))
+
+    year = Column(String, nullable=False)
+    semester = Column(Enum(Semester), nullable=False)
 
     class_name = Column(String)
     time_final_exam = Column(String)
@@ -257,7 +261,6 @@ class Supervisor(Base):
     cross_section = Column(String, nullable=False)
     orientation = Column(String, nullable=False)
 
-
     email = Column(String, ForeignKey('professors.email'), nullable=False)
     professor = relationship('Professor', backref=backref('supervisors'))
     # students = relationship(Student, backref=backref('supervisor'))
@@ -330,6 +333,16 @@ class Ticket(Base):
 
     sender = Column(String, ForeignKey('users.username'))
     user = relationship(User, backref=backref('ticket'))
+    exact_time_create = Column(String, default=str(jdatetime.date.today()))
+    year_create = Column(String, default=str(jdatetime.date.today().year))
+    month = jdatetime.date.today().month
+    if 6 <= month < 10:
+        semester = Semester(1)
+    elif 10 <= month < 2:
+        semester = Semester(2)
+    else:
+        semester = Semester(3)
+    semester_create = Column(Enum(Semester), default=semester)
 
 
 class Step(Base):
@@ -342,7 +355,7 @@ class Step(Base):
 
     attach_file = Column(String)
     message = Column(String)
-    status_step = Column(Enum(StatusStep), default=StatusStep.Unread)
+    status_step = Column(Enum(StatusStep), default=StatusStep(1))
 
     parent_id = Column(Integer, ForeignKey('step.id'))
     parent_step = relationship('Step', backref=backref('step', remote_side=[id]))

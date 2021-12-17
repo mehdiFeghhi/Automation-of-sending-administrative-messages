@@ -4,12 +4,14 @@ from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import hashlib
+import jdatetime
 
 from model.modelDB import User, Student, Advisor, Professor, Supervisor, DepartmentHead, EducationAssistant, \
-    ResponsibleTraining, Chart, Course, Orientation, ChartLinkCourse, PreCourseLinkCourse, NeedCourseLinkCourse
+    ResponsibleTraining, Chart, Course, Orientation, ChartLinkCourse, PreCourseLinkCourse, NeedCourseLinkCourse, \
+    PresentedCourse, Semester, ProfessorLinkPresentedCourse
 
-file_path = os.path.abspath(os.getcwd())+"/sample.db"
-engine = create_engine('sqlite:///'+file_path, echo=True)
+file_path = os.path.abspath(os.getcwd()) + "/sample.db"
+engine = create_engine('sqlite:///' + file_path, echo=True)
 
 Session = sessionmaker(bind=engine)
 
@@ -97,6 +99,7 @@ def add_item_to_db():
                                firs_name='zohreh',
                                last_name='azimifar')
     professor_four = Professor(email=user_professor_four.username)
+
     advisor_one_professor_four = Advisor(cross_section='masters', orientation="computer", email=professor_four.email,
                                          time_enter_student='1398')
     advisor_two_professor_four = Advisor(cross_section='Senior', orientation="artificialIntelligence",
@@ -106,6 +109,11 @@ def add_item_to_db():
     supervisor_one_professor_four = Supervisor(cross_section='Senior', orientation="artificialIntelligence",
                                                email=professor_four.email
                                                )
+    user_professor_five = User(username='Tohidi@gmail.com', password=str(hashlib.sha256("python".encode()).hexdigest()),
+                               firs_name='Ahmad',
+                               last_name='Tohidi')
+    professor_five = Professor(email=user_professor_five.username)
+
     user_ResponsibleTraining_one = User(username='Parsain', password=str(hashlib.sha256("4231".encode()).hexdigest()),
                                         firs_name='zahra',
                                         last_name='parsain')
@@ -120,11 +128,11 @@ def add_item_to_db():
 
     session.add_all([
         user_student_one, user_student_two, user_student_three, user_student_four, user_student_five,
-        user_professor_one, user_professor_two,
+        user_professor_one, user_professor_two,user_professor_five,
         user_professor_three, user_professor_four, user_ResponsibleTraining_one, user_educationAssistant_one
     ])
     session.add_all([student_one, student_tow, student_three, student_four, student_five, student_six])
-    session.add_all([professor_one, professor_two, professor_three, professor_four])
+    session.add_all([professor_one, professor_two, professor_three, professor_four, professor_five])
     session.add_all([advisor_one_professor_one, advisor_one_professor_three, advisor_two_professor_three,
                      advisor_one_professor_four, advisor_two_professor_four])
     session.add_all([supervisor_one_professor_four, supervisor_one_professor_three, supervisor_one_professor_two])
@@ -235,6 +243,18 @@ def add_item_to_db():
                      chartLinkCourse_10, chartLinkCourse_11, chartLinkCourse_12, chartLinkCourse_13,
                      chartLinkCourse_14])
 
+    presentedCourse_one = PresentedCourse(course_id=7, year='1400', semester=Semester(1), class_name='صدری ۲',
+                                          time_final_exam=str(jdatetime.date(1400, 10, 15)))
+    professorLinkPresentedCourse_one = ProfessorLinkPresentedCourse(professor_email=professor_five.email,
+                                                                    presentedCourse=1)
+
+    presentedCourse_two = PresentedCourse(course_id=4, year='1400', semester=Semester(1), class_name='ICT',
+                                          time_final_exam=str(jdatetime.date(1400, 10, 17)))
+    professorLinkPresentedCourse_two = ProfessorLinkPresentedCourse(professor_email=professor_one.email,
+                                                                    presentedCourse=7)
+
+    session.add_all([presentedCourse_one, presentedCourse_two])
+    session.add_all([professorLinkPresentedCourse_one, professorLinkPresentedCourse_two])
     session.commit()
     # student_student_one = Student(student_number='9732527',)
 
