@@ -209,6 +209,9 @@ class Student(Base):
     cross_section = Column(String, nullable=False)
     orientation = Column(String, nullable=False)
 
+    adviser_id = Column(Integer, ForeignKey('advisor.id'))
+    adviser = relationship('Advisor', backref=backref('students'))
+
     supervisor_id = Column(Integer, ForeignKey('supervisors.id'))
     supervisor = relationship('Supervisor', backref=backref('students'))
 
@@ -350,6 +353,7 @@ class Step(Base):
     __tablename__ = 'step'
 
     id = Column(Integer, primary_key=True)
+
     receiver_id = Column(String, ForeignKey('users.username'), nullable=False)
     user = relationship(User, backref=backref('step'))
 

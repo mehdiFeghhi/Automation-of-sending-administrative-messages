@@ -3,8 +3,10 @@ from flask import Flask, jsonify, request, send_file
 from flask_jwt_extended import (JWTManager, create_access_token, get_jwt_identity, jwt_required)
 from flask_cors import CORS
 
+from handler.model.modelDB import StatusStep
 from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
-    master_course_request, course_from_another_orientation, exam_time_change, normal_ticket
+    master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
+    update_ticket_user
 from handler.user_handler import find_user_by_username_and_password
 
 app = Flask(__name__)
@@ -34,7 +36,7 @@ def login():
             return jsonify(response), 200
         else:
             # print(response)
-            return jsonify(response), 403
+            return jsonify(response), 204
     except Exception as ex:
         # print(ex)
         return jsonify(status='ERROR', message='مشکلی رخ داده هست'), 400
@@ -112,12 +114,48 @@ def create_ticket():
 
         course_id = params.get('course_id')
         url = params.get('url')
-        response = normal_ticket(user_id, receiver_id,subject,description, course_id, url)
+        response = normal_ticket(user_id, receiver_id, subject, description, course_id, url)
 
     if response.get('Status') == 'OK':
         return jsonify(response), 201
     else:
-        return jsonify(response), 500
+        return jsonify(response), 204
+
+
+@app.route('/step-ticket', methods=['DELETE', 'PUT'])
+@jwt_required()
+def work_with_step_ticket():
+    try:
+        user_id = get_jwt_identity()
+        print(user_id)
+        params = request.get_json()
+        id_ticket = params['id_ticket']
+    except Exception as ex:
+        print(ex)
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+    if request.method == 'DELETE':
+        response = delete_ticket_user(user_id, id_ticket)
+        if response.get('Status') == 'OK':
+            return jsonify(response), 200
+        else:
+            return jsonify(response), 204
+
+    else:
+        try:
+            step_fr = params['step']
+            step_number = ['read', 'accept', 'reject'].index(step_fr) + 1
+            step = StatusStep(step_number)
+            massage = params['massage']
+            url = params.get('url')
+        except Exception as ex:
+            print(ex)
+            return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+        response = update_ticket_user(user_id, id_ticket, step, massage, url)
+        if response.get('Status') == 'OK':
+            return jsonify(response), 200
+        else:
+            return jsonify(response), 204
 
 
 if __name__ == '__main__':
