@@ -8,6 +8,7 @@ from handler.ticket_handler import capacity_incresessase_by_student, lessons_fro
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
     update_ticket_user
 from handler.user_handler import find_user_by_username_and_password
+from handler.course_handler import get_course_list
 
 app = Flask(__name__)
 CORS(app, resources={r"*": {"origins": "*"}})
@@ -156,6 +157,18 @@ def work_with_step_ticket():
             return jsonify(response), 200
         else:
             return jsonify(response), 204
+
+@app.route('/get-courses', methods=['GET'])
+def get_courses():
+    try:
+        # print(get_cosurse_list())
+        return jsonify(get_course_list()), 200
+        
+    except Exception as ex:
+        print(ex)
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+    
 
 
 if __name__ == '__main__':
