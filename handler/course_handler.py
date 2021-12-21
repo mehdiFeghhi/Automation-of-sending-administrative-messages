@@ -12,9 +12,9 @@ def get_course_list():
     orient_list = []
     # print(course.orientation)
     for orient in session.query(Orientation).filter(Orientation.id == course.orientation_id).all():
-      orient_list.append({"id_course": course.id, "name_orientation ": orient.name})
+      orient_list.append({"id_course": course.id, "name_orientation": orient.name})
 
-    course_info = {"course": course.name, "list_ orientation": orient_list}
+    course_info = {"course": course.name, "list_orientation": orient_list}
     res.append(course_info)
 
   return res
