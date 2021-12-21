@@ -380,14 +380,16 @@ def delete_ticket_user(user_id, ticket_id, ):
     else:
         session.query(Step).filter(Step.ticket_id == ticket_id).update(
             {Step.status_step: StatusStep(6)})
+        session.commit()
         return {'Status': "OK"}
 
 
 def department_accept(step_one):
     next_receiver_Department_head = session.query(DepartmentHead).filter(
         DepartmentHead.date_end_duty.is_(None)).first()
-    next_step = Step(receiver_id=next_receiver_Department_head.id,
-                     parent_id=step_one.id)
+    next_step = Step(receiver_id=next_receiver_Department_head.user.username,
+                     parent_id=step_one.id,
+                     ticket_id=step_one.ticket_id)
 
     session.add(next_step)
     session.commit()
@@ -397,8 +399,9 @@ def education_assistant_accept(step_one):
     next_receiver_educationAssistant = session.query(EducationAssistant).filter(
         EducationAssistant.date_end_duty.is_(None)).first()
 
-    next_step = Step(receiver_id=next_receiver_educationAssistant.id,
-                     parent_id=step_one.id)
+    next_step = Step(receiver_id=next_receiver_educationAssistant.user.username,
+                     parent_id=step_one.id,
+                     ticket_id=step_one.ticket_id)
 
     session.add(next_step)
     session.commit()
@@ -412,8 +415,9 @@ def professor_accept(step_one, ticket):
              PresentedCourse.year == year)
     ).first().professors[0]
 
-    next_step = Step(receiver_id=next_receiver_professor.id,
-                     parent_id=step_one.id)
+    next_step = Step(receiver_id=next_receiver_professor.user.username,
+                     parent_id=step_one.id,
+                     ticket_id=step_one.ticket_id)
 
     session.add(next_step)
     session.commit()
@@ -424,8 +428,9 @@ def advisor_accept(step_one, ticket):
         Student.student_number == ticket.user.username
     ).first()
     next_receiver_advisor = student_user.adviser
-    next_step = Step(receiver_id=next_receiver_advisor.id,
-                     parent_id=step_one.id)
+    next_step = Step(receiver_id=next_receiver_advisor.user.username,
+                     parent_id=step_one.id,
+                     ticket_id=step_one.ticket_id)
 
     session.add(next_step)
     session.commit()
@@ -436,8 +441,9 @@ def supervisor_accept(step_one, ticket):
         Student.student_number == ticket.user.username
     ).first()
     next_receiver_supervisor = student_user.supervisor
-    next_step = Step(receiver_id=next_receiver_supervisor.id,
-                     parent_id=step_one.id)
+    next_step = Step(receiver_id=next_receiver_supervisor.user.username,
+                     parent_id=step_one.id,
+                     ticket_id=step_one.ticket_id)
 
     session.add(next_step)
     session.commit()
@@ -445,15 +451,14 @@ def supervisor_accept(step_one, ticket):
 
 def update_ticket_user(user_id, ticket_id, step, massage, url):
     steps_of_user = session.query(Step).filter(and_(Step.ticket_id == ticket_id, Step.receiver_id == user_id,
-                                                    or_(Step.status_step == StatusStep(0),
-                                                        Step.status_step == StatusStep(1)))).all()
+                                                    or_(Step.status_step == StatusStep(1),
+                                                        Step.status_step == StatusStep(2)))).all()
 
-    ticket = session.query(Ticket).fitler(Ticket.id == ticket_id)
-
+    ticket = session.query(Ticket).filter(Ticket.id == ticket_id).first()
     if len(steps_of_user) != 1:
         return {'Status': "ERROR", 'error': "there is a problem about step."}
     step_one = steps_of_user[0]
-    step_one.status_step = step_one
+    step_one.status_step = step
     if massage is not None:
         step_one.message = massage
     if url is not None:
