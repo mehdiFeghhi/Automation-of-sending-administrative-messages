@@ -119,7 +119,7 @@ def create_ticket():
     if response.get('Status') == 'OK':
         return jsonify(response), 201
     else:
-        return jsonify(response), 204
+        return jsonify(response), 400
 
 
 @app.route('/step-ticket', methods=['DELETE', 'PUT'])
@@ -144,18 +144,18 @@ def work_with_step_ticket():
     else:
         try:
             step_fr = params['step']
-            step_number = ['read', 'accept', 'reject'].index(step_fr) + 1
+            step_number = ['read', 'accept', 'reject'].index(step_fr) + 2
             step = StatusStep(step_number)
             massage = params['massage']
             url = params.get('url')
         except Exception as ex:
             print(ex)
-            return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+            return jsonify(status='ERROR', message='داده ارسالی اشتباه است 2'), 400
         response = update_ticket_user(user_id, id_ticket, step, massage, url)
         if response.get('Status') == 'OK':
             return jsonify(response), 200
         else:
-            return jsonify(response), 204
+            return jsonify(response), 400
 
 
 if __name__ == '__main__':
