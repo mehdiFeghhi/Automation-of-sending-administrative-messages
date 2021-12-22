@@ -1,5 +1,5 @@
 from sqlalchemy import and_, or_
-
+from sqlalchemy import asc
 from handler.model.modelDB import Student, Course, Professor, PresentedCourse, Semester, PreCourseLinkCourse, \
     ProfessorLinkPresentedCourse, Ticket, Step, EducationAssistant, User, StatusStep, DepartmentHead, Advisor
 from handler.connect_db import session
@@ -530,3 +530,97 @@ def update_ticket_user(user_id, ticket_id, step, massage, url):
                 session.commit()
 
     return {'Status': "OK"}
+
+def get_procedure_steps(procedure):
+    if(procedure == 'lessons_from_another_section'):
+        return  {
+            0:"دانشجو",
+            1:"مسئول آموزش",
+            2:"معاونت آموزشی",
+            3:"رئیس بخش",
+            4:"مسئول آموزش"
+        }
+    elif(procedure == 'capacity_increase'):
+        return  {
+            0:"دانشجو",
+            1:"مسئول آموزش",
+            2:"استاد درس",
+            3:"رئیس بخش",
+            4:"مسئول آموزش"
+        }
+    elif(procedure == 'class_change_time'):
+        return  {
+            0:"دانشجو",
+            1:"مسئول آموزش",
+            2:"استاد درس",
+            3:"مسئول آموزش"
+        }
+    elif(procedure == 'exam_time_change'):
+        return  {
+            0:"دانشجو",
+            1:"مسئول آموزش",
+            2:"استاد درس",
+            3:"مسئول آموزش"
+        }
+    elif(procedure == 'master_course_request'):
+        return  {
+            0:"دانشجو",
+            1:"مسئول آموزش",
+            2:"استاد مشاور",
+            3:"استاد درس",
+            4:"رئیس بخش",
+            4:"مسئول آموزش"
+        }
+    elif(procedure == 'course_from_another_orientation'):
+        return  {
+            0:"دانشجو",
+            1:"مسئول آموزش",
+            2:"استاد راهنما",
+            3:"استاد درس",
+            4:"رئیس بخش",
+            5:"مسئول آموزش"
+        }
+
+
+def get_tickets_handler(user_id):
+    response = []
+    sent_tickets = session.query(Ticket).filter(Ticket.sender == user_id).all()
+    received_tickets = session.query(Step).filter(Step.receiver_id == user_id).all()
+    for ticket in sent_tickets:
+        all_steps = get_procedure_steps(ticket.topic)
+        steps = session.query(Step).filter(Step.ticket_id == ticket.id).order_by(asc(Step.id)).all()
+        step_num = 0
+        for step in steps:
+            step_num += 1
+            descriptions = {step_num: step.message,
+                            # "status": step.status_step
+                            }
+        response.append({"id": ticket.id,
+                         "message": ticket.message,
+                         "type_ticket": ticket.topic,
+                         "created_date": ticket.exact_time_create,
+                         "descriptions": descriptions,
+                         "current_step": {step_num: steps[-1].message},
+                         "all_steps": all_steps})
+
+    for step in received_tickets:
+        ticket_id = step.ticket_id
+        parent_ticket = session.query(Ticket).filter(Ticket.id == ticket_id).first()
+        all_steps = get_procedure_steps(parent_ticket.topic)
+
+        rest_steps = session.query(Step).filter(Step.ticket_id == ticket_id).order_by(asc(Step.id)).all()
+        step_num = 0
+        for step in rest_steps:
+            step_num += 1
+            descriptions = {step_num: step.message,
+                            # "status": step.status_step
+                            }
+
+        response.append({"id": ticket_id,
+                         "message": parent_ticket.message,
+                         "type_ticket": parent_ticket.topic,
+                         "created_date": parent_ticket.exact_time_create,
+                         "descriptions": descriptions,
+                         "current_step": {step_num: rest_steps[-1].message},
+                         "all_steps": all_steps})
+    return response
