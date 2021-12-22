@@ -340,9 +340,9 @@ class Ticket(Base):
     exact_time_create = Column(String, default=str(jdatetime.date.today()))
     year_create = Column(String, default=str(jdatetime.date.today().year))
     month = jdatetime.date.today().month
-    if 6 <= month < 10:
+    if 6 <= month < 11:
         semester = Semester(1)
-    elif 10 <= month < 2:
+    elif 11 <= month < 2:
         semester = Semester(2)
     else:
         semester = Semester(3)
