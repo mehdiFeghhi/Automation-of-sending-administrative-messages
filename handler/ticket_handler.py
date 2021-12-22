@@ -22,7 +22,7 @@ def give_year_mount():
 
     if 6 <= month < 11:
         semester = Semester(1)
-    elif 10 <= month < 2:
+    elif 11 <= month < 2:
         semester = Semester(2)
     else:
         semester = Semester(3)
