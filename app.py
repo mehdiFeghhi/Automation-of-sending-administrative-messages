@@ -50,7 +50,7 @@ def create_ticket():
         user_id = get_jwt_identity()
         print(user_id)
         params = request.get_json()
-        receiver_id = params['receiver_id']
+        receiver_id = params.get('receiver_id')
         description = params['description']
         subject = str(params['subject'])
     except Exception as ex:

@@ -118,10 +118,12 @@ def lessons_from_another_section(user_id, receiver_id, description, url):
         semester = Semester(3)
 
     student = session.query(Student).filter(Student.student_number == user_id).first()
+    #
+    # educationAssistant = session.query(EducationAssistant).filter(and_(EducationAssistant.username == receiver_id,
+    #                                                                    EducationAssistant.date_end_duty.is_(
+    #                                                                        None))).first()
+    educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(None)).first()
 
-    educationAssistant = session.query(EducationAssistant).filter(and_(EducationAssistant.username == receiver_id,
-                                                                       EducationAssistant.date_end_duty.is_(
-                                                                           None))).first()
     flag = is_this_ticket_is_exist_or_finish_two('lessons_from_another_section', year, semester)
 
     if student is None:
@@ -134,7 +136,7 @@ def lessons_from_another_section(user_id, receiver_id, description, url):
         return {'Status': "ERROR", 'error': "you give this request before please be calm."}
 
     ticket = Ticket(sender=user_id, topic='lessons_from_another_section', message=description, attach_file=url)
-    step = Step(receiver_id=receiver_id)
+    step = Step(receiver_id=educationAssistant.username)
     step.ticket = ticket
     session.add(step)
     session.commit()
@@ -161,9 +163,12 @@ def class_change_time(user_id, receiver_id, description, course_id):
     student = session.query(Student).filter(Student.student_number == user_id).first()
     course = session.query(Course).filter(Course.id == course_id).first()
 
-    educationAssistant = session.query(EducationAssistant).filter(and_(EducationAssistant.username == receiver_id,
-                                                                       EducationAssistant.date_end_duty.is_(
-                                                                           None))).first()
+    # educationAssistant = session.query(EducationAssistant).filter(and_(EducationAssistant.username == receiver_id,
+    #                                                                    EducationAssistant.date_end_duty.is_(
+    #                                                                        None))).first()
+    educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(
+                                                                           None)).first()
+
     if student is None:
         return {'Status': "ERROR", 'error': "this user isn't student."}
     elif course is None:
@@ -182,7 +187,7 @@ def class_change_time(user_id, receiver_id, description, course_id):
         return {'Status': "ERROR", 'error': "you give this request before please be calm."}
 
     ticket = Ticket(sender=user_id, topic='class_change_time', message=description, course_relation=course_id)
-    step = Step(receiver_id=receiver_id)
+    step = Step(receiver_id=educationAssistant.username)
     step.ticket = ticket
     session.add(step)
     session.commit()
