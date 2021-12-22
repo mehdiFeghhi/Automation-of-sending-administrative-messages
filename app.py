@@ -6,7 +6,7 @@ from flask_cors import CORS
 from handler.model.modelDB import StatusStep
 from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
-    update_ticket_user
+    update_ticket_user, get_tickets_handler
 from handler.user_handler import find_user_by_username_and_password
 from handler.course_handler import get_course_list
 
@@ -66,7 +66,7 @@ def create_ticket():
 
         response = capacity_incresessase_by_student(user_id, receiver_id, description, course_id)
 
-    elif subject == 'lessons_fromnother_section':
+    elif subject == 'lessons_from_another_section':
         # try:
         #     course_id = params['course_id']
         #     url = params.get('url')
@@ -168,7 +168,11 @@ def get_courses():
         print(ex)
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
-    
+@app.route('/get-tickets', methods=['GET'])
+@jwt_required()
+def get_tickets():
+    user_id = get_jwt_identity()
+    return jsonify(get_tickets_handler(user_id))
 
 
 if __name__ == '__main__':
