@@ -67,26 +67,25 @@ def capacity_incresessase_by_student(user_id, receiver_id, description, course_i
     student = session.query(Student).filter(Student.student_number == user_id).first()
     course = session.query(Course).filter(Course.id == course_id).first()
 
-    professor = session.query(Professor).filter(Professor.email == receiver_id).first()
+    # professor = session.query(Professor).filter(Professor.email == receiver_id).first()
 
     if student is None:
         return {'Status': "ERROR", 'error': "this user isn't student."}
     elif course is None:
         return {'Status': "ERROR", 'error': "this course wasn't found."}
-    elif professor is None:
-        return {'Status': "ERROR", 'error': "this professor isn't exist."}
+    # elif professor is None:
+    #     return {'Status': "ERROR", 'error': "this professor isn't exist."}
     presentedCourse = session.query(PresentedCourse).filter(and_(PresentedCourse.course_id == course_id,
                                                                  PresentedCourse.year == year,
                                                                  PresentedCourse.semester == semester)).first()
     if presentedCourse is None:
         return {'Status': "ERROR", 'error': "this course haven't any present Course in this semester."}
 
-    preCourseLinkCourse = session.query(ProfessorLinkPresentedCourse).filter(
-        and_(ProfessorLinkPresentedCourse.professor_email == professor.email,
-             ProfessorLinkPresentedCourse.presentedCourse == presentedCourse.id)).first()
-
-    if preCourseLinkCourse is None:
+    professorLinkPresentedCourse1 = session.query(ProfessorLinkPresentedCourse).filter(
+        ProfessorLinkPresentedCourse.presentedCourse == presentedCourse.id).first()
+    if professorLinkPresentedCourse1 is None:
         return {'Status': "ERROR", 'error': "this professor haven't this course."}
+    professor_email = professorLinkPresentedCourse1.professor_email
 
     flag = is_this_ticket_is_exist_or_finish(topic='capacity_increase', course_relation=course_id, year=year,
                                              semester=semester)
@@ -94,7 +93,7 @@ def capacity_incresessase_by_student(user_id, receiver_id, description, course_i
         return {'Status': "ERROR", 'error': "you give this request before please be calm."}
 
     ticket = Ticket(sender=user_id, topic='capacity_increase', message=description, course_relation=course_id)
-    step = Step(receiver_id=receiver_id)
+    step = Step(receiver_id=professor_email)
     step.ticket = ticket
     session.add(step)
     session.commit()
@@ -167,7 +166,7 @@ def class_change_time(user_id, receiver_id, description, course_id):
     #                                                                    EducationAssistant.date_end_duty.is_(
     #                                                                        None))).first()
     educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(
-                                                                           None)).first()
+        None)).first()
 
     if student is None:
         return {'Status': "ERROR", 'error': "this user isn't student."}
@@ -213,9 +212,8 @@ def exam_time_change(user_id, receiver_id, description, course_id):
     student = session.query(Student).filter(Student.student_number == user_id).first()
     course = session.query(Course).filter(Course.id == course_id).first()
 
-    educationAssistant = session.query(EducationAssistant).filter(and_(EducationAssistant.username == receiver_id,
-                                                                       EducationAssistant.date_end_duty.is_(
-                                                                           None))).first()
+    educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(None)).first()
+
     if student is None:
         return {'Status': "ERROR", 'error': "this user isn't student."}
     elif course is None:
@@ -234,7 +232,7 @@ def exam_time_change(user_id, receiver_id, description, course_id):
         return {'Status': "ERROR", 'error': "you give this request before please be calm."}
 
     ticket = Ticket(sender=user_id, topic='exam_time_change', message=description, course_relation=course_id)
-    step = Step(receiver_id=receiver_id)
+    step = Step(receiver_id=educationAssistant.username)
     step.ticket = ticket
     session.add(step)
     session.commit()
@@ -261,9 +259,8 @@ def master_course_request(user_id, receiver_id, description, course_id):
     student = session.query(Student).filter(Student.student_number == user_id).first()
     course = session.query(Course).filter(Course.id == course_id).first()
 
-    educationAssistant = session.query(EducationAssistant).filter(and_(EducationAssistant.username == receiver_id,
-                                                                       EducationAssistant.date_end_duty.is_(
-                                                                           None))).first()
+    educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(
+                                                                           None)).first()
     if student is None:
         return {'Status': "ERROR", 'error': "this user isn't student."}
     elif student.cross_section != 'masters':
@@ -287,7 +284,7 @@ def master_course_request(user_id, receiver_id, description, course_id):
         return {'Status': "ERROR", 'error': "you give this request before please be calm."}
 
     ticket = Ticket(sender=user_id, topic='master_course_request', message=description, course_relation=course_id)
-    step = Step(receiver_id=receiver_id)
+    step = Step(receiver_id=educationAssistant.username)
     step.ticket = ticket
     session.add(step)
     session.commit()
@@ -315,9 +312,12 @@ def course_from_another_orientation(user_id, receiver_id, description, course_id
     student = session.query(Student).filter(Student.student_number == user_id).first()
     course = session.query(Course).filter(Course.id == course_id).first()
 
-    educationAssistant = session.query(EducationAssistant).filter(and_(EducationAssistant.username == receiver_id,
-                                                                       EducationAssistant.date_end_duty.is_(
-                                                                           None))).first()
+    # educationAssistant = session.query(EducationAssistant).filter(and_(EducationAssistant.username == receiver_id,
+    #                                                                    EducationAssistant.date_end_duty.is_(
+    #                                                                        None))).first()
+    educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(
+                                                                           None)).first()
+
     if student is None:
         return {'Status': "ERROR", 'error': "this user isn't student."}
     elif student.cross_section != 'senior':
@@ -344,7 +344,7 @@ def course_from_another_orientation(user_id, receiver_id, description, course_id
 
     ticket = Ticket(sender=user_id, topic='course_from_another_orientation', message=description,
                     course_relation=course_id)
-    step = Step(receiver_id=receiver_id)
+    step = Step(receiver_id=educationAssistant.username)
     step.ticket = ticket
     session.add(step)
     session.commit()
@@ -541,54 +541,55 @@ def update_ticket_user(user_id, ticket_id, step, massage, url):
 
     return {'Status': "OK"}
 
+
 def get_procedure_steps(procedure):
-    if(procedure == 'lessons_from_another_section'):
-        return  {
-            0:"دانشجو",
-            1:"مسئول آموزش",
-            2:"معاونت آموزشی",
-            3:"رئیس بخش",
-            4:"مسئول آموزش"
+    if (procedure == 'lessons_from_another_section'):
+        return {
+            0: "دانشجو",
+            1: "مسئول آموزش",
+            2: "معاونت آموزشی",
+            3: "رئیس بخش",
+            4: "مسئول آموزش"
         }
-    elif(procedure == 'capacity_increase'):
-        return  {
-            0:"دانشجو",
-            1:"مسئول آموزش",
-            2:"استاد درس",
-            3:"رئیس بخش",
-            4:"مسئول آموزش"
+    elif (procedure == 'capacity_increase'):
+        return {
+            0: "دانشجو",
+            1: "مسئول آموزش",
+            2: "استاد درس",
+            3: "رئیس بخش",
+            4: "مسئول آموزش"
         }
-    elif(procedure == 'class_change_time'):
-        return  {
-            0:"دانشجو",
-            1:"مسئول آموزش",
-            2:"استاد درس",
-            3:"مسئول آموزش"
+    elif (procedure == 'class_change_time'):
+        return {
+            0: "دانشجو",
+            1: "مسئول آموزش",
+            2: "استاد درس",
+            3: "مسئول آموزش"
         }
-    elif(procedure == 'exam_time_change'):
-        return  {
-            0:"دانشجو",
-            1:"مسئول آموزش",
-            2:"استاد درس",
-            3:"مسئول آموزش"
+    elif (procedure == 'exam_time_change'):
+        return {
+            0: "دانشجو",
+            1: "مسئول آموزش",
+            2: "استاد درس",
+            3: "مسئول آموزش"
         }
-    elif(procedure == 'master_course_request'):
-        return  {
-            0:"دانشجو",
-            1:"مسئول آموزش",
-            2:"استاد مشاور",
-            3:"استاد درس",
-            4:"رئیس بخش",
-            4:"مسئول آموزش"
+    elif (procedure == 'master_course_request'):
+        return {
+            0: "دانشجو",
+            1: "مسئول آموزش",
+            2: "استاد مشاور",
+            3: "استاد درس",
+            4: "رئیس بخش",
+            4: "مسئول آموزش"
         }
-    elif(procedure == 'course_from_another_orientation'):
-        return  {
-            0:"دانشجو",
-            1:"مسئول آموزش",
-            2:"استاد راهنما",
-            3:"استاد درس",
-            4:"رئیس بخش",
-            5:"مسئول آموزش"
+    elif (procedure == 'course_from_another_orientation'):
+        return {
+            0: "دانشجو",
+            1: "مسئول آموزش",
+            2: "استاد راهنما",
+            3: "استاد درس",
+            4: "رئیس بخش",
+            5: "مسئول آموزش"
         }
 
 
