@@ -107,3 +107,19 @@ def find_user_by_username_and_password(user_name: str, password: str):
                                          'role': role}}
     else:
         raise "User model in db work wrong"
+
+
+def find_user_by_user_id(user_id: str):
+    result = session.query(User).filter(User.username == user_id).all()
+    if len(result) == 0:
+        return {'status': 'ERROR'}
+    elif len(result) == 1:
+        user = result[0]
+        role, main_role = find_main_role_of_person_information(user)
+        return {'Status': "OK", "user": {'username': user.username, 'first_name': user.firs_name
+            , 'last_name': user.last_name, 'picture_file_address': user.picture_file_address,
+                                         'birthday': user.birthday, 'email_show_all': user.email_show_all,
+                                         "main_role": main_role,
+                                         'role': role}}
+    else:
+        raise "User model in db work wrong"

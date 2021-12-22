@@ -7,7 +7,7 @@ from handler.model.modelDB import StatusStep
 from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
     update_ticket_user, get_tickets_handler
-from handler.user_handler import find_user_by_username_and_password
+from handler.user_handler import find_user_by_username_and_password, find_user_by_user_id
 from handler.course_handler import get_course_list
 
 app = Flask(__name__)
@@ -41,6 +41,17 @@ def login():
     except Exception as ex:
         # print(ex)
         return jsonify(status='ERROR', message='مشکلی رخ داده هست'), 400
+
+
+@app.route('/is-authentication', methods=['POST'])
+@jwt_required()
+def is_authentication_this_user():
+    try:
+        user_id = get_jwt_identity()
+        response = find_user_by_user_id(user_id)
+        return jsonify(response), 200
+    except Exception as ex:
+        return jsonify(status='ERROR', message='همچین توکنی وجود ندارد'), 400
 
 
 @app.route('/create-ticket', methods=['POST'])
@@ -158,15 +169,17 @@ def work_with_step_ticket():
         else:
             return jsonify(response), 400
 
+
 @app.route('/get-courses', methods=['GET'])
 def get_courses():
     try:
         # print(get_cosurse_list())
         return jsonify(get_course_list()), 200
-        
+
     except Exception as ex:
         print(ex)
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
 
 @app.route('/get-tickets', methods=['GET'])
 @jwt_required()

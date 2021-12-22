@@ -57,7 +57,7 @@ def capacity_incresessase_by_student(user_id, receiver_id, description, course_i
     year = str(jdatetime.date.today().year)
     month = jdatetime.date.today().month
 
-    if 6 <= month < 10:
+    if 6 <= month < 11:
         semester = Semester(1)
     elif 10 <= month < 2:
         semester = Semester(2)
