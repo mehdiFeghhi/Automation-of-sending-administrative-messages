@@ -20,7 +20,7 @@ def give_year_mount():
     year = str(jdatetime.date.today().year)
     month = jdatetime.date.today().month
 
-    if 6 <= month < 10:
+    if 6 <= month < 11:
         semester = Semester(1)
     elif 10 <= month < 2:
         semester = Semester(2)
@@ -54,16 +54,7 @@ def capacity_incresessase_by_student(user_id, receiver_id, description, course_i
     print(receiver_id)
     print(description)
     print(course_id)
-    year = str(jdatetime.date.today().year)
-    month = jdatetime.date.today().month
-
-    if 6 <= month < 11:
-        semester = Semester(1)
-    elif 10 <= month < 2:
-        semester = Semester(2)
-    else:
-        semester = Semester(3)
-
+    year, semester = give_year_mount()
     student = session.query(Student).filter(Student.student_number == user_id).first()
     course = session.query(Course).filter(Course.id == course_id).first()
 
@@ -106,15 +97,8 @@ def lessons_from_another_section(user_id, receiver_id, description, url):
     print(receiver_id)
     print(description)
 
-    year = str(jdatetime.date.today().year)
-    month = jdatetime.date.today().month
 
-    if 6 <= month < 10:
-        semester = Semester(1)
-    elif 10 <= month < 2:
-        semester = Semester(2)
-    else:
-        semester = Semester(3)
+    year, semester = give_year_mount()
 
     student = session.query(Student).filter(Student.student_number == user_id).first()
     #
@@ -149,15 +133,8 @@ def class_change_time(user_id, receiver_id, description, course_id):
     print(receiver_id)
     print(description)
     print(course_id)
-    year = str(jdatetime.date.today().year)
-    month = jdatetime.date.today().month
 
-    if 6 <= month < 10:
-        semester = Semester(1)
-    elif 10 <= month < 2:
-        semester = Semester(2)
-    else:
-        semester = Semester(3)
+    year, semester = give_year_mount()
 
     student = session.query(Student).filter(Student.student_number == user_id).first()
     course = session.query(Course).filter(Course.id == course_id).first()
@@ -199,15 +176,7 @@ def exam_time_change(user_id, receiver_id, description, course_id):
     print(receiver_id)
     print(description)
     print(course_id)
-    year = str(jdatetime.date.today().year)
-    month = jdatetime.date.today().month
-
-    if 6 <= month < 10:
-        semester = Semester(1)
-    elif 10 <= month < 2:
-        semester = Semester(2)
-    else:
-        semester = Semester(3)
+    year, semester = give_year_mount()
 
     student = session.query(Student).filter(Student.student_number == user_id).first()
     course = session.query(Course).filter(Course.id == course_id).first()
@@ -246,21 +215,13 @@ def master_course_request(user_id, receiver_id, description, course_id):
     print(description)
     print(course_id)
 
-    year = str(jdatetime.date.today().year)
-    month = jdatetime.date.today().month
-
-    if 6 <= month < 10:
-        semester = Semester(1)
-    elif 10 <= month < 2:
-        semester = Semester(2)
-    else:
-        semester = Semester(3)
+    year, semester = give_year_mount()
 
     student = session.query(Student).filter(Student.student_number == user_id).first()
     course = session.query(Course).filter(Course.id == course_id).first()
 
     educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(
-                                                                           None)).first()
+        None)).first()
     if student is None:
         return {'Status': "ERROR", 'error': "this user isn't student."}
     elif student.cross_section != 'masters':
@@ -298,16 +259,7 @@ def course_from_another_orientation(user_id, receiver_id, description, course_id
     print(receiver_id)
     print(description)
     print(course_id)
-
-    year = str(jdatetime.date.today().year)
-    month = jdatetime.date.today().month
-
-    if 6 <= month < 10:
-        semester = Semester(1)
-    elif 10 <= month < 2:
-        semester = Semester(2)
-    else:
-        semester = Semester(3)
+    year, semester = give_year_mount()
 
     student = session.query(Student).filter(Student.student_number == user_id).first()
     course = session.query(Course).filter(Course.id == course_id).first()
@@ -316,7 +268,7 @@ def course_from_another_orientation(user_id, receiver_id, description, course_id
     #                                                                    EducationAssistant.date_end_duty.is_(
     #                                                                        None))).first()
     educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(
-                                                                           None)).first()
+        None)).first()
 
     if student is None:
         return {'Status': "ERROR", 'error': "this user isn't student."}
