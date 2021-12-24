@@ -552,6 +552,7 @@ def get_tickets_handler(user_id):
     for ticket in sent_tickets:
         all_steps = get_procedure_steps(ticket.topic)
         steps = session.query(Step).filter(Step.ticket_id == ticket.id).order_by(asc(Step.id)).all()
+        sender = session.query(User).filter(User.username == ticket.sender).first()
         step_num = 0
         for step in steps:
             step_num += 1
@@ -559,6 +560,9 @@ def get_tickets_handler(user_id):
                             # "status": step.status_step
                             }
         response.append({"id": ticket.id,
+                         "sender_id": sender.username,
+                         "sender_fname": sender.firs_name,
+                         "sender_lname": sender.last_name,
                          "message": ticket.message,
                          "type_ticket": ticket.topic,
                          "created_date": ticket.exact_time_create,
@@ -569,6 +573,8 @@ def get_tickets_handler(user_id):
     for step in received_tickets:
         ticket_id = step.ticket_id
         parent_ticket = session.query(Ticket).filter(Ticket.id == ticket_id).first()
+        sender = session.query(User).filter(User.username == parent_ticket.sender).first()
+
         all_steps = get_procedure_steps(parent_ticket.topic)
 
         rest_steps = session.query(Step).filter(Step.ticket_id == ticket_id).order_by(asc(Step.id)).all()
@@ -580,6 +586,9 @@ def get_tickets_handler(user_id):
                             }
 
         response.append({"id": ticket_id,
+                         "sender_id": sender.username,
+                         "sender_fname": sender.firs_name,
+                         "sender_lname": sender.last_name,
                          "message": parent_ticket.message,
                          "type_ticket": parent_ticket.topic,
                          "created_date": parent_ticket.exact_time_create,
