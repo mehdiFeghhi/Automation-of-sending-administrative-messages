@@ -43,7 +43,7 @@ def login():
         return jsonify(status='ERROR', message='مشکلی رخ داده هست'), 400
 
 
-@app.route('/is-authentication', methods=['POST'])
+@app.route('/is-authentication', methods=['GET'])
 @jwt_required()
 def is_authentication_this_user():
     try:
