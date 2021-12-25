@@ -1,7 +1,7 @@
 from sqlalchemy import and_, or_
-from sqlalchemy import asc
+from sqlalchemy import asc, desc
 from handler.model.modelDB import Student, Course, Professor, PresentedCourse, Semester, PreCourseLinkCourse, \
-    ProfessorLinkPresentedCourse, Ticket, Step, EducationAssistant, User, StatusStep, DepartmentHead, Advisor
+    ProfessorLinkPresentedCourse, Supervisor, Ticket, Step, EducationAssistant, User, StatusStep, DepartmentHead, Advisor, StudentCourseData
 from handler.connect_db import session
 import jdatetime
 
@@ -552,6 +552,7 @@ def get_tickets_handler(user_id):
     for ticket in sent_tickets:
         all_steps = get_procedure_steps(ticket.topic)
         steps = session.query(Step).filter(Step.ticket_id == ticket.id).order_by(asc(Step.id)).all()
+        sender = session.query(User).filter(User.username == ticket.sender).first()
         step_num = 0
         for step in steps:
             step_num += 1
@@ -559,6 +560,9 @@ def get_tickets_handler(user_id):
                             # "status": step.status_step
                             }
         response.append({"id": ticket.id,
+                         "sender_id": sender.username,
+                         "sender_fname": sender.firs_name,
+                         "sender_lname": sender.last_name,
                          "message": ticket.message,
                          "type_ticket": ticket.topic,
                          "created_date": ticket.exact_time_create,
@@ -569,6 +573,8 @@ def get_tickets_handler(user_id):
     for step in received_tickets:
         ticket_id = step.ticket_id
         parent_ticket = session.query(Ticket).filter(Ticket.id == ticket_id).first()
+        sender = session.query(User).filter(User.username == parent_ticket.sender).first()
+
         all_steps = get_procedure_steps(parent_ticket.topic)
 
         rest_steps = session.query(Step).filter(Step.ticket_id == ticket_id).order_by(asc(Step.id)).all()
@@ -580,6 +586,9 @@ def get_tickets_handler(user_id):
                             }
 
         response.append({"id": ticket_id,
+                         "sender_id": sender.username,
+                         "sender_fname": sender.firs_name,
+                         "sender_lname": sender.last_name,
                          "message": parent_ticket.message,
                          "type_ticket": parent_ticket.topic,
                          "created_date": parent_ticket.exact_time_create,
@@ -587,3 +596,74 @@ def get_tickets_handler(user_id):
                          "current_step": {step_num: rest_steps[-1].message},
                          "all_steps": all_steps})
     return response
+
+def get_receivers_handler(user_id):
+    curr_dep_head = session.query(DepartmentHead).order_by(desc(DepartmentHead.date_start_duty)).first()
+    res = []
+    if(user_id == curr_dep_head.email):
+        prof_list = session.query(Professor).all()
+        for prof in prof_list:
+            user = session.query(User).filter(User.username == prof.email).first()
+            prof_data = {
+                "id": user.username,
+                "fname": user.firs_name,
+                "lname": user.last_name
+            }
+            res.append(prof_data)
+        ed_assistant = session.query(EducationAssistant).first()
+        user = session.query(User).filter(User.username == ed_assistant.username).first()
+        supervisor_info = {
+            "id": user.username,
+            "fname": user.firs_name,
+            "lname": user.last_name
+        }
+        res.append(supervisor_info)
+        return res
+
+    # elif(session.query(Advisor).filter(Advisor.id == user_id).first() != None):
+
+
+
+    # elif(session.query(Supervisor).filter(Supervisor.id == user_id).first() != None):
+
+
+    else:
+        student = session.query(Student).filter(Student.student_number == user_id).first()
+        dep_head_user = session.query(User).filter(User.username == curr_dep_head.email).first()
+        dep_head_data = {
+            "id": dep_head_user.username,
+            "fname": dep_head_user.firs_name,
+            "lname": dep_head_user.last_name
+        }
+        res.append(dep_head_data)
+        prof_list = session.query(Professor).all()
+        for prof in prof_list:
+            user = session.query(User).filter(User.username == prof.email).first()
+            prof_data = {
+                "id": user.username,
+                "fname": user.firs_name,
+                "lname": user.last_name
+            }
+            res.append(prof_data)
+    
+        advisor = session.query(User).filter(User.username == student.adviser_id).first()
+        advisor_data = {
+                "id": user.username,
+                "fname": user.firs_name,
+                "lname": user.last_name
+        }
+        res.append(advisor_data)
+        ed_assistant = session.query(EducationAssistant).first()
+        user = session.query(User).filter(User.username == ed_assistant.username).first()
+        supervisor_info = {
+            "id": user.username,
+            "fname": user.firs_name,
+            "lname": user.last_name
+        }
+        res.append(supervisor_info)
+        
+        return res
+        
+
+
+    
