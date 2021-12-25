@@ -15,6 +15,7 @@ CORS(app, resources={r"*": {"origins": "*"}})
 
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=24)
 app.config['JWT_SECRET_KEY'] = 'super-secret'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 jwt = JWTManager(app)
 
 
