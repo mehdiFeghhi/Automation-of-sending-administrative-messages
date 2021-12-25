@@ -127,11 +127,12 @@ def add_item_to_db():
                                                 date_start_duty=datetime(2017, 5, 17))
 
     session.add_all([
-        user_student_one, user_student_two, user_student_three, user_student_four, user_student_five,user_student_six,user_student_seven,
-        user_professor_one, user_professor_two,user_professor_five,
+        user_student_one, user_student_two, user_student_three, user_student_four, user_student_five, user_student_six,
+        user_student_seven,
+        user_professor_one, user_professor_two, user_professor_five,
         user_professor_three, user_professor_four, user_ResponsibleTraining_one, user_educationAssistant_one
     ])
-    session.add_all([student_one, student_tow, student_three, student_four, student_five, student_six,student_seven])
+    session.add_all([student_one, student_tow, student_three, student_four, student_five, student_six, student_seven])
     session.add_all([professor_one, professor_two, professor_three, professor_four, professor_five])
     session.add_all([advisor_one_professor_one, advisor_one_professor_three, advisor_two_professor_three,
                      advisor_one_professor_four, advisor_two_professor_four])
@@ -141,12 +142,15 @@ def add_item_to_db():
     session.add_all([responsibleTraining_one])
 
     chart_one = Chart(educationAssistants_create_id=1, name='Test_Chart', year_create='1398')
+    chart_two = Chart(educationAssistants_create_id=1, name='Test_Chart_Senior', year_create='1398')
+
     orientation_one = Orientation(name='ادبیات فارسی')
     orientation_two = Orientation(name='زبان خارجه')
     orientation_three = Orientation(name='فیزیک')
     orientation_four = Orientation(name='ریاضی')
     orientation_five = Orientation(name='مهندسی کامپیوتر')
     orientation_six = Orientation(name='تربیت بدنی')
+    orientation_seven = Orientation(name='هوش مصنوعی ارشد')
 
     course_one = Course(name='فارسی عمومی', numbers_unit=3)
     course_one.orientation = orientation_one
@@ -188,7 +192,10 @@ def add_item_to_db():
     course_thirteen.orientation = orientation_two
 
     course_fourteen = Course(name='تربیت بدنی ۱', numbers_unit=2)
-    course_thirteen.orientation = orientation_six
+    course_fourteen.orientation = orientation_six
+
+    course_senior_one = Course(name='هوش مصنوعی ارشد', numbers_unit=3)
+    course_senior_one.orientation = orientation_seven
 
     preCourseLinkCourse_one = PreCourseLinkCourse(course_parent=2, course_child=13)
 
@@ -212,7 +219,7 @@ def add_item_to_db():
 
     NeedCourseLinkCourse_six = NeedCourseLinkCourse(first_course=6, second_course=9)
 
-    session.add_all([chart_one])
+    session.add_all([chart_one, chart_two])
     session.add_all([course_one, course_two, course_three, course_four, course_five, course_six,
                      course_seven, course_eight, course_nine, course_ten, course_eleven, course_twelve,
                      course_thirteen, course_fourteen])
@@ -237,11 +244,12 @@ def add_item_to_db():
     chartLinkCourse_12 = ChartLinkCourse(chart_id=1, course_id=12)
     chartLinkCourse_13 = ChartLinkCourse(chart_id=1, course_id=13)
     chartLinkCourse_14 = ChartLinkCourse(chart_id=1, course_id=14)
+    chartLinkCourse_sinore_15 = ChartLinkCourse(chart_id=2, course_id=15)
 
     session.add_all([chartLinkCourse_1, chartLinkCourse_2, chartLinkCourse_3, chartLinkCourse_4, chartLinkCourse_5
                         , chartLinkCourse_6, chartLinkCourse_7, chartLinkCourse_8, chartLinkCourse_9,
                      chartLinkCourse_10, chartLinkCourse_11, chartLinkCourse_12, chartLinkCourse_13,
-                     chartLinkCourse_14])
+                     chartLinkCourse_14, chartLinkCourse_sinore_15])
 
     presentedCourse_one = PresentedCourse(course_id=7, year='1400', semester=Semester(1), class_name='صدری ۲',
                                           time_final_exam=str(jdatetime.date(1400, 10, 15)))
@@ -253,8 +261,15 @@ def add_item_to_db():
     professorLinkPresentedCourse_two = ProfessorLinkPresentedCourse(professor_email=professor_one.email,
                                                                     presentedCourse=7)
 
-    session.add_all([presentedCourse_one, presentedCourse_two])
-    session.add_all([professorLinkPresentedCourse_one, professorLinkPresentedCourse_two])
+    presentedCourse_three = PresentedCourse(course_id=15, year='1400', semester=Semester(1),
+                                            class_name='ساختمان کلاس ها ۱۳',
+                                            time_final_exam=str(jdatetime.date(1400, 10, 19)))
+    professorLinkPresentedCourse_three = ProfessorLinkPresentedCourse(professor_email=professor_four.email,
+                                                                      presentedCourse=15)
+
+    session.add_all([presentedCourse_one, presentedCourse_two, presentedCourse_three])
+    session.add_all(
+        [professorLinkPresentedCourse_one, professorLinkPresentedCourse_two, professorLinkPresentedCourse_three])
     session.commit()
     # student_student_one = Student(student_number='9732527',)
 

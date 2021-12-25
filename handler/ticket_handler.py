@@ -1,7 +1,8 @@
 from sqlalchemy import and_, or_
 from sqlalchemy import asc, desc
 from handler.model.modelDB import Student, Course, Professor, PresentedCourse, Semester, PreCourseLinkCourse, \
-    ProfessorLinkPresentedCourse, Supervisor, Ticket, Step, EducationAssistant, User, StatusStep, DepartmentHead, Advisor, StudentCourseData
+    ProfessorLinkPresentedCourse, Supervisor, Ticket, Step, EducationAssistant, User, StatusStep, DepartmentHead, \
+    Advisor, StudentCourseData, ChartLinkCourse
 from handler.connect_db import session
 import jdatetime
 
@@ -13,6 +14,12 @@ def check_step_this_ticket_is_finish_or_not(tickets):
 
 # TODO : check this course just in sinore chart
 def is_this_course_in_sinore_chart(course_id):
+
+    query = session.query(ChartLinkCourse).filter(
+        and_(ChartLinkCourse.course_id == course_id, ChartLinkCourse.chart_id == 2)).first()
+
+    if query is None:
+        return False
     return True
 
 
@@ -96,7 +103,6 @@ def lessons_from_another_section(user_id, receiver_id, description, url):
     print(user_id)
     print(receiver_id)
     print(description)
-
 
     year, semester = give_year_mount()
 
@@ -597,10 +603,11 @@ def get_tickets_handler(user_id):
                          "all_steps": all_steps})
     return response
 
+
 def get_receivers_handler(user_id):
     curr_dep_head = session.query(DepartmentHead).order_by(desc(DepartmentHead.date_start_duty)).first()
     res = []
-    if(user_id == curr_dep_head.email):
+    if (user_id == curr_dep_head.email):
         prof_list = session.query(Professor).all()
         for prof in prof_list:
             user = session.query(User).filter(User.username == prof.email).first()
@@ -622,10 +629,7 @@ def get_receivers_handler(user_id):
 
     # elif(session.query(Advisor).filter(Advisor.id == user_id).first() != None):
 
-
-
     # elif(session.query(Supervisor).filter(Supervisor.id == user_id).first() != None):
-
 
     else:
         student = session.query(Student).filter(Student.student_number == user_id).first()
@@ -645,12 +649,12 @@ def get_receivers_handler(user_id):
                 "lname": user.last_name
             }
             res.append(prof_data)
-    
+
         advisor = session.query(User).filter(User.username == student.adviser_id).first()
         advisor_data = {
-                "id": user.username,
-                "fname": user.firs_name,
-                "lname": user.last_name
+            "id": user.username,
+            "fname": user.firs_name,
+            "lname": user.last_name
         }
         res.append(advisor_data)
         ed_assistant = session.query(EducationAssistant).first()
@@ -661,9 +665,5 @@ def get_receivers_handler(user_id):
             "lname": user.last_name
         }
         res.append(supervisor_info)
-        
+
         return res
-        
-
-
-    

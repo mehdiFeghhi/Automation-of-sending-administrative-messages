@@ -6,7 +6,7 @@ from handler.connect_db import session
 import jdatetime
 
 def get_course_list():
-  courses = session.query(Course).all();
+  courses = session.query(Course).all()
   res = []
   for course in courses:
     orient_list = []
