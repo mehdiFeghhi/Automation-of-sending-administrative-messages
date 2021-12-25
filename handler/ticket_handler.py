@@ -321,11 +321,11 @@ def normal_ticket(user_id, receiver_id, subject, description, course_id, url):
     course = session.query(Course).filter(Course.id == course_id).first()
 
     if sender_is_user is False:
-        return {'Status': "ERROR", 'error': "this user isn't exist."}
+        return {'Status': "ERROR", 'error': "this user sender isn't exist."}
     elif course is None:
         return {'Status': "ERROR", 'error': "this course wasn't found."}
     elif receiver_is_user is False:
-        return {'Status': "ERROR", 'error': "this user isn't exist."}
+        return {'Status': "ERROR", 'error': "this user reciver isn't exist."}
 
     ticket = Ticket(sender=user_id, topic=subject, message=description, course_relation=course_id, attach_file=url)
     step = Step(receiver_id=receiver_id)
