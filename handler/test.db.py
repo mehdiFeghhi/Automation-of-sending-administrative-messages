@@ -222,7 +222,7 @@ def add_item_to_db():
     session.add_all([chart_one, chart_two])
     session.add_all([course_one, course_two, course_three, course_four, course_five, course_six,
                      course_seven, course_eight, course_nine, course_ten, course_eleven, course_twelve,
-                     course_thirteen, course_fourteen])
+                     course_thirteen, course_fourteen,course_senior_one])
 
     session.add_all([preCourseLinkCourse_one, preCourseLinkCourse_two, preCourseLinkCourse_three,
                      preCourseLinkCourse_four, preCourseLinkCourse_five])
