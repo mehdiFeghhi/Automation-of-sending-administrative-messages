@@ -1,7 +1,7 @@
 from sqlalchemy import and_, or_
-from sqlalchemy import asc
+from sqlalchemy import asc, desc
 from handler.model.modelDB import Student, Course, Professor, PresentedCourse, Semester, PreCourseLinkCourse, \
-    ProfessorLinkPresentedCourse, Ticket, Step, EducationAssistant, User, StatusStep, DepartmentHead, Advisor
+    ProfessorLinkPresentedCourse, Supervisor, Ticket, Step, EducationAssistant, User, StatusStep, DepartmentHead, Advisor
 from handler.connect_db import session
 import jdatetime
 
@@ -596,3 +596,38 @@ def get_tickets_handler(user_id):
                          "current_step": {step_num: rest_steps[-1].message},
                          "all_steps": all_steps})
     return response
+
+def get_receivers_handler(user_id):
+    curr_dep_head = session.query(DepartmentHead).order_by(desc(DepartmentHead.date_start_duty)).first()
+    res = []
+    if(user_id == curr_dep_head.email):
+        prof_list = session.query(Professor).all()
+        for prof in prof_list:
+            user = session.query(User).filter(User.username == prof.email).first()
+            prof_data = {
+                "id": user.username,
+                "fname": user.firs_name,
+                "lname": user.last_name
+            }
+            res.append(prof_data)
+        ed_assistant = session.query(EducationAssistant).first()
+        user = session.query(User).filter(User.username == ed_assistant.username).first()
+        supervisor_info = {
+            "id": user.username,
+            "fname": user.firs_name,
+            "lname": user.last_name
+        }
+        res.append(supervisor_info)
+        return res
+
+    # elif(session.query(Advisor).filter(Advisor.id == user_id).first() != None):
+
+
+    # elif(session.query(Supervisor).filter(Supervisor.id == user_id).first() != None):
+
+
+    # else:
+        
+
+
+    
