@@ -245,7 +245,7 @@ def add_item_to_db():
 
     presentedCourse_one = PresentedCourse(course_id=7, year='1400', semester=Semester(1), class_name='صدری ۲',
                                           time_final_exam=str(jdatetime.date(1400, 10, 15)))
-    professorLinkPresentedCourse_one = ProfessProfessorLinkPresentedCourseorLinkPresentedCourse(professor_email=professor_five.email,
+    professorLinkPresentedCourse_one = ProfessorLinkPresentedCourse(professor_email=professor_five.email,
                                                                     presentedCourse=1)
 
     presentedCourse_two = PresentedCourse(course_id=4, year='1400', semester=Semester(1), class_name='ICT',
