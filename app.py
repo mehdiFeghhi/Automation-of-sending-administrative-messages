@@ -19,7 +19,7 @@ app.config['JWT_SECRET_KEY'] = 'super-secret'
 jwt = JWTManager(app)
 
 
-@app.route('api/login', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
     try:
         params = request.get_json()
@@ -44,7 +44,7 @@ def login():
         return jsonify(status='ERROR', message='مشکلی رخ داده هست'), 400
 
 
-@app.route('api/is-authentication', methods=['GET'])
+@app.route('/api/is-authentication', methods=['GET'])
 @jwt_required()
 def is_authentication_this_user():
     try:
@@ -55,7 +55,7 @@ def is_authentication_this_user():
         return jsonify(status='ERROR', message='همچین توکنی وجود ندارد'), 400
 
 
-@app.route('api/create-ticket', methods=['POST'])
+@app.route('/api/create-ticket', methods=['POST'])
 @jwt_required()
 def create_ticket():
     try:
@@ -135,7 +135,7 @@ def create_ticket():
         return jsonify(response), 400
 
 
-@app.route('api/step-ticket', methods=['DELETE', 'PUT'])
+@app.route('/api/step-ticket', methods=['DELETE', 'PUT'])
 @jwt_required()
 def work_with_step_ticket():
     try:
@@ -171,7 +171,7 @@ def work_with_step_ticket():
             return jsonify(response), 400
 
 
-@app.route('api/get-courses', methods=['GET'])
+@app.route('/api/get-courses', methods=['GET'])
 def get_courses():
     try:
         # print(get_cosurse_list())
@@ -182,14 +182,14 @@ def get_courses():
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
 
-@app.route('api/get-tickets', methods=['GET'])
+@app.route('/api/get-tickets', methods=['GET'])
 @jwt_required()
 def get_tickets():
     user_id = get_jwt_identity()
     return jsonify(get_tickets_handler(user_id))
 
 
-@app.route('api/get-receivers', methods=['GET'])
+@app.route('/api/get-receivers', methods=['GET'])
 @jwt_required()
 def get_receivers():
     user_id = get_jwt_identity()
