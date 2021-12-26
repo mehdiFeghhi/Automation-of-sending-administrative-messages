@@ -34,7 +34,7 @@ def get_ticket_test(token, status):
     assert json.loads(response.json()).get('Status') == status
 
 
-def add_step_to_ticket(token, id_ticket, message, step, url_file, status):
+def add_step_to_ticket_test(token, id_ticket, message, step, url_file, status):
     url = "http://127.0.0.1:5000/step-ticket"
 
     payload = json.dumps({
@@ -53,7 +53,7 @@ def add_step_to_ticket(token, id_ticket, message, step, url_file, status):
     assert json.loads(response.json()).get('Status') == status
 
 
-def delete_step_ticket(token, id_ticket, status):
+def delete_step_ticket_test(token, id_ticket, status):
     url = "http://127.0.0.1:5000/api/step-ticket"
 
     payload = json.dumps({

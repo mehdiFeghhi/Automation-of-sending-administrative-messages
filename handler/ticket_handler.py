@@ -350,7 +350,7 @@ def delete_ticket_user(user_id, ticket_id, ):
 def department_accept(step_one):
     next_receiver_Department_head = session.query(DepartmentHead).filter(
         DepartmentHead.date_end_duty.is_(None)).first()
-    next_step = Step(receiver_id=next_receiver_Department_head.user.username,
+    next_step = Step(receiver_id=next_receiver_Department_head.email,
                      parent_id=step_one.id,
                      ticket_id=step_one.ticket_id)
 
@@ -361,8 +361,7 @@ def department_accept(step_one):
 def education_assistant_accept(step_one):
     next_receiver_educationAssistant = session.query(EducationAssistant).filter(
         EducationAssistant.date_end_duty.is_(None)).first()
-
-    next_step = Step(receiver_id=next_receiver_educationAssistant.user.username,
+    next_step = Step(receiver_id=next_receiver_educationAssistant.username,
                      parent_id=step_one.id,
                      ticket_id=step_one.ticket_id)
 
@@ -378,7 +377,7 @@ def professor_accept(step_one, ticket):
              PresentedCourse.year == year)
     ).first().professors[0]
 
-    next_step = Step(receiver_id=next_receiver_professor.user.username,
+    next_step = Step(receiver_id=next_receiver_professor.email,
                      parent_id=step_one.id,
                      ticket_id=step_one.ticket_id)
 
@@ -391,7 +390,7 @@ def advisor_accept(step_one, ticket):
         Student.student_number == ticket.user.username
     ).first()
     next_receiver_advisor = student_user.adviser
-    next_step = Step(receiver_id=next_receiver_advisor.user.username,
+    next_step = Step(receiver_id=next_receiver_advisor.email,
                      parent_id=step_one.id,
                      ticket_id=step_one.ticket_id)
 
@@ -404,7 +403,7 @@ def supervisor_accept(step_one, ticket):
         Student.student_number == ticket.user.username
     ).first()
     next_receiver_supervisor = student_user.supervisor
-    next_step = Step(receiver_id=next_receiver_supervisor.user.username,
+    next_step = Step(receiver_id=next_receiver_supervisor.email,
                      parent_id=step_one.id,
                      ticket_id=step_one.ticket_id)
 
