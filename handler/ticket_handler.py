@@ -380,7 +380,7 @@ def professor_accept(step_one, ticket):
 
     email_proffessor = professorLinkPresentedCourse.professor_email
 
-    next_step = Step(receiver_id=email_proffessor,
+    next_step = Step(receiver_id='Tohidi@gmail.com',
                      parent_id=step_one.id,
                      ticket_id=step_one.ticket_id)
 
