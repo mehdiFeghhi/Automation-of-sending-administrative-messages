@@ -67,6 +67,7 @@ def add_item_to_db():
 
     advisor_one_professor_one = Advisor(cross_section='masters', orientation="computer", email=professor_one.email,
                                         time_enter_student="1397")
+    student_one.adviser = advisor_one_professor_one
 
     user_professor_two = User(username='sami@gmail.com', password=str(hashlib.sha256("4231".encode()).hexdigest()),
                               firs_name='ashkan',
@@ -87,7 +88,8 @@ def add_item_to_db():
                                                 email=professor_three.email,
                                                 )
 
-    student_six.supervisor_id = supervisor_one_professor_three.id
+    student_six.supervisor = supervisor_one_professor_three
+    student_six.adviser = advisor_one_professor_one
 
     advisor_one_professor_three = Advisor(cross_section='masters', orientation="computer", email=professor_three.email,
                                           time_enter_student='1396')
