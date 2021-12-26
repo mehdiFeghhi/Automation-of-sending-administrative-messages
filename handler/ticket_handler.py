@@ -372,12 +372,15 @@ def education_assistant_accept(step_one):
 def professor_accept(step_one, ticket):
     year, semester = give_year_mount()
 
-    next_receiver_professor = session.query(PresentedCourse).filter(
+    presentedCourse = session.query(PresentedCourse).filter(
         and_(PresentedCourse.course_id == ticket.course_relation, PresentedCourse.semester == semester,
              PresentedCourse.year == year)
-    ).first().professors[0]
+    ).first()
+    professorLinkPresentedCourse = session.query(ProfessorLinkPresentedCourse).fitler(ProfessorLinkPresentedCourse.presentedCourse == presentedCourse).first()
 
-    next_step = Step(receiver_id=next_receiver_professor.email,
+    email_proffessor = professorLinkPresentedCourse.professor_email
+
+    next_step = Step(receiver_id=email_proffessor,
                      parent_id=step_one.id,
                      ticket_id=step_one.ticket_id)
 
