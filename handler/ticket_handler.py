@@ -222,11 +222,11 @@ def master_course_request(user_id, receiver_id, description, course_id):
 
     year, semester = give_year_mount()
 
-    student = session.query(Student).filter(Student.student_number == user_id).first()
+    student = Student.query.filter(Student.student_number == user_id).first()
     course = session.query(Course).filter(Course.id == course_id).first()
 
-    educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(
-        None)).first()
+    # educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(
+    #     None)).first()
     if student is None:
         return {'Status': "ERROR", 'error': "this user isn't student."}
     elif student.cross_section != 'masters':
@@ -236,8 +236,13 @@ def master_course_request(user_id, receiver_id, description, course_id):
         return {'Status': "ERROR", 'error': "this course wasn't found."}
     elif not is_this_course_in_sinore_chart(course.id):
         return {'Status': "ERROR", 'error': "this course wasn't senior course."}
-    elif educationAssistant is None:
-        return {'Status': "ERROR", 'error': "this educationAssistant isn't exist."}
+    # elif educationAssistant is None:
+    #     return {'Status': "ERROR", 'error': "this educationAssistant isn't exist."}
+    adviser_id = student.adviser_id
+
+    if adviser_id is None:
+        return {'Status': "ERROR", 'error': "this adviser isn't exist."}
+
     presentedCourse = session.query(PresentedCourse).filter(and_(PresentedCourse.course_id == course_id,
                                                                  PresentedCourse.year == year,
                                                                  PresentedCourse.semester == semester)).first()
@@ -250,7 +255,7 @@ def master_course_request(user_id, receiver_id, description, course_id):
         return {'Status': "ERROR", 'error': "you give this request before please be calm."}
 
     ticket = Ticket(sender=user_id, topic='master_course_request', message=description, course_relation=course_id)
-    step = Step(receiver_id=educationAssistant.username)
+    step = Step(receiver_id=adviser_id)
     step.ticket = ticket
     session.add(step)
     session.commit()
@@ -272,8 +277,8 @@ def course_from_another_orientation(user_id, receiver_id, description, course_id
     # educationAssistant = session.query(EducationAssistant).filter(and_(EducationAssistant.username == receiver_id,
     #                                                                    EducationAssistant.date_end_duty.is_(
     #                                                                        None))).first()
-    educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(
-        None)).first()
+    # educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(
+    #     None)).first()
 
     if student is None:
         return {'Status': "ERROR", 'error': "this user isn't student."}
@@ -285,8 +290,14 @@ def course_from_another_orientation(user_id, receiver_id, description, course_id
 
     elif course.orientation == student.orientation:
         return {'Status': "ERROR", 'error': "this course is in your orientation."}
-    elif educationAssistant is None:
-        return {'Status': "ERROR", 'error': "this educationAssistant isn't exist."}
+    # elif educationAssistant is None:
+    #     return {'Status': "ERROR", 'error': "this educationAssistant isn't exist."}
+
+    supervisor_id = student.supervisor_id
+
+    if supervisor_id is None:
+        return {'Status': "ERROR", 'error': "this user hasn't supervisor."}
+
     presentedCourse = session.query(PresentedCourse).filter(and_(PresentedCourse.course_id == course_id,
                                                                  PresentedCourse.year == year,
                                                                  PresentedCourse.semester == semester)).first()
@@ -302,7 +313,7 @@ def course_from_another_orientation(user_id, receiver_id, description, course_id
 
     ticket = Ticket(sender=user_id, topic='course_from_another_orientation', message=description,
                     course_relation=course_id)
-    step = Step(receiver_id=educationAssistant.username)
+    step = Step(receiver_id=supervisor_id)
     step.ticket = ticket
     session.add(step)
     session.commit()
@@ -345,6 +356,10 @@ def delete_ticket_user(user_id, ticket_id, ):
             {Step.status_step: StatusStep(6)})
         session.commit()
         return {'Status': "OK"}
+
+
+def accept_end(step_one):
+    next_step = step_one
 
 
 def department_accept(step_one):
@@ -433,69 +448,42 @@ def update_ticket_user(user_id, ticket_id, step, massage, url):
         step_number = session.query(Step).filter(Step.ticket_id == ticket_id).count()
         if ticket.topic == 'capacity_increase':
             if step_number == 1:
-                department_accept(step_one)
-            elif step_number == 2:
                 education_assistant_accept(step_one)
-            elif step_number == 3:
+            elif step_number == 2:
                 step_one.status_step = StatusStep(7)
                 session.commit()
         elif ticket.topic == 'lessons_from_another_section':
 
             if step_number == 1:
-                user_to_give_professor_accept_id = ticket.sender
-                next_step = Step(receiver_id=user_to_give_professor_accept_id,
-                                 parent_id=step_one.id)
-
-                session.add(next_step)
-                session.commit()
-            elif step_number == 2:
-                department_accept(step_one)
-            elif step_number == 3:
-                education_assistant_accept(step_one)
-            elif step_number == 4:
                 step_one.status_step = StatusStep(7)
                 session.commit()
 
         elif ticket.topic == 'class_change_time' or ticket.topic == 'exam_time_change':
-            if step_number == 1:
-                professor_accept(step_one, ticket)
-            elif step_number == 2:
-                department_accept(step_one)
 
-            elif step_number == 3:
+            if step_number == 1:
                 education_assistant_accept(step_one)
-            elif step_number == 4:
+            elif step_number == 2:
                 step_one.status_step = StatusStep(7)
                 session.commit()
 
         elif ticket.topic == 'master_course_request':
 
             if step_number == 1:
-                advisor_accept(step_one, ticket)
-            elif step_number == 2:
                 professor_accept(step_one, ticket)
 
-            elif step_number == 3:
-                department_accept(step_one)
-
-            elif step_number == 4:
+            elif step_number == 2:
                 education_assistant_accept(step_one)
 
-            elif step_number == 5:
+            elif step_number == 3:
                 step_one.status_step = StatusStep(7)
                 session.commit()
-        elif ticket.topic == 'course_from_another_orientation':
-            if step_number == 1:
-                supervisor_accept(step_one, ticket)
-            elif step_number == 2:
-                professor_accept(step_one, ticket)
-            elif step_number == 3:
-                department_accept(step_one)
 
-            elif step_number == 4:
+        elif ticket.topic == 'course_from_another_orientation':
+
+            if step_number == 1:
                 education_assistant_accept(step_one)
 
-            elif step_number == 5:
+            elif step_number == 2:
                 step_one.status_step = StatusStep(7)
                 session.commit()
 
@@ -507,17 +495,12 @@ def get_procedure_steps(procedure):
         return {
             0: "دانشجو",
             1: "مسئول آموزش",
-            2: "معاونت آموزشی",
-            3: "رئیس بخش",
-            4: "مسئول آموزش"
         }
     elif (procedure == 'capacity_increase'):
         return {
             0: "دانشجو",
-            1: "مسئول آموزش",
-            2: "استاد درس",
-            3: "رئیس بخش",
-            4: "مسئول آموزش"
+            1: "استاد درس",
+            2: "مسئول آموزش"
         }
     elif (procedure == 'class_change_time'):
         return {
@@ -536,20 +519,15 @@ def get_procedure_steps(procedure):
     elif (procedure == 'master_course_request'):
         return {
             0: "دانشجو",
-            1: "مسئول آموزش",
-            2: "استاد مشاور",
-            3: "استاد درس",
-            4: "رئیس بخش",
-            4: "مسئول آموزش"
+            1: "استاد مشاور",
+            2: "استاد درس",
+            3: "مسئول آموزش"
         }
     elif (procedure == 'course_from_another_orientation'):
         return {
             0: "دانشجو",
-            1: "مسئول آموزش",
-            2: "استاد راهنما",
-            3: "استاد درس",
-            4: "رئیس بخش",
-            5: "مسئول آموزش"
+            1: "استاد راهنما",
+            2: "مسئول آموزش"
         }
 
 
