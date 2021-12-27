@@ -546,11 +546,11 @@ def get_tickets_handler(user_id):
         steps = session.query(Step).filter(Step.ticket_id == ticket.id).order_by(asc(Step.id)).all()
         sender = session.query(User).filter(User.username == ticket.sender).first()
         step_num = 0
+        descriptions = {}
         for step in steps:
             step_num += 1
-            descriptions = {step_num: step.message,
-                            # "status": step.status_step
-                            }
+            descriptions[step_num] = step.message
+
         response.append({"id": ticket.id,
                          "sender_id": sender.username,
                          "sender_fname": sender.firs_name,
@@ -559,6 +559,7 @@ def get_tickets_handler(user_id):
                          "type_ticket": ticket.topic,
                          "created_date": ticket.exact_time_create,
                          "descriptions": descriptions,
+                         "status_step": steps[-1].status_step,
                          "current_step": {step_num: steps[-1].message},
                          "all_steps": all_steps})
 
@@ -571,11 +572,10 @@ def get_tickets_handler(user_id):
 
         rest_steps = session.query(Step).filter(Step.ticket_id == ticket_id).order_by(asc(Step.id)).all()
         step_num = 0
+        descriptions = {}
         for step in rest_steps:
             step_num += 1
-            descriptions = {step_num: step.message,
-                            "status": step.status_step
-                            }
+            descriptions[step_num] = step.message
 
         response.append({"id": ticket_id,
                          "sender_id": sender.username,
@@ -585,6 +585,7 @@ def get_tickets_handler(user_id):
                          "type_ticket": parent_ticket.topic,
                          "created_date": parent_ticket.exact_time_create,
                          "descriptions": descriptions,
+                         "status_step": rest_steps[-1].status_step,
                          "current_step": {step_num: rest_steps[-1].message},
                          "all_steps": all_steps})
     return response
@@ -610,11 +611,26 @@ def get_imprograss_tickets_handler(user_id):
         steps = session.query(Step).filter(Step.ticket_id == ticket.id).order_by(asc(Step.id)).all()
         sender = session.query(User).filter(User.username == ticket.sender).first()
         step_num = 0
+        # for step in steps:
+        #     step_num += 1
+        #     descriptions = {step_num: step.message,
+        #                     # "status": step.status_step
+        #                     }
+        # response.append({"id": ticket.id,
+        #                  "sender_id": sender.username,
+        #                  "sender_fname": sender.firs_name,
+        #                  "sender_lname": sender.last_name,
+        #                  "message": ticket.message,
+        #                  "type_ticket": ticket.topic,
+        #                  "created_date": ticket.exact_time_create,
+        #                  "descriptions": descriptions,
+        #                  "current_step": {step_num: steps[-1].message},
+        #                  "all_steps": all_steps})
+        descriptions = {}
         for step in steps:
             step_num += 1
-            descriptions = {step_num: step.message,
-                            # "status": step.status_step
-                            }
+            descriptions[step_num] = step.message
+
         response.append({"id": ticket.id,
                          "sender_id": sender.username,
                          "sender_fname": sender.firs_name,
@@ -623,6 +639,7 @@ def get_imprograss_tickets_handler(user_id):
                          "type_ticket": ticket.topic,
                          "created_date": ticket.exact_time_create,
                          "descriptions": descriptions,
+                         "status_step": steps[-1].status_step,
                          "current_step": {step_num: steps[-1].message},
                          "all_steps": all_steps})
 
@@ -635,11 +652,15 @@ def get_imprograss_tickets_handler(user_id):
 
         rest_steps = session.query(Step).filter(Step.ticket_id == ticket_id).order_by(asc(Step.id)).all()
         step_num = 0
+        # for step in rest_steps:
+        #     step_num += 1
+        #     descriptions = {step_num: step.message,
+        #                     # "status": step.status_step
+        #                     }
+        descriptions = {}
         for step in rest_steps:
             step_num += 1
-            descriptions = {step_num: step.message,
-                            # "status": step.status_step
-                            }
+            descriptions[step_num] = step.message
 
         response.append({"id": ticket_id,
                          "sender_id": sender.username,
@@ -649,8 +670,19 @@ def get_imprograss_tickets_handler(user_id):
                          "type_ticket": parent_ticket.topic,
                          "created_date": parent_ticket.exact_time_create,
                          "descriptions": descriptions,
+                         "status_step": rest_steps[-1].status_step,
                          "current_step": {step_num: rest_steps[-1].message},
                          "all_steps": all_steps})
+        # response.append({"id": ticket_id,
+        #                  "sender_id": sender.username,
+        #                  "sender_fname": sender.firs_name,
+        #                  "sender_lname": sender.last_name,
+        #                  "message": parent_ticket.message,
+        #                  "type_ticket": parent_ticket.topic,
+        #                  "created_date": parent_ticket.exact_time_create,
+        #                  "descriptions": descriptions,
+        #                  "current_step": {step_num: rest_steps[-1].message},
+        #                  "all_steps": all_steps})
     return response
 
 
@@ -686,7 +718,7 @@ def get_receivers_handler(user_id):
         dep_head_user = session.query(User).filter(User.username == curr_dep_head.email).first()
         dep_head_data = {
             "id": dep_head_user.username,
-            "fname": dep_head_user.firs_name,
+            "fname": dep_head_user.fstatus_stepirs_name,
             "lname": dep_head_user.last_name
         }
         res.append(dep_head_data)
