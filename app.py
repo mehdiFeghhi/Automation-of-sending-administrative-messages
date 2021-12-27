@@ -185,7 +185,7 @@ def get_tickets():
 
 @app.route('/api/get-tickets-improgress', methods=['GET'])
 @jwt_required()
-def get_tickets():
+def get_imprograss_tickets_handler():
     user_id = get_jwt_identity()
     return jsonify(get_imprograss_tickets_handler(user_id))
 
