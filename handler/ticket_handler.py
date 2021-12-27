@@ -574,7 +574,7 @@ def get_tickets_handler(user_id):
         for step in rest_steps:
             step_num += 1
             descriptions = {step_num: step.message,
-                            # "status": step.status_step
+                            "status": step.status_step
                             }
 
         response.append({"id": ticket_id,
