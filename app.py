@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from handler.model.modelDB import StatusStep
 from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
-    update_ticket_user, get_tickets_handler, get_receivers_handler
+    update_ticket_user, get_tickets_handler, get_receivers_handler, get_imprograss_tickets_handler
 from handler.user_handler import find_user_by_username_and_password, find_user_by_user_id
 from handler.course_handler import get_course_list
 
@@ -182,6 +182,12 @@ def get_courses():
 def get_tickets():
     user_id = get_jwt_identity()
     return jsonify(get_tickets_handler(user_id))
+
+@app.route('/api/get-tickets-improgress', methods=['GET'])
+@jwt_required()
+def get_tickets():
+    user_id = get_jwt_identity()
+    return jsonify(get_imprograss_tickets_handler(user_id))
 
 
 @app.route('/api/get-receivers', methods=['GET'])

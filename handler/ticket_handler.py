@@ -461,7 +461,7 @@ def update_ticket_user(user_id, ticket_id, step, massage, url):
         elif ticket.topic == 'class_change_time' or ticket.topic == 'exam_time_change':
 
             if step_number == 1:
-                professor_accept(step_one,ticket)
+                professor_accept(step_one, ticket)
                 session.commit()
 
             elif step_number == 2:
@@ -542,6 +542,70 @@ def get_tickets_handler(user_id):
     sent_tickets = session.query(Ticket).filter(Ticket.sender == user_id).all()
     received_tickets = session.query(Step).filter(Step.receiver_id == user_id).all()
     for ticket in sent_tickets:
+        all_steps = get_procedure_steps(ticket.topic)
+        steps = session.query(Step).filter(Step.ticket_id == ticket.id).order_by(asc(Step.id)).all()
+        sender = session.query(User).filter(User.username == ticket.sender).first()
+        step_num = 0
+        for step in steps:
+            step_num += 1
+            descriptions = {step_num: step.message,
+                            # "status": step.status_step
+                            }
+        response.append({"id": ticket.id,
+                         "sender_id": sender.username,
+                         "sender_fname": sender.firs_name,
+                         "sender_lname": sender.last_name,
+                         "message": ticket.message,
+                         "type_ticket": ticket.topic,
+                         "created_date": ticket.exact_time_create,
+                         "descriptions": descriptions,
+                         "current_step": {step_num: steps[-1].message},
+                         "all_steps": all_steps})
+
+    for step in received_tickets:
+        ticket_id = step.ticket_id
+        parent_ticket = session.query(Ticket).filter(Ticket.id == ticket_id).first()
+        sender = session.query(User).filter(User.username == parent_ticket.sender).first()
+
+        all_steps = get_procedure_steps(parent_ticket.topic)
+
+        rest_steps = session.query(Step).filter(Step.ticket_id == ticket_id).order_by(asc(Step.id)).all()
+        step_num = 0
+        for step in rest_steps:
+            step_num += 1
+            descriptions = {step_num: step.message,
+                            # "status": step.status_step
+                            }
+
+        response.append({"id": ticket_id,
+                         "sender_id": sender.username,
+                         "sender_fname": sender.firs_name,
+                         "sender_lname": sender.last_name,
+                         "message": parent_ticket.message,
+                         "type_ticket": parent_ticket.topic,
+                         "created_date": parent_ticket.exact_time_create,
+                         "descriptions": descriptions,
+                         "current_step": {step_num: rest_steps[-1].message},
+                         "all_steps": all_steps})
+    return response
+
+
+def get_imprograss_tickets_handler(user_id):
+    response = []
+    sent_tickets = session.query(Ticket).filter(Ticket.sender == user_id).all()
+    received_tickets = session.query(Step).filter(and_(Step.receiver_id == user_id,
+                                                       or_(Step.status_step == StatusStep(1),
+                                                           Step.status_step == StatusStep(2)))).all()
+
+    send_tickets_imprograss = [ticket for ticket in sent_tickets if Step.query.filter(and_(Step.ticket_id == ticket,
+                                                                                           or_(Step.status_step == StatusStep(
+                                                                                               7),
+                                                                                               Step.status_step == StatusStep(
+                                                                                                   6),
+                                                                                               Step.status_step == StatusStep(
+                                                                                                   4)))) is None]
+
+    for ticket in send_tickets_imprograss:
         all_steps = get_procedure_steps(ticket.topic)
         steps = session.query(Step).filter(Step.ticket_id == ticket.id).order_by(asc(Step.id)).all()
         sender = session.query(User).filter(User.username == ticket.sender).first()
