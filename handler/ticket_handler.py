@@ -461,8 +461,14 @@ def update_ticket_user(user_id, ticket_id, step, massage, url):
         elif ticket.topic == 'class_change_time' or ticket.topic == 'exam_time_change':
 
             if step_number == 1:
-                education_assistant_accept(step_one)
+                professor_accept(step_one,ticket)
+                session.commit()
+
             elif step_number == 2:
+                education_assistant_accept(step_one)
+                session.commit()
+
+            elif step_number == 3:
                 step_one.status_step = StatusStep(7)
                 session.commit()
 
