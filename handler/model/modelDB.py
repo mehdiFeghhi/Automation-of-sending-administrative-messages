@@ -1,13 +1,13 @@
 from sqlalchemy import Column, Integer, String, DATETIME, Time, Float, Enum
 from sqlalchemy import create_engine, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, backref
+# from app import db
+from sqlalchemy.orm import relationship, backref, declarative_base
 import jdatetime
-
+from config import db
 import enum
 
 engine = create_engine('sqlite:///sample.db', echo=True)
-Base = declarative_base()
+Base = db.Model
 
 
 class EnumCourseStatus(enum.IntEnum):
@@ -336,7 +336,7 @@ class Ticket(Base):
     course = relationship(Course, backref=backref('ticket'))
 
     sender = Column(String, ForeignKey('users.username'))
-    user = relationship(User, backref=backref('ticket'))
+    user = relationship(User, backref='ticket')
     exact_time_create = Column(String, default=str(jdatetime.date.today()))
     year_create = Column(String, default=str(jdatetime.date.today().year))
     month = jdatetime.date.today().month

@@ -2,7 +2,7 @@ import datetime
 from flask import Flask, jsonify, request, send_file
 from flask_jwt_extended import (JWTManager, create_access_token, get_jwt_identity, jwt_required)
 from flask_cors import CORS
-
+from flask_sqlalchemy import SQLAlchemy
 from handler.model.modelDB import StatusStep
 from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
@@ -10,13 +10,8 @@ from handler.ticket_handler import capacity_incresessase_by_student, lessons_fro
 from handler.user_handler import find_user_by_username_and_password, find_user_by_user_id
 from handler.course_handler import get_course_list
 
-app = Flask(__name__)
-CORS(app, resources={r"*": {"origins": "*"}})
-
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=24)
-app.config['JWT_SECRET_KEY'] = 'super-secret'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-jwt = JWTManager(app)
+from config import create_app
+app = create_app()
 
 
 @app.route('/api/login', methods=['POST'])

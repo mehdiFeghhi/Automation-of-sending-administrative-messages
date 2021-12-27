@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 import hashlib
 import jdatetime
 
-from model.modelDB import User, Student, Advisor, Professor, Supervisor, DepartmentHead, EducationAssistant, \
+from handler.model.modelDB import User, Student, Advisor, Professor, Supervisor, DepartmentHead, EducationAssistant, \
     ResponsibleTraining, Chart, Course, Orientation, ChartLinkCourse, PreCourseLinkCourse, NeedCourseLinkCourse, \
     PresentedCourse, Semester, ProfessorLinkPresentedCourse
 

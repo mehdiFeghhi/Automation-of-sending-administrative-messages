@@ -14,7 +14,6 @@ def check_step_this_ticket_is_finish_or_not(tickets):
 
 # TODO : check this course just in sinore chart
 def is_this_course_in_sinore_chart(course_id):
-
     query = session.query(ChartLinkCourse).filter(
         and_(ChartLinkCourse.course_id == course_id, ChartLinkCourse.chart_id == 2)).first()
 
@@ -291,6 +290,7 @@ def course_from_another_orientation(user_id, receiver_id, description, course_id
     presentedCourse = session.query(PresentedCourse).filter(and_(PresentedCourse.course_id == course_id,
                                                                  PresentedCourse.year == year,
                                                                  PresentedCourse.semester == semester)).first()
+
     if presentedCourse is None:
         return {'Status': "ERROR", 'error': "this course haven't any present Course in this semester."}
 
@@ -371,16 +371,16 @@ def education_assistant_accept(step_one):
 
 def professor_accept(step_one, ticket):
     year, semester = give_year_mount()
-
-    # presentedCourse = session.query(PresentedCourse).filter(
-    #     and_(PresentedCourse.course_id == ticket.course_relation, PresentedCourse.semester == semester,
-    #          PresentedCourse.year == year)
-    # ).first()
+    presentedCourse = session.query(PresentedCourse).filter(
+        and_(PresentedCourse.course_id == ticket.course_relation, PresentedCourse.semester == semester,
+             PresentedCourse.year == year)
+    ).first()
     # professorLinkPresentedCourse = session.query(ProfessorLinkPresentedCourse).fitler(ProfessorLinkPresentedCourse.presentedCourse == presentedCourse).first()
-    #
+    professorLinkPresentedCourse = ProfessorLinkPresentedCourse.query.filter(
+        ProfessorLinkPresentedCourse.presentedCourse == presentedCourse.id).first()
     # email_proffessor = professorLinkPresentedCourse.professor_email
 
-    next_step = Step(receiver_id='Tohidi@gmail.com',
+    next_step = Step(receiver_id=professorLinkPresentedCourse.professor_email.id,
                      parent_id=step_one.id,
                      ticket_id=step_one.ticket_id)
 
