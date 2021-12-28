@@ -138,6 +138,8 @@ class NeedCourseLinkCourse(Base):
 class ChartLinkCourse(Base):
     __tablename__ = 'chartLinkCourse'
 
+    semester_usually_offer = Column(Semester)
+
     chart_id = Column(
         Integer,
         ForeignKey('charts.id'),

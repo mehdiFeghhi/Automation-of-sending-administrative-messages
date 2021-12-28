@@ -130,7 +130,7 @@ def create_ticket():
         return jsonify(response), 400
 
 
-@app.route('/api/step-ticket', methods=['DELETE', 'PUT'])
+@app.route('/api/step-ticket', methods=['POST', 'PUT'])
 @jwt_required()
 def work_with_step_ticket():
     try:
@@ -142,7 +142,7 @@ def work_with_step_ticket():
         print(ex)
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
-    if request.method == 'DELETE':
+    if request.method == 'POST':
         response = delete_ticket_user(user_id, id_ticket)
         if response.get('Status') == 'OK':
             return jsonify(response), 200
