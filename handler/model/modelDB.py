@@ -50,7 +50,22 @@ class Orientation(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
 
-    # courses = relationship('Course', backref=backref('orientations'))
+    courses = relationship('Course', backref=backref('orientation'))
+
+class PresentedCourse(Base):
+    __tablename__ = 'presentedCourse'
+
+    id = Column(Integer, primary_key=True)
+    course_id = Column(Integer, ForeignKey('courses.id'))
+    # courses = relationship(Course, backref=backref('presentedCourse', cascade="all,delete"))
+
+    year = Column(String, nullable=False)
+    semester = Column(Enum(Semester), nullable=False)
+
+    class_name = Column(String)
+    time_final_exam = Column(String)
+
+    professors = relationship('Professor', secondary='professorLinkPresentedCourse')
 
 
 class Course(Base):
@@ -69,23 +84,10 @@ class Course(Base):
     # needed_courses_second = relationship('Course', secondary='needCourseLinkCourse')
 
     orientation_id = Column(Integer, ForeignKey('orientations.id'))
-    orientation = relationship(Orientation, backref=backref('courses'))
+    #orientation = relationship(Orientation, backref=backref('courses'))
 
+    presentedCourses = relationship(PresentedCourse, backref=backref('courses'))
 
-class PresentedCourse(Base):
-    __tablename__ = 'presentedCourse'
-
-    id = Column(Integer, primary_key=True)
-    course_id = Column(Integer, ForeignKey('courses.id'))
-    courses = relationship(Course, backref=backref('presentedCourse', cascade="all,delete"))
-
-    year = Column(String, nullable=False)
-    semester = Column(Enum(Semester), nullable=False)
-
-    class_name = Column(String)
-    time_final_exam = Column(String)
-
-    professors = relationship('Professor', secondary='professorLinkPresentedCourse')
 
 
 class TimePresentedCourse(Base):
