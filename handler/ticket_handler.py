@@ -393,9 +393,10 @@ def professor_accept(step_one, ticket):
     # professorLinkPresentedCourse = session.query(ProfessorLinkPresentedCourse).fitler(ProfessorLinkPresentedCourse.presentedCourse == presentedCourse).first()
     professorLinkPresentedCourse = ProfessorLinkPresentedCourse.query.filter(
         ProfessorLinkPresentedCourse.presentedCourse == presentedCourse.id).first()
+
     # email_proffessor = professorLinkPresentedCourse.professor_email
 
-    next_step = Step(receiver_id=professorLinkPresentedCourse.professor_email.id,
+    next_step = Step(receiver_id=professorLinkPresentedCourse.professor_email,
                      parent_id=step_one.id,
                      ticket_id=step_one.ticket_id)
 
