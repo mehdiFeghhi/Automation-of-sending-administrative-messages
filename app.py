@@ -18,7 +18,7 @@ app = create_app()
 
 @app.cli.command('initDB')
 def init_db():
-    from db_tests import init_db
+    from init_db import init_db
     init_db()
 
 
