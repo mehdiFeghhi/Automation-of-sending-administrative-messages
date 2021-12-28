@@ -52,6 +52,7 @@ class Orientation(Base):
 
     courses = relationship('Course', backref=backref('orientation'))
 
+
 class PresentedCourse(Base):
     __tablename__ = 'presentedCourse'
 
@@ -84,10 +85,9 @@ class Course(Base):
     # needed_courses_second = relationship('Course', secondary='needCourseLinkCourse')
 
     orientation_id = Column(Integer, ForeignKey('orientations.id'))
-    #orientation = relationship(Orientation, backref=backref('courses'))
+    # orientation = relationship(Orientation, backref=backref('courses'))
 
     presentedCourses = relationship(PresentedCourse, backref=backref('courses'))
-
 
 
 class TimePresentedCourse(Base):
@@ -137,6 +137,8 @@ class NeedCourseLinkCourse(Base):
 
 class ChartLinkCourse(Base):
     __tablename__ = 'chartLinkCourse'
+
+    semester_usually_offer = Column(Enum(Semester))
 
     chart_id = Column(
         Integer,

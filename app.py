@@ -7,11 +7,12 @@ from flask_sqlalchemy import SQLAlchemy
 from handler.model.modelDB import StatusStep
 from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
-    update_ticket_user, get_tickets_handler, get_receivers_handler, get_imprograss_tickets_handler
+    update_ticket_user, get_tickets_handler, get_receivers_handler, get_inprograss_tickets_handler
 from handler.user_handler import find_user_by_username_and_password, find_user_by_user_id
 from handler.course_handler import get_course_list
 
 from config import create_app
+
 app = create_app()
 
 
@@ -144,7 +145,7 @@ def create_ticket():
         return jsonify(response), 400
 
 
-@app.route('/api/step-ticket', methods=['DELETE', 'PUT'])
+@app.route('/api/step-ticket', methods=['POST', 'PUT'])
 @jwt_required()
 def work_with_step_ticket():
     try:
@@ -156,7 +157,7 @@ def work_with_step_ticket():
         print(ex)
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
-    if request.method == 'DELETE':
+    if request.method == 'POST':
         response = delete_ticket_user(user_id, id_ticket)
         if response.get('Status') == 'OK':
             return jsonify(response), 200
@@ -198,11 +199,11 @@ def get_tickets():
     return jsonify(get_tickets_handler(user_id))
 
 
-@app.route('/api/get-tickets-improgress', methods=['GET'])
+@app.route('/api/get-tickets-inprogress', methods=['GET'])
 @jwt_required()
-def get_imprograss_tickets_handler():
+def get_inprograss_tickets():
     user_id = get_jwt_identity()
-    return jsonify(get_imprograss_tickets_handler(user_id))
+    return jsonify(get_inprograss_tickets_handler(user_id))
 
 
 @app.route('/api/get-receivers', methods=['GET'])

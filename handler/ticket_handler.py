@@ -388,14 +388,14 @@ def professor_accept(step_one, ticket):
     year, semester = give_year_mount()
     presentedCourse = session.query(PresentedCourse).filter(
         and_(PresentedCourse.course_id == ticket.course_relation, PresentedCourse.semester == semester,
-             PresentedCourse.year == year)
-    ).first()
+             PresentedCourse.year == year)).first()
     # professorLinkPresentedCourse = session.query(ProfessorLinkPresentedCourse).fitler(ProfessorLinkPresentedCourse.presentedCourse == presentedCourse).first()
     professorLinkPresentedCourse = ProfessorLinkPresentedCourse.query.filter(
         ProfessorLinkPresentedCourse.presentedCourse == presentedCourse.id).first()
-    # email_proffessor = professorLinkPresentedCourse.professor_email
 
-    next_step = Step(receiver_id=professorLinkPresentedCourse.professor_email.id,
+    # email_proffessor = professorLinkPresentedCourse.professor_email
+    print(professorLinkPresentedCourse)
+    next_step = Step(receiver_id=professorLinkPresentedCourse.professor_email,
                      parent_id=step_one.id,
                      ticket_id=step_one.ticket_id)
 
@@ -591,20 +591,25 @@ def get_tickets_handler(user_id):
     return response
 
 
-def get_imprograss_tickets_handler(user_id):
+def get_inprograss_tickets_handler(user_id):
     response = []
     sent_tickets = session.query(Ticket).filter(Ticket.sender == user_id).all()
-    received_tickets = session.query(Step).filter(and_(Step.receiver_id == user_id,
-                                                       or_(Step.status_step == StatusStep(1),
-                                                           Step.status_step == StatusStep(2)))).all()
+    received_step = session.query(Step).filter(and_(Step.receiver_id == user_id,
+                                                    or_(Step.status_step == StatusStep(1),
+                                                        Step.status_step == StatusStep(2)))).all()
 
-    send_tickets_imprograss = [ticket for ticket in sent_tickets if Step.query.filter(and_(Step.ticket_id == ticket,
-                                                                                           or_(Step.status_step == StatusStep(
-                                                                                               7),
-                                                                                               Step.status_step == StatusStep(
-                                                                                                   6),
-                                                                                               Step.status_step == StatusStep(
-                                                                                                   4)))) is None]
+    received_ticket = []
+    for step in received_step:
+        received_ticket.append(session.query(Ticket).filter(Ticket.id == step.ticket_id).first())
+
+    send_tickets_imprograss = []
+    for ticket in sent_tickets:
+        x = session.query(Step).filter(and_(Step.ticket_id == 1,
+                                            or_(Step.status_step == StatusStep(7),
+                                                Step.status_step == StatusStep(6),
+                                                Step.status_step == StatusStep(4)))).all()
+        if len(x) == 0:
+            send_tickets_imprograss.append(ticket)
 
     for ticket in send_tickets_imprograss:
         all_steps = get_procedure_steps(ticket.topic)
