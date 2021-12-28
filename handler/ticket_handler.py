@@ -595,9 +595,13 @@ def get_tickets_handler(user_id):
 def get_inprograss_tickets_handler(user_id):
     response = []
     sent_tickets = session.query(Ticket).filter(Ticket.sender == user_id).all()
-    received_tickets = session.query(Step).filter(and_(Step.receiver_id == user_id,
-                                                       or_(Step.status_step == StatusStep(1),
-                                                           Step.status_step == StatusStep(2)))).all()
+    received_step = session.query(Step).filter(and_(Step.receiver_id == user_id,
+                                                    or_(Step.status_step == StatusStep(1),
+                                                        Step.status_step == StatusStep(2)))).all()
+
+    received_ticket = []
+    for step in received_step:
+        received_ticket.append(session.query(Ticket).filter(Ticket.id == step.ticket_id).first())
 
     send_tickets_imprograss = []
     for ticket in sent_tickets:
