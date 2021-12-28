@@ -388,14 +388,13 @@ def professor_accept(step_one, ticket):
     year, semester = give_year_mount()
     presentedCourse = session.query(PresentedCourse).filter(
         and_(PresentedCourse.course_id == ticket.course_relation, PresentedCourse.semester == semester,
-             PresentedCourse.year == year)
-    ).first()
+             PresentedCourse.year == year)).first()
     # professorLinkPresentedCourse = session.query(ProfessorLinkPresentedCourse).fitler(ProfessorLinkPresentedCourse.presentedCourse == presentedCourse).first()
     professorLinkPresentedCourse = ProfessorLinkPresentedCourse.query.filter(
         ProfessorLinkPresentedCourse.presentedCourse == presentedCourse.id).first()
 
     # email_proffessor = professorLinkPresentedCourse.professor_email
-
+    print(professorLinkPresentedCourse)
     next_step = Step(receiver_id=professorLinkPresentedCourse.professor_email,
                      parent_id=step_one.id,
                      ticket_id=step_one.ticket_id)
