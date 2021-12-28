@@ -1,6 +1,7 @@
 import datetime
 from flask import Flask, jsonify, request, send_file
-from flask_jwt_extended import (JWTManager, create_access_token, get_jwt_identity, jwt_required)
+from flask_jwt_extended import (
+    JWTManager, create_access_token, get_jwt_identity, jwt_required)
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from handler.model.modelDB import StatusStep
@@ -12,6 +13,12 @@ from handler.course_handler import get_course_list
 
 from config import create_app
 app = create_app()
+
+
+@app.cli.command('initDB')
+def init_db():
+    from db_tests import init_db
+    init_db()
 
 
 @app.route('/api/login', methods=['POST'])
@@ -71,7 +78,8 @@ def create_ticket():
             print(ex)
             return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
-        response = capacity_incresessase_by_student(user_id, receiver_id, description, course_id)
+        response = capacity_incresessase_by_student(
+            user_id, receiver_id, description, course_id)
 
     elif subject == 'lessons_from_another_section':
         # try:
@@ -81,7 +89,8 @@ def create_ticket():
         #     print(ex)
         #     return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
         url = params.get('url')
-        response = lessons_from_another_section(user_id, receiver_id, description, url)
+        response = lessons_from_another_section(
+            user_id, receiver_id, description, url)
     elif subject == 'class_change_time':
         try:
             course_id = params['course_id']
@@ -89,7 +98,8 @@ def create_ticket():
             print(ex)
             return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
-        response = class_change_time(user_id, receiver_id, description, course_id)
+        response = class_change_time(
+            user_id, receiver_id, description, course_id)
 
     elif subject == 'exam_time_change':
         try:
@@ -98,7 +108,8 @@ def create_ticket():
             print(ex)
             return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
-        response = exam_time_change(user_id, receiver_id, description, course_id)
+        response = exam_time_change(
+            user_id, receiver_id, description, course_id)
 
     elif subject == 'master_course_request':
         try:
@@ -107,7 +118,8 @@ def create_ticket():
             print(ex)
             return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
-        response = master_course_request(user_id, receiver_id, description, course_id)
+        response = master_course_request(
+            user_id, receiver_id, description, course_id)
 
     elif subject == 'course_from_another_orientation':
         try:
@@ -116,13 +128,15 @@ def create_ticket():
             print(ex)
             return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
-        response = course_from_another_orientation(user_id, receiver_id, description, course_id)
+        response = course_from_another_orientation(
+            user_id, receiver_id, description, course_id)
 
     else:
 
         course_id = params.get('course_id')
         url = params.get('url')
-        response = normal_ticket(user_id, receiver_id, subject, description, course_id, url)
+        response = normal_ticket(user_id, receiver_id,
+                                 subject, description, course_id, url)
 
     if response.get('Status') == 'OK':
         return jsonify(response), 201
@@ -183,6 +197,7 @@ def get_tickets():
     user_id = get_jwt_identity()
     return jsonify(get_tickets_handler(user_id))
 
+
 @app.route('/api/get-tickets-improgress', methods=['GET'])
 @jwt_required()
 def get_imprograss_tickets_handler():
@@ -195,6 +210,7 @@ def get_imprograss_tickets_handler():
 def get_receivers():
     user_id = get_jwt_identity()
     return jsonify(get_receivers_handler(user_id))
+
 
 if __name__ == '__main__':
     app.run()
