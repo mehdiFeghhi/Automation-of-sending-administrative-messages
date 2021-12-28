@@ -9,6 +9,16 @@ import enum
 engine = create_engine('sqlite:///sample.db', echo=True)
 Base = db.Model
 
+class Term(enum.IntEnum):
+    Summer = 0
+    First = 1
+    Second = 2
+    Third = 3
+    Forth = 4
+    fifth = 5
+    sixth = 6
+    seventh = 7
+    eighth = 8
 
 class EnumCourseStatus(enum.IntEnum):
     finish = 0
@@ -30,6 +40,11 @@ class StatusStep(enum.IntEnum):
     Answered = 5
     Finish = 6
     Ended_step = 7
+
+
+class TypeCourse(enum.IntEnum):
+    Main = 1
+    Optional = 2
 
 
 class Chart(Base):
@@ -75,7 +90,7 @@ class Course(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     numbers_unit = Column(Integer, nullable=False)
-
+    type_course = Column(Enum(TypeCourse), default=TypeCourse(1))
     charts = relationship(Chart, secondary='chartLinkCourse')
 
     # prerequisites_courses = relationship
@@ -138,7 +153,9 @@ class NeedCourseLinkCourse(Base):
 class ChartLinkCourse(Base):
     __tablename__ = 'chartLinkCourse'
 
-    semester_usually_offer = Column(Enum(Semester))
+    # semester_usually_offer = Column(Enum(Semester))
+
+    term_course = Column(Enum(Term))
 
     chart_id = Column(
         Integer,

@@ -648,7 +648,7 @@ def get_inprograss_tickets_handler(user_id):
                          "current_step": {step_num: steps[-1].message},
                          "all_steps": all_steps})
 
-    for step in received_tickets:
+    for step in received_ticket:
         ticket_id = step.ticket_id
         parent_ticket = session.query(Ticket).filter(Ticket.id == ticket_id).first()
         sender = session.query(User).filter(User.username == parent_ticket.sender).first()

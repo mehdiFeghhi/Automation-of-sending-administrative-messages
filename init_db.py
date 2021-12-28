@@ -21,7 +21,6 @@ charts = [
     },
 ]
 
-
 courses = [
     {
         'numbers_unit': int(1),
@@ -406,7 +405,8 @@ def init_pre_course():
             name=pre_course.get('course_parent')).one()
         child_course = Course.query.filter_by(
             name=pre_course.get('course_child')).one()
-        if not PreCourseLinkCourse.query.filter_by(course_parent=parent_course.id, course_child=child_course.id).one_or_none():
+        if not PreCourseLinkCourse.query.filter_by(course_parent=parent_course.id,
+                                                   course_child=child_course.id).one_or_none():
             model = PreCourseLinkCourse(course_parent=parent_course.id,
                                         course_child=child_course.id)
 
@@ -423,9 +423,10 @@ def init_need_course():
             name=need_course.get('first_course')).one()
         second_course = Course.query.filter_by(
             name=need_course.get('second_course')).one()
-        if not NeedCourseLinkCourse.query.filter_by(first_course=first_course.id, second_course=second_course.id).one_or_none():
+        if not NeedCourseLinkCourse.query.filter_by(first_course=first_course.id,
+                                                    second_course=second_course.id).one_or_none():
             model = NeedCourseLinkCourse(first_course=first_course.id,
-                                        second_course=second_course.id)
+                                         second_course=second_course.id)
 
             db.session.add(model)
 
