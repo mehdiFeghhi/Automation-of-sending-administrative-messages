@@ -723,7 +723,7 @@ def get_receivers_handler(user_id):
         dep_head_user = session.query(User).filter(User.username == curr_dep_head.email).first()
         dep_head_data = {
             "id": dep_head_user.username,
-            "fname": dep_head_user.fstatus_stepirs_name,
+            "fname": dep_head_user.firs_name,
             "lname": dep_head_user.last_name
         }
         res.append(dep_head_data)
