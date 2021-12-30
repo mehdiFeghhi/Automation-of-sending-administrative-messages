@@ -4,12 +4,14 @@ from flask_jwt_extended import (
     JWTManager, create_access_token, get_jwt_identity, jwt_required)
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-from handler.model.modelDB import StatusStep
+from sqlalchemy.orm import session
+from sqlalchemy.sql.functions import user
+from handler.model.modelDB import StatusStep, Supervisor
 from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
     update_ticket_user, get_tickets_handler, get_receivers_handler, get_inprograss_tickets_handler
 from handler.user_handler import find_user_by_username_and_password, find_user_by_user_id
-from handler.course_handler import get_course_list, get_orientations_handler
+from handler.course_handler import get_course_list, get_orientations_handler, create_course_handler
 
 from config import create_app
 
@@ -215,6 +217,21 @@ def get_receivers():
 @app.route('/api/get-orientations', methods=['GET'])
 def get_orientation():
     return jsonify(get_orientations_handler())
+
+@app.route('/api/add-course', methods=['post'])
+@jwt_required()
+def create_course():
+    user_id = get_jwt_identity()
+    params = request.get_json()
+    response = create_course_handler(user_id,
+                        params["name_course"], 
+                        params["orientation"],
+                        params["unit_numbers"],
+                        params["prerequisites"])
+    if response.get('Status') == 'OK':
+        return jsonify(response), 201
+    else:
+        return jsonify(response), 401
 
 if __name__ == '__main__':
     app.run()
