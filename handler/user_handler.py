@@ -134,3 +134,40 @@ def get_professors_handler():
                     }
         res.append(prof_data)
     return res
+
+def create_students_handler(user_id,
+                            std_num, 
+                            firs_name, 
+                            last_name, 
+                            password, 
+                            orientation, 
+                            cross_section, 
+                            enter_year, 
+                            adviser_id,
+                            superviser_id):
+    
+    if(session.query(EducationAssistant).filter(EducationAssistant.username == user_id).first() == None):
+        return {'Status': 'شما مجوز انجام اینکار را ندارید'}
+
+    advisor = session.query(Advisor).filter(Advisor.email == adviser_id).first()
+    if(session.query(Advisor).filter(Advisor.email == adviser_id).first() == None):
+        return {'Status': 'استاد مشاور وجود ندارد'}
+    
+    new_user = User(username= std_num, password=str(hashlib.sha256(password.encode()).hexdigest()),
+                            firs_name= firs_name,
+                            last_name= last_name)
+
+    new_student = Student(student_number=new_user.username, time_enter= enter_year, cross_section= cross_section,
+                          orientation= orientation)
+
+    supervisor = session.query(Supervisor).filter(Supervisor.email == superviser_id).first()
+
+    new_student.adviser= advisor
+    new_student.supervisor = supervisor
+
+    session.add(new_user)
+    session.add(new_student)
+    session.commit()
+    return {'Status': 'OK'}
+
+    
