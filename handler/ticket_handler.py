@@ -545,6 +545,7 @@ def get_tickets_handler(user_id):
         all_steps = get_procedure_steps(ticket.topic)
         steps = session.query(Step).filter(Step.ticket_id == ticket.id).order_by(asc(Step.id)).all()
         sender = session.query(User).filter(User.username == ticket.sender).first()
+        course = session.query(Course).filter(Course.id == ticket.course_relation).first()
         step_num = 0
         descriptions = {}
         for step in steps:
@@ -557,6 +558,7 @@ def get_tickets_handler(user_id):
                          "sender_lname": sender.last_name,
                          "message": ticket.message,
                          "type_ticket": ticket.topic,
+                         "course": course.name if course != None else None,
                          "created_date": ticket.exact_time_create,
                          "descriptions": descriptions,
                          "status_step": steps[-1].status_step,
@@ -566,6 +568,8 @@ def get_tickets_handler(user_id):
     for step in received_tickets:
         ticket_id = step.ticket_id
         parent_ticket = session.query(Ticket).filter(Ticket.id == ticket_id).first()
+        course = session.query(Course).filter(Course.id == parent_ticket.course_relation).first()
+
         sender = session.query(User).filter(User.username == parent_ticket.sender).first()
 
         all_steps = get_procedure_steps(parent_ticket.topic)
@@ -583,6 +587,7 @@ def get_tickets_handler(user_id):
                          "sender_lname": sender.last_name,
                          "message": parent_ticket.message,
                          "type_ticket": parent_ticket.topic,
+                         "course": course.name if course != None else None,
                          "created_date": parent_ticket.exact_time_create,
                          "descriptions": descriptions,
                          "status_step": rest_steps[-1].status_step,
@@ -714,11 +719,27 @@ def get_receivers_handler(user_id):
         res.append(supervisor_info)
         return res
 
-    # elif(session.query(Advisor).filter(Advisor.id == user_id).first() != None):
-
+    elif(session.query(Advisor).filter(Advisor.id == user_id).first() != None):
+        advisor = session.query(Advisor).filter(Advisor.id == user_id).first()
+        dep_head_user = session.query(User).filter(User.username == curr_dep_head.email).first()
+        dep_head_data = {
+            "id": dep_head_user.username,
+            "fname": dep_head_user.firs_name,
+            "lname": dep_head_user.last_name
+        }
+        res.append(dep_head_data)
+        ed_assistant = session.query(EducationAssistant).first()
+        user = session.query(User).filter(User.username == ed_assistant.username).first()
+        supervisor_info = {
+            "id": user.username,
+            "fname": user.firs_name,
+            "lname": user.last_name
+        }
+        res.append(supervisor_info)
+        return res
     # elif(session.query(Supervisor).filter(Supervisor.id == user_id).first() != None):
 
-    else:
+    elif(session.query(Student).filter(Student.student_number == user_id).first() != None):
         student = session.query(Student).filter(Student.student_number == user_id).first()
         dep_head_user = session.query(User).filter(User.username == curr_dep_head.email).first()
         dep_head_data = {
