@@ -10,7 +10,7 @@ from handler.model.modelDB import StatusStep, Supervisor
 from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
     update_ticket_user, get_tickets_handler, get_receivers_handler, get_inprograss_tickets_handler
-from handler.user_handler import find_user_by_username_and_password, find_user_by_user_id
+from handler.user_handler import find_user_by_username_and_password, find_user_by_user_id, get_professors_handler
 from handler.course_handler import get_course_list, get_orientations_handler, create_course_handler
 
 from config import create_app
@@ -233,5 +233,9 @@ def create_course():
     else:
         return jsonify(response), 401
 
+@app.route('/api/get-professors', methods=['GET'])
+def get_professors():
+    return jsonify(get_professors_handler()), 200
+    
 if __name__ == '__main__':
     app.run()

@@ -123,3 +123,14 @@ def find_user_by_user_id(user_id: str):
                                          'role': role}}
     else:
         raise "User model in db work wrong"
+
+def get_professors_handler():
+    profs = session.query(Professor).all()
+    res = []
+    for prof in profs:
+        prof_data = {'id': prof.email,
+                    'fname': prof.user.firs_name,
+                    'lname': prof.user.last_name
+                    }
+        res.append(prof_data)
+    return res
