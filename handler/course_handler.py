@@ -18,3 +18,18 @@ def get_course_list():
     res.append(course_info)
 
   return res
+
+def get_orientations_handler():
+  res = []
+  orientation_list = Orientation.query.all()
+  for orientation in orientation_list:
+    print(orientation.name)
+    res.append({
+      "id": orientation.id,
+      "name": orientation.name
+    })
+  return res
+  
+# def create_course(name_course, orientation, unit_numbers, prerequisites):
+#   new_course = Course(name = name_course, numbers_unit= unit_numbers)
+#   orientation = 

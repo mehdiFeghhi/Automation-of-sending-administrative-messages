@@ -9,7 +9,7 @@ from handler.ticket_handler import capacity_incresessase_by_student, lessons_fro
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
     update_ticket_user, get_tickets_handler, get_receivers_handler, get_inprograss_tickets_handler
 from handler.user_handler import find_user_by_username_and_password, find_user_by_user_id
-from handler.course_handler import get_course_list
+from handler.course_handler import get_course_list, get_orientations_handler
 
 from config import create_app
 
@@ -212,6 +212,9 @@ def get_receivers():
     user_id = get_jwt_identity()
     return jsonify(get_receivers_handler(user_id))
 
+@app.route('/api/get-orientations', methods=['GET'])
+def get_orientation():
+    return jsonify(get_orientations_handler())
 
 if __name__ == '__main__':
     app.run()
