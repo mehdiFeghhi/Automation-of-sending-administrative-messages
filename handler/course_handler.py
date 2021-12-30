@@ -46,5 +46,5 @@ def create_course_handler(user_id, name_course, orientation_id, unit_numbers, pr
     return {'Status': 'OK'}
   
   else:
-    return {'Status': 'Err'}
+    return {'Status': 'شما مجوز انجام اینکار را ندارید'}
   
