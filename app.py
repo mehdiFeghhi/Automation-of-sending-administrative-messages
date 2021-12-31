@@ -261,7 +261,7 @@ def create_student():
     if(resp['Status'] == 'شماره دانشجویی تکراری است'):
         return resp, 400
     
-    if(resp['Status'] == 'استاد مشاور وجود ندارد')
+    if(resp['Status'] == 'استاد مشاور وجود ندارد'):
         return resp, 400
 
     return resp, 201
@@ -293,6 +293,6 @@ def get_permitted_courses():
     user_id = get_jwt_identity()
 
     response = find_permitted_courses(user_id)
-    
+
 if __name__ == '__main__':
     app.run()
