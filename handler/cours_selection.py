@@ -1,4 +1,5 @@
 import jdatetime
+from sqlalchemy.sql.elements import and_
 
 from handler.connect_db import session
 from handler.model.modelDB import EducationAssistant, Course, PermittedCourse, Professor, Student, \
@@ -192,7 +193,7 @@ def is_this_permitted_course_ok_for_this_student(student: Student, list_id_permi
             InitialCourseSelection.student_number == student.student_number,
             InitialCourseSelection.semester == semester,
             InitialCourseSelection.year == year).first()
-        if initial_course is None:
+        if initial_course is not None:
             print({'Status': 'ERROR', 'message': 'این درس قبلا توسط شخص انتخاب شده است.'})
             return False
 
@@ -205,7 +206,7 @@ def is_this_permitted_course_ok_for_this_student(student: Student, list_id_permi
 
 def add_initial_course(user_id, list_id_permitted_course):
     is_this_person_student = is_person_student(user_id)
-    student = Student.query.filter(Student.student_number == user_id)
+    student = Student.query.filter(Student.student_number == user_id).first()
     this_permitted_course_ok = is_this_permitted_course_ok_for_this_student(student, list_id_permitted_course)
     year, semester = give_year_mount()
     if not is_this_person_student:
@@ -217,10 +218,26 @@ def add_initial_course(user_id, list_id_permitted_course):
         for id_permitted_Course in list_id_permitted_course:
             list_of_initial_course.append(InitialCourseSelection(student_number=user_id, year=year, semester=semester,
                                                                  permittedCourse_id=id_permitted_Course))
-        session.add(list_of_initial_course)
+        session.add_all(list_of_initial_course)
         session.commit()
         return {'Status': 'OK', 'message': 'انتخاب واحد مقدماتی شما با موفقیت ثبت شد.'}
 
 
 def find_initial_course_selection(user_id):
-    pass
+    year, semester = give_year_mount()
+    is_this_person_student = is_person_student(user_id)
+    if not is_this_person_student:
+        return {'Status': 'ERROR', 'message': 'این شخص دانشجو نیست .'}
+
+    initial_course_list = InitialCourseSelection.query.filter(and_(InitialCourseSelection.student_number == user_id,
+                                                                   InitialCourseSelection.year == year,
+                                                                   InitialCourseSelection.semester == semester)).all()
+    list_dic = []
+    for initial_course_selection in initial_course_list:
+        list_dic.append({'id_initial_course_selection': initial_course_selection.id,
+                         'course_name': initial_course_selection.PermittedCourse.course.name,
+                         'orientation': initial_course_selection.PermittedCourse.course.orientation.name,
+                         'unit_numbers': initial_course_selection.PermittedCourse.course.numbers_unit
+                         })
+
+    return {'Status': 'OK', 'data': list_dic}

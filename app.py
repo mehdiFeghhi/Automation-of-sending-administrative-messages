@@ -332,7 +332,7 @@ def get_permitted_courses():
 @app.route('/api/post-permitted-course', methods=['POST'])
 @jwt_required()
 def post_permitted_course():
-    #    try:
+    try:
 
             user_id = get_jwt_identity()
             params = request.get_json()
@@ -343,13 +343,15 @@ def post_permitted_course():
             else:
                 return jsonify(response), 400
 
-#    except Exception as ex:
-#        print(ex)
-#        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+    except Exception as ex:
+       print(ex)
+       return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
 @app.route('/api/get-initial-course-selection', methods=['GET'])
 @jwt_required()
 def get_initial_course_selection():
+
+    try:
 
         user_id = get_jwt_identity()
 
@@ -358,6 +360,10 @@ def get_initial_course_selection():
             return jsonify(response), 200
         else:
             return jsonify(response), 400
+
+    except Exception as ex:
+        print(ex)
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
 
 @app.route('/api/add-professor', methods=['POST'])
