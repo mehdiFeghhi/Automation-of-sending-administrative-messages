@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, json, jsonify, request, send_file
 from flask_jwt_extended import (
     JWTManager, create_access_token, get_jwt_identity, jwt_required)
 from flask_cors import CORS
@@ -13,7 +13,7 @@ from handler.ticket_handler import capacity_incresessase_by_student, lessons_fro
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
     update_ticket_user, get_tickets_handler, get_receivers_handler, get_inprograss_tickets_handler
 from handler.user_handler import find_user_by_username_and_password, find_user_by_user_id, get_professors_handler, \
-    create_students_handler
+    create_students_handler, create_professor_handler
 from handler.course_handler import get_course_list, get_orientations_handler, create_course_handler
 
 from config import create_app
@@ -255,7 +255,17 @@ def create_student():
                             params['enter_year'],
                             params['adviser_id'],
                             params['superviser_id'])
-    return resp
+    if(resp['Status'] == 'شما مجوز انجام اینکار را ندارید'):
+        return jsonify(resp), 401
+    
+    if(resp['Status'] == 'شماره دانشجویی تکراری است'):
+        return jsonify(resp), 400
+    
+    if(resp['Status'] == 'استاد مشاور وجود ندارد'):
+        return jsonify(resp), 400
+
+    return jsonify(resp), 201
+
 
 
 @app.route('/api/add-permitted-course', methods=['POST'])
@@ -284,6 +294,30 @@ def get_permitted_courses():
 
     response = find_permitted_courses(user_id)
 
+@app.route('/api/add-professor', methods=['POST'])
+@jwt_required()
+def create_professor():
+    try:
+        user_id = get_jwt_identity()
+        params = request.get_json()
+        resp = create_professor_handler(user_id,
+                                     params['first_name'],
+                                     params['last_name'],
+                                     params['email'],
+                                     params['pass'],
+                                     params['is_departman_boss'])
+        if(resp['Status'] == 'شما مجوز انجام اینکار را ندارید'):
+            return jsonify(resp), 401
+    
+        if(resp['Status'] == 'ایمل استاد تکراری است'):
+            return jsonify(resp), 400
 
+        return jsonify(resp), 201
+
+    except Exception as ex:
+        print(ex)
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+        
 if __name__ == '__main__':
     app.run()

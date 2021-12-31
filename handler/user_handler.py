@@ -1,10 +1,12 @@
 import hashlib
+from flask_cors.core import probably_regex
 
 from sqlalchemy.orm import sessionmaker
 from handler.connect_db import session
 from sqlalchemy import and_, create_engine
 from handler.model.modelDB import User, Student, Professor, Advisor, EducationAssistant, Supervisor, DepartmentHead, \
     ResponsibleTraining
+from datetime import date
 
 
 def find_main_role_of_person_information(user):
@@ -148,6 +150,9 @@ def create_students_handler(user_id,
     
     if(session.query(EducationAssistant).filter(EducationAssistant.username == user_id).first() == None):
         return {'Status': 'شما مجوز انجام اینکار را ندارید'}
+    
+    if(session.query(Student).filter(Student.student_number == std_num).first() != None):
+        return {'Status': 'شماره دانشجویی تکراری است'}
 
     advisor = session.query(Advisor).filter(Advisor.email == adviser_id).first()
     if(session.query(Advisor).filter(Advisor.email == adviser_id).first() == None):
@@ -170,4 +175,31 @@ def create_students_handler(user_id,
     session.commit()
     return {'Status': 'OK'}
 
-    
+def create_professor_handler(user_id,
+                             first_name,
+                             last_name,
+                             email,
+                             password,
+                             is_departman_boss):
+
+    if(session.query(EducationAssistant).filter(EducationAssistant.username == user_id).first() == None):
+        return {'Status': 'شما مجوز انجام اینکار را ندارید'}
+
+    if(session.query(Professor).filter(Professor.email == email).first() != None):
+        return {'Status': 'ایمل استاد تکراری است'}
+
+    new_user = User(username= email, password=str(hashlib.sha256(password.encode()).hexdigest()),
+                              firs_name= first_name,
+                              last_name= last_name)
+
+    new_prof = Professor(email= new_user.username)
+
+    if(is_departman_boss):
+        dep_head = DepartmentHead(email= new_prof.email,
+                                                      date_start_duty=date.today())
+        session.add(dep_head)
+
+    session.add_all([new_user, new_prof])
+    session.commit()
+
+    return {'Status': 'OK'}
