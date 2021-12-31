@@ -21,42 +21,42 @@ def add_item_to_db():
     user_student_one = User(username='9732527', password=str(hashlib.sha256("1234".encode()).hexdigest()),
                             firs_name='mehdi',
                             last_name='Feghhi')
-    student_one = Student(student_number=user_student_one.username, time_enter='1397', cross_section='masters',
+    student_one = Student(student_number=user_student_one.username, time_enter='1397', cross_section='bachelor',
                           orientation='computer')
 
     user_student_two = User(username='9632527', password=str(hashlib.sha256("1234".encode()).hexdigest()),
                             firs_name='hassan',
                             last_name='Abbasi')
-    student_tow = Student(student_number=user_student_two.username, time_enter='1396', cross_section='masters',
+    student_tow = Student(student_number=user_student_two.username, time_enter='1396', cross_section='bachelor',
                           orientation='computer')
 
     user_student_three = User(username='9732557', password=str(hashlib.sha256("1234".encode()).hexdigest()),
                               firs_name='poay',
                               last_name='fekry')
-    student_three = Student(student_number=user_student_three.username, time_enter='1397', cross_section='masters',
+    student_three = Student(student_number=user_student_three.username, time_enter='1397', cross_section='bachelor',
                             orientation='computer')
     user_student_four = User(username='9832538', password=str(hashlib.sha256("1234".encode()).hexdigest()),
                              firs_name='reza',
                              last_name='farjam')
-    student_four = Student(student_number=user_student_four.username, time_enter='1398', cross_section='masters',
+    student_four = Student(student_number=user_student_four.username, time_enter='1398', cross_section='bachelor',
                            orientation='computer')
 
     user_student_five = User(username='9732517', password=str(hashlib.sha256("4231".encode()).hexdigest()),
                              firs_name='mood',
                              last_name='sharizi')
-    student_five = Student(student_number=user_student_five.username, time_enter='1397', cross_section='masters',
+    student_five = Student(student_number=user_student_five.username, time_enter='1397', cross_section='bachelor',
                            orientation='computer')
 
     user_student_six = User(username='9731527', password=str(hashlib.sha256("4231".encode()).hexdigest()),
                             firs_name='hossain',
                             last_name='hedayadtzadeh')
-    student_six = Student(student_number=user_student_six.username, time_enter='1397', cross_section='senior',
+    student_six = Student(student_number=user_student_six.username, time_enter='1397', cross_section='master',
                           orientation='computer')
 
     user_student_seven = User(username='9822528', password=str(hashlib.sha256("4231".encode()).hexdigest()),
                               firs_name='sara',
                               last_name='mohammady')
-    student_seven = Student(student_number=user_student_seven.username, time_enter='1398', cross_section='senior',
+    student_seven = Student(student_number=user_student_seven.username, time_enter='1398', cross_section='master',
                             orientation='computer')
 
     user_professor_one = User(username='keshtkaran@gmail.com',

@@ -6,11 +6,14 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import session
 from sqlalchemy.sql.functions import user
+
+from handler.cours_selection import find_permitted_courses, create_permitted_course
 from handler.model.modelDB import StatusStep, Supervisor
 from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
     update_ticket_user, get_tickets_handler, get_receivers_handler, get_inprograss_tickets_handler
-from handler.user_handler import find_user_by_username_and_password, find_user_by_user_id, get_professors_handler, create_students_handler
+from handler.user_handler import find_user_by_username_and_password, find_user_by_user_id, get_professors_handler, \
+    create_students_handler
 from handler.course_handler import get_course_list, get_orientations_handler, create_course_handler
 
 from config import create_app
@@ -224,10 +227,10 @@ def create_course():
     user_id = get_jwt_identity()
     params = request.get_json()
     response = create_course_handler(user_id,
-                        params["name_course"], 
-                        params["orientation"],
-                        params["unit_numbers"],
-                        params["prerequisites"])
+                                     params["name_course"],
+                                     params["orientation"],
+                                     params["unit_numbers"],
+                                     params["prerequisites"])
     if response.get('Status') == 'OK':
         return jsonify(response), 201
     else:
@@ -262,5 +265,34 @@ def create_student():
         return resp, 400
 
     return resp, 201
+
+
+
+@app.route('/api/add-permitted-course', methods=['POST'])
+@jwt_required()
+def add_permitted_course():
+    try:
+        user_id = get_jwt_identity()
+        params = request.get_json()
+        course_section = params['course_section']
+        course_id = params['course_id']
+        response = create_permitted_course(user_id, course_id, course_section)
+        if response.get('Status') == 'OK':
+            return jsonify(response), 201
+        else:
+            return jsonify(response), 401
+
+    except Exception as ex:
+        print(ex)
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+
+@app.route('/api/get-permitted-course', methods=['GET'])
+@jwt_required()
+def get_permitted_courses():
+    user_id = get_jwt_identity()
+
+    response = find_permitted_courses(user_id)
+    
 if __name__ == '__main__':
     app.run()

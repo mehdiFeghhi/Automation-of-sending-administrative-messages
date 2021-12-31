@@ -97,7 +97,7 @@ class Course(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     numbers_unit = Column(Integer, nullable=False)
-    type_course = Column(Enum(TypeCourse), default=TypeCourse(1))
+    # type_course = Column(Enum(TypeCourse), default=TypeCourse(1))
     charts = relationship(Chart, secondary='chartLinkCourse')
 
     # prerequisites_courses = relationship
