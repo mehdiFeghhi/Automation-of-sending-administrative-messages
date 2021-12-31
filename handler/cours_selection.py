@@ -241,3 +241,44 @@ def find_initial_course_selection(user_id):
                          })
 
     return {'Status': 'OK', 'data': list_dic}
+
+
+def delete_permitted_course_by(permitted_course_id, user_id):
+    is_user_assignment_eduction = is_assignment_education(user_id)
+    if not is_user_assignment_eduction:
+        return {'Status': 'ERROR', 'message': 'شخص موردنظر مسئول آموزش نیست'}
+
+    PermittedCourse.query.filter(PermittedCourse.permittedCourse_id == permitted_course_id).delete()
+    session.commit()
+    return {'Status': 'OK', 'message': 'با موفقیت تغییر اعمال شد.'}
+
+
+def update_permitted_course_prof_by(permitted_course_id, professor_id, user_id):
+    is_user_assignment_eduction = is_assignment_education(user_id)
+    if not is_user_assignment_eduction:
+        return {'Status': 'ERROR', 'message': 'شخص موردنظر مسئول آموزش نیست'}
+
+    permitted_course = PermittedCourse.query.filter(PermittedCourse.permittedCourse_id == permitted_course_id).first()
+    permitted_course.professor_id = professor_id
+    session.commit()
+    return {'Status': 'OK', 'message': 'با موفقیت تغییر اعمال شد.'}
+
+
+def delete_permitted_course_prof_by(id_initial_course_selection, user_id):
+    is_this_person_student = is_person_student(user_id)
+    if not is_this_person_student:
+        return {'Status': 'ERROR', 'message': 'این شخص دانشجو نیست .'}
+
+    initial_course_selection = InitialCourseSelection.query.filter(
+        InitialCourseSelection.id == id_initial_course_selection).first()
+
+    if initial_course_selection is None:
+        return {'Status': 'ERROR', 'message': 'این انتخاب واحد وجود ندارد.'}
+
+    elif initial_course_selection.student_number != user_id:
+        return {'Status': 'ERROR', 'message': 'این شخص همچین درسی را انتخاب واحد ننموده.'}
+
+    else:
+
+        InitialCourseSelection.query.filter(InitialCourseSelection.id == id_initial_course_selection).delete()
+        return {'Status': 'OK', 'message': 'با موفقیت تغییر اعمال شد.'}

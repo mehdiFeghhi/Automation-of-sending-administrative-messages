@@ -8,7 +8,8 @@ from sqlalchemy.orm import session
 from sqlalchemy.sql.functions import user
 
 from handler.cours_selection import find_permitted_courses, create_permitted_course, add_initial_course, \
-    find_initial_course_selection, create_permitted_courses
+    find_initial_course_selection, create_permitted_courses, delete_permitted_course_by, \
+    update_permitted_course_prof_by, delete_permitted_course_prof_by
 from handler.model.modelDB import StatusStep, Supervisor
 from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
@@ -310,9 +311,6 @@ def add_permitted_courses():
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
 
-
-
-
 @app.route('/api/get-permitted-course', methods=['GET'])
 @jwt_required()
 def get_permitted_courses():
@@ -334,28 +332,85 @@ def get_permitted_courses():
 def post_permitted_course():
     try:
 
-            user_id = get_jwt_identity()
-            params = request.get_json()
-            list_id_permitted_course = params['id_permitted_course']
-            response = add_initial_course(user_id, list_id_permitted_course)
-            if response.get('Status') == 'OK':
-                return jsonify(response), 200
-            else:
-                return jsonify(response), 400
+        user_id = get_jwt_identity()
+        params = request.get_json()
+        list_id_permitted_course = params['id_permitted_course']
+        response = add_initial_course(user_id, list_id_permitted_course)
+        if response.get('Status') == 'OK':
+            return jsonify(response), 200
+        else:
+            return jsonify(response), 400
 
     except Exception as ex:
-       print(ex)
-       return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+        print(ex)
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
 
 @app.route('/api/get-initial-course-selection', methods=['GET'])
 @jwt_required()
 def get_initial_course_selection():
-
     try:
 
         user_id = get_jwt_identity()
 
         response = find_initial_course_selection(user_id)
+        if response.get('Status') == 'OK':
+            return jsonify(response), 200
+        else:
+            return jsonify(response), 400
+
+    except Exception as ex:
+        print(ex)
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+
+@app.route('/api/delete-permitted-course', methods=['POST'])
+@jwt_required()
+def delete_permitted_course():
+    try:
+        user_id = get_jwt_identity()
+        params = request.get_json()
+        permitted_course_id = params['permitted_course_id']
+
+        response = delete_permitted_course_by(permitted_course_id, user_id)
+        if response.get('Status') == 'OK':
+            return jsonify(response), 200
+        else:
+            return jsonify(response), 400
+
+    except Exception as ex:
+        print(ex)
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+
+@app.route('/api/update-permitted-course-professor', methods=['POST'])
+@jwt_required()
+def update_permitted_course_prof():
+    try:
+        user_id = get_jwt_identity()
+        params = request.get_json()
+        permitted_course_id = params['permitted_course_id']
+        professor_id = params['professor_id']
+        response = update_permitted_course_prof_by(permitted_course_id, professor_id, user_id)
+        if response.get('Status') == 'OK':
+            return jsonify(response), 200
+        else:
+            return jsonify(response), 400
+
+    except Exception as ex:
+        print(ex)
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+
+@app.route('/api/delete-initial-course-selection', methods=['POST'])
+@jwt_required()
+def delete_initial_course_selection():
+    try:
+
+        user_id = get_jwt_identity()
+        params = request.get_json()
+        id_initial_course_selection = params['id_initial_course_selection']
+        response = delete_permitted_course_prof_by(id_initial_course_selection, user_id)
         if response.get('Status') == 'OK':
             return jsonify(response), 200
         else:
@@ -398,15 +453,15 @@ def update_professor():
         user_id = get_jwt_identity()
         params = request.get_json()
         resp = update_professor_handler(user_id,
-                                     params['first_name'],
-                                     params['last_name'],
-                                     params['email'],
-                                     params['pass'],
-                                     params['is_departman_boss'])
-        if(resp['message'] == 'شما مجوز انجام اینکار را ندارید'):
+                                        params['first_name'],
+                                        params['last_name'],
+                                        params['email'],
+                                        params['pass'],
+                                        params['is_departman_boss'])
+        if (resp['message'] == 'شما مجوز انجام اینکار را ندارید'):
             return jsonify(resp), 401
-    
-        if(resp['message'] == 'استاد یافت نشد'):
+
+        if (resp['message'] == 'استاد یافت نشد'):
             return jsonify(resp), 400
 
         return jsonify(resp), 200
@@ -414,6 +469,7 @@ def update_professor():
     except Exception as ex:
         print(ex)
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
 
 @app.route('/api/get-students', methods=['get'])
 @jwt_required()
@@ -431,6 +487,7 @@ def get_students():
     except Exception as ex:
         print(ex)
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
 
 if __name__ == '__main__':
     app.run()
