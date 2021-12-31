@@ -9,6 +9,12 @@ import enum
 engine = create_engine('sqlite:///sample.db', echo=True)
 Base = db.Model
 
+
+class Grade(enum.IntEnum):
+    bachelor = 1
+    master = 2
+
+
 class Term(enum.IntEnum):
     Summer = 0
     First = 1
@@ -19,6 +25,7 @@ class Term(enum.IntEnum):
     sixth = 6
     seventh = 7
     eighth = 8
+
 
 class EnumCourseStatus(enum.IntEnum):
     finish = 0
@@ -319,8 +326,9 @@ class PermittedCourse(Base):
     __tablename__ = 'permittedCourses'
 
     permittedCourse_id = Column(Integer, primary_key=True)
-    year = Column(Integer, nullable=False)
-    semester = Column(Enum(Semester), nullable=False)
+    # year = Column(Integer, nullable=False)
+    # semester = Column(Enum(Semester), nullable=False)
+    cross_section = Column(String, nullable=False)
 
     course_id = Column(Integer, ForeignKey('courses.id'), nullable=False)
     course = relationship(Course, backref=backref('permittedCourses'))
@@ -336,7 +344,8 @@ class InitialCourseSelection(Base):
     id = Column(Integer, primary_key=True)
     student_number = Column(String, ForeignKey('students.student_number'), nullable=False)
     student = relationship(Student, backref=backref('initialCourseSelection'))
-
+    year = Column(Integer, nullable=False)
+    semester = Column(Enum(Semester), nullable=False)
     # permittedCourse_year = Column(Integer, ForeignKey('permittedCourses.year'), primary_key=True)
     # permittedCourse_semester = Column(Integer, ForeignKey('permittedCourses.semester'), primary_key=True)
     # permittedCourse_id = Column(Integer, ForeignKey('permittedCourses.course_id'), primary_key=True)
