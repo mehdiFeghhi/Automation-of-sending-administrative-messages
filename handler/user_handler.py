@@ -303,3 +303,14 @@ def update_student_info(user_id,
     student.supervisor_id = superviser_id
     session.commit()
     return {'message': 'OK'}
+
+def change_student_pass_handler(user_id,
+                        password):
+
+    student = session.query(Student).filter(Student.student_number == user_id).first()
+    if(student == None):
+        return {'message': 'شما مجوز انجام اینکار را ندارید'}
+    
+    student.user.password = str(hashlib.sha256(password.encode()).hexdigest())
+    session.commit()
+    return {'message': 'OK'}

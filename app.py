@@ -14,7 +14,8 @@ from handler.ticket_handler import capacity_incresessase_by_student, lessons_fro
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
     update_ticket_user, get_tickets_handler, get_receivers_handler, get_inprograss_tickets_handler
 from handler.user_handler import find_user_by_username_and_password, find_user_by_user_id, get_professors_handler, \
-    create_students_handler, create_professor_handler, update_professor_handler, get_students_handler, update_student_info
+    create_students_handler, create_professor_handler, update_professor_handler, get_students_handler, update_student_info, \
+        change_student_pass_handler
 from handler.course_handler import get_course_list, get_orientations_handler, create_course_handler
 
 from config import create_app
@@ -461,6 +462,24 @@ def edit_student_info():
         print(ex)
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
+@app.route('/api/update-student-person', methods=['put'])
+@jwt_required()
+def change_student_pass():
+    try:
+        user_id = get_jwt_identity()
+        params = request.get_json()
+        resp = change_student_pass_handler(user_id,
+                                           params['password'])
+                                    
+        if (resp['message'] == 'شما مجوز انجام اینکار را ندارید'):
+            return jsonify(resp), 401
+
+        return jsonify(resp), 200
+
+
+    except Exception as ex:
+        print(ex)
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
 if __name__ == '__main__':
     app.run()
