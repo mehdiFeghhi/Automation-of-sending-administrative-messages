@@ -380,12 +380,13 @@ def get_students():
     try:
         user_id = get_jwt_identity()
         params = request.get_json()
-        resp = get_students_handler(user_id)
-        if(resp.count('message') > 0):
-            if(resp['message'] == 'شما مجوز انجام اینکار را ندارید'):
-                return jsonify(resp), 401
+        try:
+            resp = get_students_handler(user_id)
+            return jsonify(resp), 200
 
-        return jsonify(resp), 200
+        except Exception as ex:
+            return jsonify({'message': 'شما مجوز انجام اینکار را ندارید'}), 401
+
     except Exception as ex:
         print(ex)
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400

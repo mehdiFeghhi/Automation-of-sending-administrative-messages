@@ -254,7 +254,7 @@ def update_professor_handler(user_id,
 def get_students_handler(user_id):
     resp = []
     if(session.query(EducationAssistant).filter(EducationAssistant.username == user_id).first() == None):
-        return [{'message': 'شما مجوز انجام اینکار را ندارید'}]
+        raise 'شما مجوز انجام اینکار را ندارید'
 
     students = session.query(Student).all()
     for student in students:
