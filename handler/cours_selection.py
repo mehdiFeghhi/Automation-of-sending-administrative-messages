@@ -1,5 +1,22 @@
+import jdatetime
+
 from handler.connect_db import session
-from handler.model.modelDB import EducationAssistant, Course, PermittedCourse, Professor, Student
+from handler.model.modelDB import EducationAssistant, Course, PermittedCourse, Professor, Student, \
+    InitialCourseSelection, Semester
+
+
+def give_year_mount():
+    year = str(jdatetime.date.today().year)
+    month = jdatetime.date.today().month
+
+    if 6 <= month < 11:
+        semester = Semester(1)
+    elif 11 <= month < 2:
+        semester = Semester(2)
+    else:
+        semester = Semester(3)
+
+    return year, semester
 
 
 def is_assignment_education(user_id):
@@ -29,16 +46,52 @@ def is_person_student(user_id):
         return False
 
 
+def permitted_course_student(user_id):
+    student = Student.query.filter(student_number=user_id).first()
+    permitted_course_list = PermittedCourse.query.filter(cross_section=student.cross_section).all()
+    year, semester = give_year_mount()
+    initial_course_list = InitialCourseSelection.query.filter(student_number=user_id, semester=semester,
+                                                              year=year).all()
+    list_not_show_permitted_course = []
+    for obj in initial_course_list:
+        list_not_show_permitted_course.append(obj.permittedCourse_id)
+    list_send = []
+    for obj in permitted_course_list:
+        if obj.id not in list_not_show_permitted_course:
+            name_professor = obj.professor.user.firs_name + " " + obj.professor.user.last_name
+            course_section = obj.course_section
+            orientation = obj.course.orientation.name
+            unit_numbers = obj.course.unitnumber
+            id_permitted_Course = obj.id
+            list_send.append({'name_professor': name_professor, 'course_section': course_section,
+                              'orientation': orientation, 'unit_numbers': unit_numbers,
+                              'id_permitted_Course': id_permitted_Course})
+
+    return {'status': 'OK', 'data': list_send}
+
+
+def permitted_course_eduassignment_prof():
+    permitted_course_list = PermittedCourse.query.all()
+    year, semester = give_year_mount()
+    for obj in permitted_course_list:
+        name_professor = obj.professor.user.firs_name + " " + obj.professor.user.last_name
+        course_section = obj.course_section
+        orientation = obj.course.orientation.name
+        unit_numbers = obj.course.unitnumber
+        id_permitted_Course = obj.id
+
 def find_permitted_courses(user_id):
     is_this_person_student = is_person_student(user_id)
     is_this_person_professor = is_person_professor(user_id)
     is_user_assignment_eduction = is_assignment_education(user_id)
     if is_this_person_student:
-        return {}
+        resp = permitted_course_student(user_id)
+        return resp
     elif is_this_person_professor or is_user_assignment_eduction:
-        return {}
-    else :
-        return {'status': 'ERROR', 'message': 'شخص موردنظر ولید نیست'}
+        resp = permitted_course_eduassignment_prof()
+        return resp
+    else:
+        return {'status': 'ERROR', 'message': 'شخص موردنظر دسترسی ندارد نیست'}
 
 
 def is_this_course_exist(course_id):

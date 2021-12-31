@@ -72,7 +72,7 @@ class Orientation(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
 
-    courses = relationship('Course', backref=backref('orientation'))
+    orientation = relationship('Course', backref=backref('orientation'))
 
 
 class PresentedCourse(Base):
@@ -89,6 +89,45 @@ class PresentedCourse(Base):
     time_final_exam = Column(String)
 
     professors = relationship('Professor', secondary='professorLinkPresentedCourse')
+
+
+
+class PermittedCourse(Base):
+    __tablename__ = 'permittedCourses'
+
+    permittedCourse_id = Column(Integer, primary_key=True)
+    # year = Column(Integer, nullable=False)
+    # semester = Column(Enum(Semester), nullable=False)
+    cross_section = Column(String, nullable=False)
+
+    course_id = Column(Integer, ForeignKey('courses.id'), nullable=False)
+
+    educationAssistant_id = Column(String, ForeignKey('educationAssistants.id'))
+    professor_id = Column(String, ForeignKey('professors.email'))
+    # initialCourseSelections = relationship('InitialCourseSelection', back_populates='permittedCourses')
+
+class Professor(Base):
+    __tablename__ = 'professors'
+
+    email = Column(String, ForeignKey('users.username'), primary_key=True)
+
+    # advisors = relationship('Advisor', backref=backref('professors'))
+    # departmentHeads = relationship('DepartmentHead', backref=backref('professors'))
+    # supervisors = relationship('Supervisor', backref=backref('professors'))
+
+    PresentedCourses = relationship(PresentedCourse, secondary='professorLinkPresentedCourse')
+    permitted_course = relationship(PermittedCourse, backref=backref('professor'))
+
+
+class EducationAssistant(Base):
+    __tablename__ = 'educationAssistants'
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String, ForeignKey('users.username'))
+    user = relationship("User", backref=backref("educationAssistants", cascade="all,delete"))
+    date_start_duty = Column(DATETIME, nullable=False)
+    date_end_duty = Column(DATETIME)
+    permittedCourses = relationship(PermittedCourse, backref=backref('educationAssistant'))
 
 
 class Course(Base):
@@ -110,6 +149,7 @@ class Course(Base):
     # orientation = relationship(Orientation, backref=backref('courses'))
 
     presentedCourses = relationship(PresentedCourse, backref=backref('courses'))
+    permitted_course = relationship(PermittedCourse, backref=backref('course'))
 
 
 class TimePresentedCourse(Base):
@@ -190,6 +230,7 @@ class User(Base):
     birthday = Column(DATETIME)
     email_show_all = Column(String)
 
+    professor_user = relationship(Professor, backref=backref('user', uselist=False, cascade="all,delete"))
     # student = relationship('Student', backref=backref('users', uselist=False))
     # professor = relationship('Professor', backref=backref('users', uselist=False))
 
@@ -204,16 +245,6 @@ class User(Base):
     #     back_populates="EducationAssistant",
     #     cascade="all,delete,delete-orphan"
     # )
-
-
-class EducationAssistant(Base):
-    __tablename__ = 'educationAssistants'
-
-    id = Column(Integer, primary_key=True)
-    username = Column(String, ForeignKey('users.username'))
-    user = relationship("User", backref=backref("educationAssistants", cascade="all,delete"))
-    date_start_duty = Column(DATETIME, nullable=False)
-    date_end_duty = Column(DATETIME)
 
 
 class ResponsibleTraining(Base):
@@ -320,23 +351,6 @@ class StudentCourseData(Base):
 
     mark = Column(Float)
     status = Column(Enum(EnumCourseStatus), default=EnumCourseStatus.in_process)
-
-
-class PermittedCourse(Base):
-    __tablename__ = 'permittedCourses'
-
-    permittedCourse_id = Column(Integer, primary_key=True)
-    # year = Column(Integer, nullable=False)
-    # semester = Column(Enum(Semester), nullable=False)
-    cross_section = Column(String, nullable=False)
-
-    course_id = Column(Integer, ForeignKey('courses.id'), nullable=False)
-    course = relationship(Course, backref=backref('permittedCourses'))
-
-    educationAssistant_id = Column(String, ForeignKey('educationAssistants.id'))
-    educationAssistants = relationship(EducationAssistant, backref=backref('permittedCourses'))
-
-    # initialCourseSelections = relationship('InitialCourseSelection', back_populates='permittedCourses')
 
 
 class InitialCourseSelection(Base):

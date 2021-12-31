@@ -229,8 +229,8 @@ def master_course_request(user_id, receiver_id, description, course_id):
     #     None)).first()
     if student is None:
         return {'Status': "ERROR", 'error': "this user isn't student."}
-    elif student.cross_section != 'masters':
-        return {'Status': "ERROR", 'error': "this user isn't masters student."}
+    elif student.cross_section != 'bachelor':
+        return {'Status': "ERROR", 'error': "this user isn't bachelor student."}
 
     elif course is None:
         return {'Status': "ERROR", 'error': "this course wasn't found."}
