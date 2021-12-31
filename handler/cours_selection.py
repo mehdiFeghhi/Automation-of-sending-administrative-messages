@@ -46,7 +46,7 @@ def is_person_student(user_id):
         return False
 
 
-# TODO course is he get before or not have prerequested it not be show
+# TODO course is he get before or not have prerequested it not be show add orientation
 def permitted_course_student(user_id):
     student = Student.query.filter(Student.student_number == user_id).first()
     permitted_course_list = PermittedCourse.query.filter(PermittedCourse.cross_section == student.cross_section).all()
@@ -126,6 +126,33 @@ def is_this_course_exist(course_id):
     return True
 
 
+def create_permitted_courses(user_id, course_id_list, course_section):
+    is_user_assignment_eduction = is_assignment_education(user_id)
+
+    if not is_user_assignment_eduction:
+        return {'Status': 'ERROR', 'message': 'شخص موردنظر مسئول آموزش نیست'}
+
+    elif course_section not in ['bachelor', 'master']:
+        return {'Status': 'ERROR', 'message': 'مقطع مربوطه وجود ندارد'}
+
+    list_permitted_course_add = []
+    for course_id in course_id_list:
+        is_course_exist = is_this_course_exist(course_id)
+        is_this_permitted_course_exist = PermittedCourse.query.filter(PermittedCourse.course_id == course_id,
+                                                                      PermittedCourse.cross_section == course_section).first()
+
+        if not is_course_exist:
+            return {'Status': 'ERROR', 'message': 'یک درس موردنظر موجود نیست'}
+        elif is_this_permitted_course_exist is not None:
+            return {'Status': 'ERROR', 'message': 'این درس قبلا وجود داشته است'}
+        else:
+            list_permitted_course_add.append(PermittedCourse(course_id=course_id, cross_section=course_section,
+                                                             educationAssistant_id=user_id))
+    session.add_all(list_permitted_course_add)
+    session.commit()
+    return {'Status': 'OK', 'message': 'دروس با موفقیت در سیستم ثبت شد'}
+
+
 def create_permitted_course(user_id, course_id, course_section):
     is_user_assignment_eduction = is_assignment_education(user_id)
     is_course_exist = is_this_course_exist(course_id)
@@ -141,21 +168,39 @@ def create_permitted_course(user_id, course_id, course_section):
     elif course_section not in ['bachelor', 'master']:
         return {'Status': 'ERROR', 'message': 'مقطع مربوطه وجود ندارد'}
     elif is_this_permitted_course_exist is not None:
-        return {'Status': 'ERROR', 'message': 'ین درس قبلا وجود داشته است'}
+        return {'Status': 'ERROR', 'message': 'این درس قبلا وجود داشته است'}
     else:
 
         new_permitted_course = PermittedCourse(course_id=course_id, cross_section=course_section,
                                                educationAssistant_id=user_id)
         session.add(new_permitted_course)
         session.commit()
-        return {'Status': 'OK', 'Message': 'این درس با موفقیت در سیستم ثبت شد'}
+        return {'Status': 'OK', 'message': 'این درس با موفقیت در سیستم ثبت شد'}
 
 
 def is_this_permitted_course_ok_for_this_student(student: Student, list_id_permitted_course) -> bool:
+    year, semester = give_year_mount()
     for id_permitted_Course in list_id_permitted_course:
+
+        permitted_course = PermittedCourse.query.filter(
+            PermittedCourse.permittedCourse_id == id_permitted_Course).first()
+        if permitted_course is None:
+            print({'Status': 'ERROR', 'message': 'این انتخاب واحد وجود ندارد.'})
+            return False
         initial_course = InitialCourseSelection.query.filter(
             InitialCourseSelection.permittedCourse_id == id_permitted_Course,
-            InitialCourseSelection.student_number == student.student_number, InitialCourseSelection.semester ==)
+            InitialCourseSelection.student_number == student.student_number,
+            InitialCourseSelection.semester == semester,
+            InitialCourseSelection.year == year).first()
+        if initial_course is None:
+            print({'Status': 'ERROR', 'message': 'این درس قبلا توسط شخص انتخاب شده است.'})
+            return False
+
+        if permitted_course.cross_section != student.cross_section:
+            print({'Status': 'ERROR', 'message': 'مقاطع یکسان نیست. '})
+            return False
+
+    return True
 
 
 def add_initial_course(user_id, list_id_permitted_course):
@@ -174,4 +219,8 @@ def add_initial_course(user_id, list_id_permitted_course):
                                                                  permittedCourse_id=id_permitted_Course))
         session.add(list_of_initial_course)
         session.commit()
-        return {'Status': 'OK', 'Message': 'انتخاب واحد مقدماتی شما با موفقیت ثبت شد.'}
+        return {'Status': 'OK', 'message': 'انتخاب واحد مقدماتی شما با موفقیت ثبت شد.'}
+
+
+def find_initial_course_selection(user_id):
+    pass

@@ -7,7 +7,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import session
 from sqlalchemy.sql.functions import user
 
-from handler.cours_selection import find_permitted_courses, create_permitted_course, add_initial_course
+from handler.cours_selection import find_permitted_courses, create_permitted_course, add_initial_course, \
+    find_initial_course_selection, create_permitted_courses
 from handler.model.modelDB import StatusStep, Supervisor
 from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
@@ -290,6 +291,28 @@ def add_permitted_course():
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
 
+@app.route('/api/add-permitted-courses', methods=['POST'])
+@jwt_required()
+def add_permitted_courses():
+    try:
+        user_id = get_jwt_identity()
+        params = request.get_json()
+        course_section = params['course_section']
+        course_id_list = params['id_courses']
+        response = create_permitted_courses(user_id, course_id_list, course_section)
+        if response.get('Status') == 'OK':
+            return jsonify(response), 201
+        else:
+            return jsonify(response), 400
+
+    except Exception as ex:
+        print(ex)
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+
+
+
+
 @app.route('/api/get-permitted-course', methods=['GET'])
 @jwt_required()
 def get_permitted_courses():
@@ -323,6 +346,18 @@ def post_permitted_course():
 #    except Exception as ex:
 #        print(ex)
 #        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+@app.route('/api/get-initial-course-selection', methods=['GET'])
+@jwt_required()
+def get_initial_course_selection():
+
+        user_id = get_jwt_identity()
+
+        response = find_initial_course_selection(user_id)
+        if response.get('Status') == 'OK':
+            return jsonify(response), 200
+        else:
+            return jsonify(response), 400
 
 
 @app.route('/api/add-professor', methods=['POST'])
