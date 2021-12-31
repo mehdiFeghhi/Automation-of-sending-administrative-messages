@@ -115,7 +115,7 @@ class Professor(Base):
     # departmentHeads = relationship('DepartmentHead', backref=backref('professors'))
     # supervisors = relationship('Supervisor', backref=backref('professors'))
 
-    PresentedCourses = relationship(PresentedCourse, secondary='professorLinkPresentedCourse')
+    presented_courses = relationship(PresentedCourse, secondary='professorLinkPresentedCourse')
     permitted_course = relationship(PermittedCourse, backref=backref('professor'))
 
 
@@ -277,17 +277,17 @@ class Student(Base):
 
 # User.educationAssistants = relationship("EducationAssistant", order_by=EducationAssistant.id, back_populates='User')
 
-class Professor(Base):
-    __tablename__ = 'professors'
-
-    email = Column(String, ForeignKey('users.username'), primary_key=True)
-    user = relationship('User', backref=backref('professors', uselist=False, cascade="all,delete"))
-
-    # advisors = relationship('Advisor', backref=backref('professors'))
-    # departmentHeads = relationship('DepartmentHead', backref=backref('professors'))
-    # supervisors = relationship('Supervisor', backref=backref('professors'))
-
-    PresentedCourses = relationship(PresentedCourse, secondary='professorLinkPresentedCourse')
+# class Professor(Base):
+#     __tablename__ = 'professors'
+#
+#     email = Column(String, ForeignKey('users.username'), primary_key=True)
+#     user_professor = relationship('User', backref=backref('professors', uselist=False, cascade="all,delete"))
+#
+#     # advisors = relationship('Advisor', backref=backref('professors'))
+#     # departmentHeads = relationship('DepartmentHead', backref=backref('professors'))
+#     # supervisors = relationship('Supervisor', backref=backref('professors'))
+#
+#     presented_courses = relationship(PresentedCourse, secondary='professorLinkPresentedCourse')
 
 
 class ProfessorLinkPresentedCourse(Base):

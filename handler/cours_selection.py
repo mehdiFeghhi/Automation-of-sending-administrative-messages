@@ -73,12 +73,24 @@ def permitted_course_student(user_id):
 def permitted_course_eduassignment_prof():
     permitted_course_list = PermittedCourse.query.all()
     year, semester = give_year_mount()
+    list_send = []
+
     for obj in permitted_course_list:
         name_professor = obj.professor.user.firs_name + " " + obj.professor.user.last_name
         course_section = obj.course_section
         orientation = obj.course.orientation.name
         unit_numbers = obj.course.unitnumber
         id_permitted_Course = obj.id
+        number_get_it_in_initial_course_this_term = InitialCourseSelection.query.filter(permittedCourse_id=obj.id,
+                                                                                        year=year,
+                                                                                        semester=semester).count()
+        list_send.append(
+            {'name_professor': name_professor, 'course_section': course_section, 'orientation': orientation,
+             'unit_numbers': unit_numbers, 'id_permitted_Course': id_permitted_Course,
+             'number_get_it_in_initial_course_this_term': number_get_it_in_initial_course_this_term})
+
+    return {'status': 'OK', 'data': list_send}
+
 
 def find_permitted_courses(user_id):
     is_this_person_student = is_person_student(user_id)
