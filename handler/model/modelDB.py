@@ -105,6 +105,7 @@ class PermittedCourse(Base):
     educationAssistant_id = Column(String, ForeignKey('educationAssistants.id'))
     professor_id = Column(String, ForeignKey('professors.email'))
     # initialCourseSelections = relationship('InitialCourseSelection', back_populates='permittedCourses')
+    initial_course_selection = relationship('InitialCourseSelection', backref=backref('PermittedCourse', cascade="all,delete"))
 
 class Professor(Base):
     __tablename__ = 'professors'
@@ -365,7 +366,6 @@ class InitialCourseSelection(Base):
     # permittedCourse_id = Column(Integer, ForeignKey('permittedCourses.course_id'), primary_key=True)
 
     permittedCourse_id = Column(Integer, ForeignKey('permittedCourses.permittedCourse_id'), nullable=False)
-    permittedCourse = relationship(PermittedCourse, backref=backref('initialCourseSelection', cascade="all,delete"))
 
 
 class Ticket(Base):

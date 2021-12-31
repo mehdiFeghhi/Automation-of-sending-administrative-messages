@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import session
 from sqlalchemy.sql.functions import user
 
-from handler.cours_selection import find_permitted_courses, create_permitted_course
+from handler.cours_selection import find_permitted_courses, create_permitted_course, add_initial_course
 from handler.model.modelDB import StatusStep, Supervisor
 from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
@@ -217,9 +217,11 @@ def get_receivers():
     user_id = get_jwt_identity()
     return jsonify(get_receivers_handler(user_id))
 
+
 @app.route('/api/get-orientations', methods=['GET'])
 def get_orientation():
     return jsonify(get_orientations_handler())
+
 
 @app.route('/api/add-course', methods=['post'])
 @jwt_required()
@@ -236,9 +238,11 @@ def create_course():
     else:
         return jsonify(response), 401
 
+
 @app.route('/api/get-professors', methods=['GET'])
 def get_professors():
     return jsonify(get_professors_handler()), 200
+
 
 @app.route('/api/add-student', methods=['post'])
 @jwt_required()
@@ -246,26 +250,25 @@ def create_student():
     user_id = get_jwt_identity()
     params = request.get_json()
     resp = create_students_handler(user_id,
-                            params['student_number'],
-                            params['first_name'],
-                            params['last_name'],
-                            params['password'],
-                            params['orientation'],
-                            params['cross_section'],
-                            params['enter_year'],
-                            params['adviser_id'],
-                            params['superviser_id'])
-    if(resp['Status'] == 'شما مجوز انجام اینکار را ندارید'):
+                                   params['student_number'],
+                                   params['first_name'],
+                                   params['last_name'],
+                                   params['password'],
+                                   params['orientation'],
+                                   params['cross_section'],
+                                   params['enter_year'],
+                                   params['adviser_id'],
+                                   params['superviser_id'])
+    if (resp['Status'] == 'شما مجوز انجام اینکار را ندارید'):
         return jsonify(resp), 401
-    
-    if(resp['Status'] == 'شماره دانشجویی تکراری است'):
+
+    if (resp['Status'] == 'شماره دانشجویی تکراری است'):
         return jsonify(resp), 400
-    
-    if(resp['Status'] == 'استاد مشاور وجود ندارد'):
+
+    if (resp['Status'] == 'استاد مشاور وجود ندارد'):
         return jsonify(resp), 400
 
     return jsonify(resp), 201
-
 
 
 @app.route('/api/add-permitted-course', methods=['POST'])
@@ -275,7 +278,7 @@ def add_permitted_course():
         user_id = get_jwt_identity()
         params = request.get_json()
         course_section = params['course_section']
-        course_id = params['course_id']
+        course_id = params['id_course']
         response = create_permitted_course(user_id, course_id, course_section)
         if response.get('Status') == 'OK':
             return jsonify(response), 201
@@ -290,7 +293,7 @@ def add_permitted_course():
 @app.route('/api/get-permitted-course', methods=['GET'])
 @jwt_required()
 def get_permitted_courses():
-    # try:
+    try:
         user_id = get_jwt_identity()
         response = find_permitted_courses(user_id)
         if response.get('Status') == 'OK':
@@ -298,9 +301,28 @@ def get_permitted_courses():
         else:
             return jsonify(response), 400
 
-    # except Exception as ex:
-    #     print(ex)
-    #     return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+    except Exception as ex:
+        print(ex)
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+
+@app.route('/api/post-permitted-course', methods=['POST'])
+@jwt_required()
+def post_permitted_course():
+    #    try:
+
+            user_id = get_jwt_identity()
+            params = request.get_json()
+            list_id_permitted_course = params['id_permitted_course']
+            response = add_initial_course(user_id, list_id_permitted_course)
+            if response.get('Status') == 'OK':
+                return jsonify(response), 200
+            else:
+                return jsonify(response), 400
+
+#    except Exception as ex:
+#        print(ex)
+#        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
 
 @app.route('/api/add-professor', methods=['POST'])
@@ -310,15 +332,15 @@ def create_professor():
         user_id = get_jwt_identity()
         params = request.get_json()
         resp = create_professor_handler(user_id,
-                                     params['first_name'],
-                                     params['last_name'],
-                                     params['email'],
-                                     params['pass'],
-                                     params['is_departman_boss'])
-        if(resp['Status'] == 'شما مجوز انجام اینکار را ندارید'):
+                                        params['first_name'],
+                                        params['last_name'],
+                                        params['email'],
+                                        params['pass'],
+                                        params['is_departman_boss'])
+        if (resp['Status'] == 'شما مجوز انجام اینکار را ندارید'):
             return jsonify(resp), 401
-    
-        if(resp['Status'] == 'ایمل استاد تکراری است'):
+
+        if (resp['Status'] == 'ایمل استاد تکراری است'):
             return jsonify(resp), 400
 
         return jsonify(resp), 201
