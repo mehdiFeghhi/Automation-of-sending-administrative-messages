@@ -154,7 +154,8 @@ def create_permitted_course(user_id, course_id, course_section):
 def is_this_permitted_course_ok_for_this_student(student: Student, list_id_permitted_course) -> bool:
     for id_permitted_Course in list_id_permitted_course:
         initial_course = InitialCourseSelection.query.filter(
-            InitialCourseSelection.permittedCourse_id == id_permitted_Course, )
+            InitialCourseSelection.permittedCourse_id == id_permitted_Course,
+            InitialCourseSelection.student_number == student.student_number, InitialCourseSelection.semester ==)
 
 
 def add_initial_course(user_id, list_id_permitted_course):
