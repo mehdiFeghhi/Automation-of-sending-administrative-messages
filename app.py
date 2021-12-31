@@ -282,7 +282,7 @@ def add_permitted_course():
 def get_permitted_courses():
     user_id = get_jwt_identity()
 
-    response = find_permitted_course(user_id)
+    response = find_permitted_courses(user_id)
 
 
 if __name__ == '__main__':
