@@ -197,6 +197,10 @@ def create_professor_handler(user_id,
     if(is_departman_boss):
         dep_head = DepartmentHead(email= new_prof.email,
                                                       date_start_duty=date.today())
+        curr_dep_head = session.query(DepartmentHead).filter(DepartmentHead.date_end_duty == None).first()
+        if(curr_dep_head != None):
+            curr_dep_head.date_end_duty = date.today()
+            session.add(curr_dep_head)
         session.add(dep_head)
 
     session.add_all([new_user, new_prof])
