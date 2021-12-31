@@ -282,8 +282,8 @@ def course_from_another_orientation(user_id, receiver_id, description, course_id
 
     if student is None:
         return {'Status': "ERROR", 'error': "this user isn't student."}
-    elif student.cross_section != 'senior':
-        return {'Status': "ERROR", 'error': "this user isn't senior student."}
+    elif student.cross_section != 'master':
+        return {'Status': "ERROR", 'error': "this user isn't master student."}
 
     elif course is None:
         return {'Status': "ERROR", 'error': "this course wasn't found."}
