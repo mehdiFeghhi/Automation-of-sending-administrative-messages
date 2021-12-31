@@ -273,3 +273,44 @@ def get_students_handler(user_id):
         resp.append(std_data)
     
     return resp
+
+def update_student_info(user_id,
+                        std_num, 
+                        firs_name, 
+                        last_name, 
+                        password, 
+                        orientation, 
+                        cross_section, 
+                        enter_year, 
+                        adviser_id,
+                        superviser_id):
+    
+    if(session.query(EducationAssistant).filter(EducationAssistant.username == user_id).first() == None):
+        return {'message': 'شما مجوز انجام اینکار را ندارید'}
+    
+    student = session.query(Student).filter(Student.student_number == std_num).first()
+    if(student == None):
+        return {'message': 'دانشجو یافت نشد'}
+
+    student.student_number = std_num
+    student.user.firs_name = firs_name
+    student.user.last_name = last_name
+    student.user.password = str(hashlib.sha256(password.encode()).hexdigest())
+    student.orientation = orientation
+    student.cross_section = cross_section
+    student.time_enter = enter_year
+    student.adviser_id = adviser_id
+    student.supervisor_id = superviser_id
+    session.commit()
+    return {'message': 'OK'}
+
+def change_student_pass_handler(user_id,
+                        password):
+
+    student = session.query(Student).filter(Student.student_number == user_id).first()
+    if(student == None):
+        return {'message': 'شما مجوز انجام اینکار را ندارید'}
+    
+    student.user.password = str(hashlib.sha256(password.encode()).hexdigest())
+    session.commit()
+    return {'message': 'OK'}
