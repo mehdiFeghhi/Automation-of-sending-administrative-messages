@@ -246,7 +246,7 @@ def create_student():
                             params['student_number'],
                             params['first_name'],
                             params['last_name'],
-                            params['passowrd'],
+                            params['password'],
                             params['orientation'],
                             params['cross_section'],
                             params['enter_year'],
