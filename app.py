@@ -217,11 +217,9 @@ def get_receivers():
     user_id = get_jwt_identity()
     return jsonify(get_receivers_handler(user_id))
 
-
 @app.route('/api/get-orientations', methods=['GET'])
 def get_orientation():
     return jsonify(get_orientations_handler())
-
 
 @app.route('/api/add-course', methods=['post'])
 @jwt_required()
@@ -238,11 +236,9 @@ def create_course():
     else:
         return jsonify(response), 401
 
-
 @app.route('/api/get-professors', methods=['GET'])
 def get_professors():
     return jsonify(get_professors_handler()), 200
-
 
 @app.route('/api/add-student', methods=['post'])
 @jwt_required()
@@ -250,15 +246,15 @@ def create_student():
     user_id = get_jwt_identity()
     params = request.get_json()
     resp = create_students_handler(user_id,
-                                   params['student_number'],
-                                   params['first_name'],
-                                   params['last_name'],
-                                   params['passowrd'],
-                                   params['orientation'],
-                                   params['cross_section'],
-                                   params['enter_year'],
-                                   params['adviser_id'],
-                                   params['superviser_id'])
+                            params['student_number'],
+                            params['first_name'],
+                            params['last_name'],
+                            params['password'],
+                            params['orientation'],
+                            params['cross_section'],
+                            params['enter_year'],
+                            params['adviser_id'],
+                            params['superviser_id'])
     return resp
 
 
