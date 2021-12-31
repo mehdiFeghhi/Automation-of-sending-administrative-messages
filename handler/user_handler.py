@@ -149,14 +149,14 @@ def create_students_handler(user_id,
                             superviser_id):
     
     if(session.query(EducationAssistant).filter(EducationAssistant.username == user_id).first() == None):
-        return {'Status': 'شما مجوز انجام اینکار را ندارید'}
+        return {'message': 'شما مجوز انجام اینکار را ندارید'}
     
     if(session.query(Student).filter(Student.student_number == std_num).first() != None):
-        return {'Status': 'شماره دانشجویی تکراری است'}
+        return {'message': 'شماره دانشجویی تکراری است'}
 
     advisor = session.query(Advisor).filter(Advisor.email == adviser_id).first()
     if(session.query(Advisor).filter(Advisor.email == adviser_id).first() == None):
-        return {'Status': 'استاد مشاور وجود ندارد'}
+        return {'message': 'استاد مشاور وجود ندارد'}
     
     new_user = User(username= std_num, password=str(hashlib.sha256(password.encode()).hexdigest()),
                             firs_name= firs_name,
@@ -173,7 +173,7 @@ def create_students_handler(user_id,
     session.add(new_user)
     session.add(new_student)
     session.commit()
-    return {'Status': 'OK'}
+    return {'message': 'OK'}
 
 def create_professor_handler(user_id,
                              first_name,
@@ -183,10 +183,10 @@ def create_professor_handler(user_id,
                              is_departman_boss):
 
     if(session.query(EducationAssistant).filter(EducationAssistant.username == user_id).first() == None):
-        return {'Status': 'شما مجوز انجام اینکار را ندارید'}
+        return {'message': 'شما مجوز انجام اینکار را ندارید'}
 
     if(session.query(Professor).filter(Professor.email == email).first() != None):
-        return {'Status': 'ایمل استاد تکراری است'}
+        return {'message': 'ایمل استاد تکراری است'}
 
     new_user = User(username= email, password=str(hashlib.sha256(password.encode()).hexdigest()),
                               firs_name= first_name,
@@ -205,7 +205,7 @@ def create_professor_handler(user_id,
     session.add_all([new_user, new_prof])
     session.commit()
 
-    return {'Status': 'OK'}
+    return {'message': 'OK'}
 
 def update_professor_handler(user_id,
                              first_name,
@@ -215,11 +215,11 @@ def update_professor_handler(user_id,
                              is_departman_boss
                              ):
     if(session.query(EducationAssistant).filter(EducationAssistant.username == user_id).first() == None):
-        return {'Status': 'شما مجوز انجام اینکار را ندارید'}
+        return {'message': 'شما مجوز انجام اینکار را ندارید'}
 
     prof = session.query(Professor).filter(Professor.email == email).first()
     if(prof == None):
-        return {'Status': 'استاد یافت نشد'}
+        return {'message': 'استاد یافت نشد'}
     
     user = session.query(User).filter(User.username == email).first()
     user.firs_name = first_name
@@ -248,4 +248,28 @@ def update_professor_handler(user_id,
             dep_head.date_end_duty = date.today()
 
     session.commit()
-    return {'Status': 'OK'}
+    return {'message': 'OK'}
+
+
+def get_students_handler(user_id):
+    resp = []
+    if(session.query(EducationAssistant).filter(EducationAssistant.username == user_id).first() == None):
+        return [{'message': 'شما مجوز انجام اینکار را ندارید'}]
+
+    students = session.query(Student).all()
+    for student in students:
+
+        std_data = {'first_name': student.user.firs_name,
+                    'last_name': student.user.last_name,
+                    'student_number': student.student_number,
+                    'password': student.user.password,
+                    'orientation': student.orientation,
+                    'cross_section': student.cross_section,
+                    'enter_year': student.time_enter,
+                    'adviser_id': student.adviser_id,
+                    'superviser_id': student.supervisor_id
+        }
+
+        resp.append(std_data)
+    
+    return resp

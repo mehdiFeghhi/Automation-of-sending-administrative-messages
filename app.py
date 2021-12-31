@@ -13,7 +13,7 @@ from handler.ticket_handler import capacity_incresessase_by_student, lessons_fro
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
     update_ticket_user, get_tickets_handler, get_receivers_handler, get_inprograss_tickets_handler
 from handler.user_handler import find_user_by_username_and_password, find_user_by_user_id, get_professors_handler, \
-    create_students_handler, create_professor_handler, update_professor_handler
+    create_students_handler, create_professor_handler, update_professor_handler, get_students_handler
 from handler.course_handler import get_course_list, get_orientations_handler, create_course_handler
 
 from config import create_app
@@ -233,7 +233,7 @@ def create_course():
                                      params["orientation"],
                                      params["unit_numbers"],
                                      params["prerequisites"])
-    if response.get('Status') == 'OK':
+    if response.get('message') == 'OK':
         return jsonify(response), 201
     else:
         return jsonify(response), 401
@@ -259,13 +259,13 @@ def create_student():
                                    params['enter_year'],
                                    params['adviser_id'],
                                    params['superviser_id'])
-    if (resp['Status'] == 'شما مجوز انجام اینکار را ندارید'):
+    if (resp['message'] == 'شما مجوز انجام اینکار را ندارید'):
         return jsonify(resp), 401
 
-    if (resp['Status'] == 'شماره دانشجویی تکراری است'):
+    if (resp['message'] == 'شماره دانشجویی تکراری است'):
         return jsonify(resp), 400
 
-    if (resp['Status'] == 'استاد مشاور وجود ندارد'):
+    if (resp['message'] == 'استاد مشاور وجود ندارد'):
         return jsonify(resp), 400
 
     return jsonify(resp), 201
@@ -337,10 +337,10 @@ def create_professor():
                                         params['email'],
                                         params['pass'],
                                         params['is_departman_boss'])
-        if (resp['Status'] == 'شما مجوز انجام اینکار را ندارید'):
+        if (resp['message'] == 'شما مجوز انجام اینکار را ندارید'):
             return jsonify(resp), 401
 
-        if (resp['Status'] == 'ایمل استاد تکراری است'):
+        if (resp['message'] == 'ایمل استاد تکراری است'):
             return jsonify(resp), 400
 
         return jsonify(resp), 201
@@ -362,14 +362,30 @@ def update_professor():
                                      params['email'],
                                      params['pass'],
                                      params['is_departman_boss'])
-        if(resp['Status'] == 'شما مجوز انجام اینکار را ندارید'):
+        if(resp['message'] == 'شما مجوز انجام اینکار را ندارید'):
             return jsonify(resp), 401
     
-        if(resp['Status'] == 'استاد یافت نشد'):
+        if(resp['message'] == 'استاد یافت نشد'):
             return jsonify(resp), 400
 
         return jsonify(resp), 200
 
+    except Exception as ex:
+        print(ex)
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+@app.route('/api/get-students', methods=['get'])
+@jwt_required()
+def get_students():
+    try:
+        user_id = get_jwt_identity()
+        params = request.get_json()
+        resp = get_students_handler(user_id)
+        if(resp.count('message') > 0):
+            if(resp['message'] == 'شما مجوز انجام اینکار را ندارید'):
+                return jsonify(resp), 401
+
+        return jsonify(resp), 200
     except Exception as ex:
         print(ex)
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400

@@ -47,8 +47,8 @@ def create_course_handler(user_id, name_course, orientation_id, unit_numbers, pr
       session.add(new_preq)
     
     session.commit()
-    return {'Status': 'OK'}
+    return {'message': 'OK'}
   
   else:
-    return {'Status': 'شما مجوز انجام اینکار را ندارید'}
+    return {'message': 'شما مجوز انجام اینکار را ندارید'}
   
