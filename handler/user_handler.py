@@ -148,6 +148,9 @@ def create_students_handler(user_id,
     
     if(session.query(EducationAssistant).filter(EducationAssistant.username == user_id).first() == None):
         return {'Status': 'شما مجوز انجام اینکار را ندارید'}
+    
+    if(session.query(Student).filter(Student.student_number == std_num).filter() != None):
+        return {'Status': 'شماره دانشجویی تکراری است'}
 
     advisor = session.query(Advisor).filter(Advisor.email == adviser_id).first()
     if(session.query(Advisor).filter(Advisor.email == adviser_id).first() == None):

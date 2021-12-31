@@ -252,6 +252,15 @@ def create_student():
                             params['enter_year'],
                             params['adviser_id'],
                             params['superviser_id'])
-    return resp
+    if(resp['Status'] == 'شما مجوز انجام اینکار را ندارید'):
+        return resp, 401
+    
+    if(resp['Status'] == 'شماره دانشجویی تکراری است'):
+        return resp, 400
+    
+    if(resp['Status'] == 'استاد مشاور وجود ندارد')
+        return resp, 400
+
+    return resp, 201
 if __name__ == '__main__':
     app.run()
