@@ -47,27 +47,32 @@ def is_person_student(user_id):
 
 
 def permitted_course_student(user_id):
-    student = Student.query.filter(student_number=user_id).first()
-    permitted_course_list = PermittedCourse.query.filter(cross_section=student.cross_section).all()
+    student = Student.query.filter(Student.student_number == user_id).first()
+    permitted_course_list = PermittedCourse.query.filter(PermittedCourse.cross_section == student.cross_section).all()
+    print(student.cross_section)
     year, semester = give_year_mount()
-    initial_course_list = InitialCourseSelection.query.filter(student_number=user_id, semester=semester,
-                                                              year=year).all()
+    initial_course_list = InitialCourseSelection.query.filter(InitialCourseSelection.student_number == user_id,
+                                                              InitialCourseSelection.semester == semester,
+                                                              InitialCourseSelection.year == year).all()
     list_not_show_permitted_course = []
     for obj in initial_course_list:
         list_not_show_permitted_course.append(obj.permittedCourse_id)
     list_send = []
     for obj in permitted_course_list:
-        if obj.id not in list_not_show_permitted_course:
-            name_professor = obj.professor.user.firs_name + " " + obj.professor.user.last_name
-            course_section = obj.course_section
+        if obj.permittedCourse_id not in list_not_show_permitted_course:
+            if obj.professor is not None:
+                name_professor = obj.professor.user.firs_name + " " + obj.professor.user.last_name
+            else:
+                name_professor = ""
+            course_section = obj.cross_section
             orientation = obj.course.orientation.name
-            unit_numbers = obj.course.unitnumber
-            id_permitted_Course = obj.id
+            unit_numbers = obj.course.numbers_unit
+            id_permitted_Course = obj.permittedCourse_id
             list_send.append({'name_professor': name_professor, 'course_section': course_section,
                               'orientation': orientation, 'unit_numbers': unit_numbers,
                               'id_permitted_Course': id_permitted_Course})
 
-    return {'status': 'OK', 'data': list_send}
+    return {'Status': 'OK', 'data': list_send}
 
 
 def permitted_course_eduassignment_prof():
@@ -76,20 +81,24 @@ def permitted_course_eduassignment_prof():
     list_send = []
 
     for obj in permitted_course_list:
-        name_professor = obj.professor.user.firs_name + " " + obj.professor.user.last_name
-        course_section = obj.course_section
+        if obj.professor is not None:
+            name_professor = obj.professor.user.firs_name + " " + obj.professor.user.last_name
+        else:
+            name_professor = ""
+        course_section = obj.cross_section
         orientation = obj.course.orientation.name
-        unit_numbers = obj.course.unitnumber
-        id_permitted_Course = obj.id
-        number_get_it_in_initial_course_this_term = InitialCourseSelection.query.filter(permittedCourse_id=obj.id,
-                                                                                        year=year,
-                                                                                        semester=semester).count()
+        unit_numbers = obj.course.numbers_unit
+        id_permitted_Course = obj.permittedCourse_id
+        number_get_it_in_initial_course_this_term = InitialCourseSelection.query.filter(
+            InitialCourseSelection.permittedCourse_id == obj.permittedCourse_id,
+            InitialCourseSelection.year == year,
+            InitialCourseSelection.semester == semester).count()
         list_send.append(
             {'name_professor': name_professor, 'course_section': course_section, 'orientation': orientation,
              'unit_numbers': unit_numbers, 'id_permitted_Course': id_permitted_Course,
              'number_get_it_in_initial_course_this_term': number_get_it_in_initial_course_this_term})
 
-    return {'status': 'OK', 'data': list_send}
+    return {'Status': 'OK', 'data': list_send}
 
 
 def find_permitted_courses(user_id):
@@ -116,6 +125,8 @@ def is_this_course_exist(course_id):
 def create_permitted_course(user_id, course_id, course_section):
     is_user_assignment_eduction = is_assignment_education(user_id)
     is_course_exist = is_this_course_exist(course_id)
+    is_this_permitted_course_exist = PermittedCourse.query.filter(PermittedCourse.course_id == course_id,
+                                                                  PermittedCourse.cross_section == course_section).first()
 
     if not is_user_assignment_eduction:
         return {'status': 'ERROR', 'message': 'شخص موردنظر مسئول آموزش نیست'}
@@ -125,10 +136,12 @@ def create_permitted_course(user_id, course_id, course_section):
 
     elif course_section not in ['bachelor', 'master']:
         return {'status': 'ERROR', 'message': 'مقطع مربوطه وجود ندارد'}
+    elif is_this_permitted_course_exist is not None:
+        return {'status': 'ERROR', 'message': 'ین درس قبلا وجود داشته است'}
     else:
 
         new_permitted_course = PermittedCourse(course_id=course_id, cross_section=course_section,
-                                               educationAssistant_id=course_section)
+                                               educationAssistant_id=user_id)
         session.add(new_permitted_course)
         session.commit()
-        return {'status': 'OK', 'Message': 'این شخص با موفقیت در سیستم ثبت شد'}
+        return {'Status': 'OK', 'Message': 'این درس با موفقیت در سیستم ثبت شد'}

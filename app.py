@@ -280,7 +280,7 @@ def add_permitted_course():
         if response.get('Status') == 'OK':
             return jsonify(response), 201
         else:
-            return jsonify(response), 401
+            return jsonify(response), 400
 
     except Exception as ex:
         print(ex)
@@ -290,9 +290,18 @@ def add_permitted_course():
 @app.route('/api/get-permitted-course', methods=['GET'])
 @jwt_required()
 def get_permitted_courses():
-    user_id = get_jwt_identity()
+    # try:
+        user_id = get_jwt_identity()
+        response = find_permitted_courses(user_id)
+        if response.get('Status') == 'OK':
+            return jsonify(response), 200
+        else:
+            return jsonify(response), 400
 
-    response = find_permitted_courses(user_id)
+    # except Exception as ex:
+    #     print(ex)
+    #     return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
 
 @app.route('/api/add-professor', methods=['POST'])
 @jwt_required()

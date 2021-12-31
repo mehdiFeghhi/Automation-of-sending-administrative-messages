@@ -116,7 +116,7 @@ class Professor(Base):
     # supervisors = relationship('Supervisor', backref=backref('professors'))
 
     presented_courses = relationship(PresentedCourse, secondary='professorLinkPresentedCourse')
-    permitted_course = relationship(PermittedCourse, backref=backref('professor'))
+    professor_permitted_course = relationship(PermittedCourse, backref='professor')
 
 
 class EducationAssistant(Base):
