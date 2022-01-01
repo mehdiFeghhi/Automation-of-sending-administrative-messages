@@ -426,7 +426,7 @@ def delete_initial_course_selection():
 @app.route('/api/add-course-selection-period', methods=['POST'])
 @jwt_required()
 def add_course_selection_period():
-    try:
+    # try:
 
         user_id = get_jwt_identity()
         params = request.get_json()
@@ -434,16 +434,19 @@ def add_course_selection_period():
         term = params['term']
         start_date = params['start_date']
         end_date = params['end_date']
-        role = params['role']
-        response = create_course_selection_period(course_section, term, start_date, end_date, role, user_id)
+        role = params.get('role')
+        if role is None:
+            role = 'student'
+        response = create_course_selection_period(course_section, term, datetime.datetime.fromtimestamp(start_date),
+                                                  datetime.datetime.fromtimestamp(end_date), role, user_id)
         if response.get('Status') == 'OK':
             return jsonify(response), 200
         else:
             return jsonify(response), 400
 
-    except Exception as ex:
-        print(ex)
-        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+    # except Exception as ex:
+    #     print(ex)
+    #     return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
 
 @app.route('/api/add-professor', methods=['POST'])

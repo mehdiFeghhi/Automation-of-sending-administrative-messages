@@ -291,6 +291,7 @@ def delete_initial_course_by(id_initial_course_selection, user_id):
 
 def create_course_selection_period(course_section, term, start_date, end_date, role, user_id):
     is_user_assignment_eduction = is_assignment_education(user_id)
+
     if not is_user_assignment_eduction:
         return {'Status': 'ERROR', 'message': 'شخص موردنظر مسئول آموزش نیست'}
     elif course_section not in ['bachelor', 'master']:
@@ -300,8 +301,9 @@ def create_course_selection_period(course_section, term, start_date, end_date, r
 
     elif role not in ['student', 'professor']:
         return {'Status': 'ERROR', 'message': 'داده مربوط به نقش اشتباه هست.'}
-
-    Period_Course_Selection(role=role, semester=Semester(term), start_date=start_date, end_date=end_date)
-    session.add(Period_Course_Selection)
+    # print(role)
+    x = Period_Course_Selection(course_section=course_section, role=role, semester=Semester(term),
+                                start_date=start_date, end_date=end_date)
+    session.add(x)
     session.commit()
     return {'Status': 'OK', 'message': 'با موفقیت بازه ثبت نام مقدماتی اعمال شد.'}
