@@ -437,8 +437,8 @@ def add_course_selection_period():
         role = params.get('role')
         if role is None:
             role = 'student'
-        response = create_course_selection_period(course_section, term, datetime.datetime.fromtimestamp(start_date),
-                                                  datetime.datetime.fromtimestamp(end_date), role, user_id)
+        response = create_course_selection_period(course_section, term, datetime.datetime.fromtimestamp(start_date/1000),
+                                                  datetime.datetime.fromtimestamp(end_date/1000), role, user_id)
         if response.get('Status') == 'OK':
             return jsonify(response), 200
         else:

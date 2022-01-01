@@ -303,7 +303,7 @@ def create_course_selection_period(course_section, term, start_date, end_date, r
         return {'Status': 'ERROR', 'message': 'داده مربوط به نقش اشتباه هست.'}
     # print(role)
     x = Period_Course_Selection(course_section=course_section, role=role, semester=Semester(term),
-                                start_date=start_date/1000, end_date=end_date/1000)
+                                start_date=start_date, end_date=end_date)
     session.add(x)
     session.commit()
     return {'Status': 'OK', 'message': 'با موفقیت بازه ثبت نام مقدماتی اعمال شد.'}
