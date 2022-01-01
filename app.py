@@ -428,25 +428,26 @@ def delete_initial_course_selection():
 def add_course_selection_period():
     # try:
 
-        user_id = get_jwt_identity()
-        params = request.get_json()
-        course_section = params['course_section']
-        term = params['term']
-        start_date = params['start_date']
-        end_date = params['end_date']
-        role = params.get('role')
-        if role is None:
-            role = 'student'
-        response = create_course_selection_period(course_section, term, datetime.datetime.fromtimestamp(start_date/1000),
-                                                  datetime.datetime.fromtimestamp(end_date/1000), role, user_id)
-        if response.get('Status') == 'OK':
-            return jsonify(response), 200
-        else:
-            return jsonify(response), 400
+    user_id = get_jwt_identity()
+    params = request.get_json()
+    course_section = params['course_section']
+    term = params['term']
+    start_date = params['start_date']
+    end_date = params['end_date']
+    # role = params.get('role', None)
+    # if role is None:
+    role = 'student'
+    response = create_course_selection_period(course_section, term, datetime.datetime.fromtimestamp(start_date / 1000),
+                                              datetime.datetime.fromtimestamp(end_date / 1000), role, user_id)
+    if response.get('Status') == 'OK':
+        return jsonify(response), 200
+    else:
+        return jsonify(response), 400
 
-    # except Exception as ex:
-    #     print(ex)
-    #     return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+# except Exception as ex:
+#     print(ex)
+#     return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
 
 @app.route('/api/add-professor', methods=['POST'])
