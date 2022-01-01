@@ -3,7 +3,7 @@ from sqlalchemy.sql.elements import and_
 
 from handler.connect_db import session
 from handler.model.modelDB import EducationAssistant, Course, PermittedCourse, Professor, Student, \
-    InitialCourseSelection, Semester
+    InitialCourseSelection, Semester, Period_Course_Selection
 
 
 def give_year_mount():
@@ -287,3 +287,21 @@ def delete_initial_course_by(id_initial_course_selection, user_id):
         session.commit()
 
         return {'Status': 'OK', 'message': 'با موفقیت تغییر اعمال شد.'}
+
+
+def create_course_selection_period(course_section, term, start_date, end_date, role, user_id):
+    is_user_assignment_eduction = is_assignment_education(user_id)
+    if not is_user_assignment_eduction:
+        return {'Status': 'ERROR', 'message': 'شخص موردنظر مسئول آموزش نیست'}
+    elif course_section not in ['bachelor', 'master']:
+        return {'Status': 'ERROR', 'message': 'مقطع مربوطه وجود ندارد'}
+    elif term not in [1, 2, 3]:
+        return {'Status': 'ERROR', 'message': 'داده مربوط به ترم اشتباه هست.'}
+
+    elif role not in ['student', 'professor']:
+        return {'Status': 'ERROR', 'message': 'داده مربوط به نقش اشتباه هست.'}
+
+    Period_Course_Selection(role=role, semester=Semester(term), start_date=start_date, end_date=end_date)
+    session.add(Period_Course_Selection)
+    session.commit()
+    return {'Status': 'OK', 'message': 'با موفقیت بازه ثبت نام مقدماتی اعمال شد.'}

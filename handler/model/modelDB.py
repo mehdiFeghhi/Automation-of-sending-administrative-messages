@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DATETIME, Time, Float, Enum
+from sqlalchemy import Column, Integer, String, DATETIME, Time, Float, Enum, DATE
 from sqlalchemy import create_engine, ForeignKey
 # from app import db
 from sqlalchemy.orm import relationship, backref, declarative_base
@@ -91,7 +91,6 @@ class PresentedCourse(Base):
     professors = relationship('Professor', secondary='professorLinkPresentedCourse')
 
 
-
 class PermittedCourse(Base):
     __tablename__ = 'permittedCourses'
 
@@ -105,7 +104,9 @@ class PermittedCourse(Base):
     educationAssistant_id = Column(String, ForeignKey('educationAssistants.id'))
     professor_id = Column(String, ForeignKey('professors.email'))
     # initialCourseSelections = relationship('InitialCourseSelection', back_populates='permittedCourses')
-    initial_course_selection = relationship('InitialCourseSelection', backref=backref('PermittedCourse', cascade="all,delete"))
+    initial_course_selection = relationship('InitialCourseSelection',
+                                            backref=backref('PermittedCourse', cascade="all,delete"))
+
 
 class Professor(Base):
     __tablename__ = 'professors'
@@ -410,6 +411,18 @@ class Step(Base):
 
     parent_id = Column(Integer, ForeignKey('step.id'))
     parent_step = relationship('Step', backref=backref('step', remote_side=[id]))
+
+
+class Period_Course_Selection(Base):
+    __tablename__ = 'period_course_selection'
+
+    id = Column(Integer, primary_key=True)
+
+    course_section = Column(String, nullable=False)
+    role = Column(String, nullable=False)
+    semester = Column(Enum(Semester), nullable=False)
+    start_date = Column(DATE, nullable=False)
+    end_date = Column(DATE, nullable=False)
 
 
 Base.metadata.create_all(engine)
