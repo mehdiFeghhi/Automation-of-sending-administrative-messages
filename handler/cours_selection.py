@@ -62,6 +62,7 @@ def permitted_course_student(user_id):
     list_send = []
     for obj in permitted_course_list:
         if obj.permittedCourse_id not in list_not_show_permitted_course:
+            print(obj.professor_id)
             if obj.professor is not None:
                 name_professor = obj.professor.user.firs_name + " " + obj.professor.user.last_name
             else:
@@ -84,6 +85,8 @@ def permitted_course_eduassignment_prof():
     list_send = []
 
     for obj in permitted_course_list:
+        # print(obj.professor_id)
+        # print(obj.professor)
         if obj.professor is not None:
             name_professor = obj.professor.user.firs_name + " " + obj.professor.user.last_name
         else:
@@ -264,7 +267,7 @@ def update_permitted_course_prof_by(permitted_course_id, professor_id, user_id):
     return {'Status': 'OK', 'message': 'با موفقیت تغییر اعمال شد.'}
 
 
-def delete_permitted_course_prof_by(id_initial_course_selection, user_id):
+def delete_initial_course_by(id_initial_course_selection, user_id):
     is_this_person_student = is_person_student(user_id)
     if not is_this_person_student:
         return {'Status': 'ERROR', 'message': 'این شخص دانشجو نیست .'}
@@ -281,4 +284,6 @@ def delete_permitted_course_prof_by(id_initial_course_selection, user_id):
     else:
 
         InitialCourseSelection.query.filter(InitialCourseSelection.id == id_initial_course_selection).delete()
+        session.commit()
+
         return {'Status': 'OK', 'message': 'با موفقیت تغییر اعمال شد.'}

@@ -9,7 +9,7 @@ from sqlalchemy.sql.functions import user
 
 from handler.cours_selection import find_permitted_courses, create_permitted_course, add_initial_course, \
     find_initial_course_selection, create_permitted_courses, delete_permitted_course_by, \
-    update_permitted_course_prof_by, delete_permitted_course_prof_by
+    update_permitted_course_prof_by, delete_initial_course_by
 from handler.model.modelDB import StatusStep, Supervisor
 from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
@@ -411,7 +411,7 @@ def delete_initial_course_selection():
         user_id = get_jwt_identity()
         params = request.get_json()
         id_initial_course_selection = params['id_initial_course_selection']
-        response = delete_permitted_course_prof_by(id_initial_course_selection, user_id)
+        response = delete_initial_course_by(id_initial_course_selection, user_id)
         if response.get('Status') == 'OK':
             return jsonify(response), 200
         else:
@@ -420,6 +420,10 @@ def delete_initial_course_selection():
     except Exception as ex:
         print(ex)
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+# @app.route('/api/add-course-selection-period', methods=['POST'])
+# @jwt_required()
+# def
 
 
 @app.route('/api/add-professor', methods=['POST'])
