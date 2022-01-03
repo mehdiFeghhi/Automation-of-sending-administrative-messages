@@ -152,7 +152,14 @@ def add_item_to_db():
     orientation_four = Orientation(name='ریاضی')
     orientation_five = Orientation(name='مهندسی کامپیوتر')
     orientation_six = Orientation(name='تربیت بدنی')
-    orientation_seven = Orientation(name='هوش مصنوعی ارشد')
+    orientation_seven = Orientation(name='هوش مصنوعی')
+    orientation_eight = Orientation(name='مهندسی کامپیوتر-رایانش امن')
+    orientation_nine = Orientation(name='مهندسی کامپیوتر-معماری سیستم')
+    orientation_ten = Orientation(name='فناوری اطلاعات- مدیریت سیستم')
+    orientation_eleven = Orientation(name='مهندسی کامپیوتر-نرم افزار')
+    orientation_twelve = Orientation(name='مهندسی پزشکی- بیوالکتریک')
+
+    session.add_all([orientation_eight, orientation_nine, orientation_ten, orientation_eleven, orientation_twelve])
 
     course_one = Course(name='فارسی عمومی', numbers_unit=3)
     course_one.orientation = orientation_one
@@ -224,7 +231,7 @@ def add_item_to_db():
     session.add_all([chart_one, chart_two])
     session.add_all([course_one, course_two, course_three, course_four, course_five, course_six,
                      course_seven, course_eight, course_nine, course_ten, course_eleven, course_twelve,
-                     course_thirteen, course_fourteen,course_senior_one])
+                     course_thirteen, course_fourteen, course_senior_one])
 
     session.add_all([preCourseLinkCourse_one, preCourseLinkCourse_two, preCourseLinkCourse_three,
                      preCourseLinkCourse_four, preCourseLinkCourse_five])
@@ -277,4 +284,3 @@ def add_item_to_db():
 
 
 add_item_to_db()
-
