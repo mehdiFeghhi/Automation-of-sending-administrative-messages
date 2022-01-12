@@ -293,7 +293,6 @@ def update_student_info(user_id,
     if(student == None):
         return {'message': 'دانشجو یافت نشد'}
 
-    student.student_number = std_num
     student.user.firs_name = firs_name
     student.user.last_name = last_name
     student.user.password = str(hashlib.sha256(password.encode()).hexdigest())
@@ -302,6 +301,8 @@ def update_student_info(user_id,
     student.time_enter = enter_year
     student.adviser_id = adviser_id
     student.supervisor_id = superviser_id
+    student.student_number = new_std_num
+    student.user.username = new_std_num
     session.commit()
     return {'message': 'OK'}
 
