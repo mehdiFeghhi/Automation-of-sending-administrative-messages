@@ -502,6 +502,7 @@ def edit_student_info():
         params = request.get_json()
         resp = update_student_info(user_id,
                                     params['student_number'],
+                                    params['new_student_number'],
                                     params['first_name'],
                                     params['last_name'],
                                     params['password'],

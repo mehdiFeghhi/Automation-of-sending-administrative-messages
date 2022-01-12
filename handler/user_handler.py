@@ -275,7 +275,8 @@ def get_students_handler(user_id):
     return resp
 
 def update_student_info(user_id,
-                        std_num, 
+                        std_num,
+                        new_std_num, 
                         firs_name, 
                         last_name, 
                         password, 
