@@ -365,32 +365,32 @@ def is_time_of_course_section(user_id):
             find_query_master = Period_Course_Selection.query.filter(and_(Period_Course_Selection.role == 'student',
                                                                           Period_Course_Selection.course_section == 'master')).first()
             return {'Status': 'OK', 'Flag': True, 'course_section': 'master_bachelor',
-                    'data_bachelor': {'role': find_query_bachelor.role,
+                    'data': [{'role': find_query_bachelor.role,
                                       'course_section': find_query_bachelor.course_section,
                                       'start_date': make_gero_to_jalali(find_query_bachelor.start_date),
                                       'end_date': make_gero_to_jalali(find_query_bachelor.end_date)},
-                    'data_master': {'role': find_query_master.role,
+                             {'role': find_query_master.role,
                                     'course_section': find_query_master.course_section,
                                     'start_date': make_gero_to_jalali(find_query_master.start_date),
                                     'end_date': make_gero_to_jalali(find_query_master.end_date)
-                                    }}
+                                    }]}
 
         elif is_period_of_student_bachelor:
             find_query = Period_Course_Selection.query.filter(and_(Period_Course_Selection.role == 'student',
                                                                    Period_Course_Selection.course_section == 'bachelor')).first()
             return {'Status': 'OK', 'Flag': True, 'course_section': find_query.course_section,
-                    'data': {'role': find_query.role,
+                    'data': [{'role': find_query.role,
                              'course_section': find_query.course_section,
                              'start_date': make_gero_to_jalali(find_query.start_date),
-                             'end_date': make_gero_to_jalali(find_query.end_date)}}
+                             'end_date': make_gero_to_jalali(find_query.end_date)}]}
         elif is_period_of_student_master:
             find_query = Period_Course_Selection.query.filter(and_(Period_Course_Selection.role == 'student',
                                                                    Period_Course_Selection.course_section == 'master')).first()
             return {'Status': 'OK', 'Flag': True, 'course_section': find_query.course_section,
-                    'data': {'role': find_query.role,
+                    'data': [{'role': find_query.role,
                              'course_section': find_query.course_section,
                              'start_date': make_gero_to_jalali(find_query.start_date),
-                             'end_date': make_gero_to_jalali(find_query.end_date)}}
+                             'end_date': make_gero_to_jalali(find_query.end_date)}]}
         else:
             return {'Status': 'OK', 'Flag': False}
     elif is_this_person_student:
