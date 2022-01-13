@@ -525,15 +525,16 @@ def edit_student_info():
         user_id = get_jwt_identity()
         params = request.get_json()
         resp = update_student_info(user_id,
-                                   params['student_number'],
-                                   params['first_name'],
-                                   params['last_name'],
-                                   params['password'],
-                                   params['orientation'],
-                                   params['cross_section'],
-                                   params['enter_year'],
-                                   params['adviser_id'],
-                                   params['superviser_id'])
+                                    params['student_number'],
+                                    params['new_student_number'],
+                                    params['first_name'],
+                                    params['last_name'],
+                                    params['password'],
+                                    params['orientation'],
+                                    params['cross_section'],
+                                    params['enter_year'],
+                                    params['adviser_id'],
+                                    params['superviser_id'])
         if (resp['message'] == 'شما مجوز انجام اینکار را ندارید'):
             return jsonify(resp), 401
 
