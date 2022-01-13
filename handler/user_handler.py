@@ -2,6 +2,7 @@ import hashlib
 from flask_cors.core import probably_regex
 
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql.expression import true
 from handler.connect_db import session
 from sqlalchemy import and_, create_engine
 from handler.model.modelDB import User, Student, Professor, Advisor, EducationAssistant, Supervisor, DepartmentHead, \
@@ -127,12 +128,14 @@ def find_user_by_user_id(user_id: str):
         raise "User model in db work wrong"
 
 def get_professors_handler():
+    dephead_email = session.query(DepartmentHead).filter(DepartmentHead.date_end_duty == None).first().email
     profs = session.query(Professor).all()
     res = []
     for prof in profs:
         prof_data = {'id': prof.email,
                     'fname': prof.user.firs_name,
-                    'lname': prof.user.last_name
+                    'lname': prof.user.last_name,
+                    'is_dep_head': prof.email == dephead_email
                     }
         res.append(prof_data)
     return res
