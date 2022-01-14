@@ -1,3 +1,5 @@
+import datetime
+
 import jdatetime
 from sqlalchemy.sql.elements import and_
 
@@ -18,6 +20,19 @@ def give_year_mount():
         semester = Semester(3)
 
     return year, semester
+
+
+def is_in_period_of_student_course_selection(course_section):
+    find_query = Period_Course_Selection.query.filter(
+        and_(Period_Course_Selection.role == 'student',
+             Period_Course_Selection.course_section == course_section)).first()
+    today = datetime.date.today()
+    if find_query is None:
+        return False
+    elif find_query.start_date > today or find_query.end_date < today:
+        return False
+    else:
+        return True
 
 
 def is_assignment_education(user_id):
@@ -50,6 +65,10 @@ def is_person_student(user_id):
 # TODO course is he get before or not have prerequested it not be show add orientation
 def permitted_course_student(user_id):
     student = Student.query.filter(Student.student_number == user_id).first()
+    is_time_of_course_selection = is_in_period_of_student_course_selection(student.cross_section)
+    if not is_time_of_course_selection:
+        return {'Status': 'ERROR', 'message': 'در بازه انتخاب واحد نیستیم.'}
+
     permitted_course_list = PermittedCourse.query.filter(PermittedCourse.cross_section == student.cross_section).all()
     print(student.cross_section)
     year, semester = give_year_mount()
@@ -208,6 +227,11 @@ def is_this_permitted_course_ok_for_this_student(student: Student, list_id_permi
 
 
 def add_initial_course(user_id, list_id_permitted_course):
+    is_time_of_course_selection = is_in_period_of_student_course_selection()
+
+    if not is_time_of_course_selection:
+        return {'Status': 'ERROR', 'message': 'در بازه انتخاب واحد نیستیم.'}
+
     is_this_person_student = is_person_student(user_id)
     student = Student.query.filter(Student.student_number == user_id).first()
     this_permitted_course_ok = is_this_permitted_course_ok_for_this_student(student, list_id_permitted_course)
@@ -291,7 +315,6 @@ def delete_initial_course_by(id_initial_course_selection, user_id):
 
 def create_course_selection_period(course_section, term, start_date, end_date, role, user_id):
     is_user_assignment_eduction = is_assignment_education(user_id)
-
     if not is_user_assignment_eduction:
         return {'Status': 'ERROR', 'message': 'شخص موردنظر مسئول آموزش نیست'}
     elif course_section not in ['bachelor', 'master']:
@@ -302,8 +325,87 @@ def create_course_selection_period(course_section, term, start_date, end_date, r
     elif role not in ['student', 'professor']:
         return {'Status': 'ERROR', 'message': 'داده مربوط به نقش اشتباه هست.'}
     # print(role)
-    x = Period_Course_Selection(course_section=course_section, role=role, semester=Semester(term),
-                                start_date=start_date, end_date=end_date)
-    session.add(x)
+    elif start_date > end_date:
+        return {'Status': 'ERROR', 'message': 'زمان شروع بعد از زمان پایان هست .'}
+
+    find_query = Period_Course_Selection.query.filter(and_(Period_Course_Selection.role == role
+                                                           ,
+                                                           Period_Course_Selection.course_section == course_section)).first()
+    if find_query is None:
+        x = Period_Course_Selection(course_section=course_section, role=role, semester=Semester(term),
+                                    start_date=start_date, end_date=end_date)
+        session.add(x)
+
+    else:
+        find_query.role = role
+        find_query.course_section = course_section
+        find_query.semester = Semester(term)
+        find_query.start_date = start_date
+        find_query.end_date = end_date
+
     session.commit()
     return {'Status': 'OK', 'message': 'با موفقیت بازه ثبت نام مقدماتی اعمال شد.'}
+
+
+def make_gero_to_jalali(time_gero):
+    time = jdatetime.GregorianToJalali(time_gero.year, time_gero.month, time_gero.day)
+    return "/".join([str(time.jyear), str(time.jmonth), str(time.jday)])
+
+
+def is_time_of_course_section(user_id):
+    is_user_assignment_eduction = is_assignment_education(user_id)
+    is_this_person_professor = is_person_professor(user_id)
+    is_period_of_student_bachelor = is_in_period_of_student_course_selection('bachelor')
+    is_period_of_student_master = is_in_period_of_student_course_selection('master')
+    is_this_person_student = is_person_student(user_id)
+    if is_user_assignment_eduction or is_this_person_professor:
+        if is_period_of_student_master and is_period_of_student_bachelor:
+            find_query_bachelor = Period_Course_Selection.query.filter(and_(Period_Course_Selection.role == 'student',
+                                                                            Period_Course_Selection.course_section == 'bachelor')).first()
+            find_query_master = Period_Course_Selection.query.filter(and_(Period_Course_Selection.role == 'student',
+                                                                          Period_Course_Selection.course_section == 'master')).first()
+            return {'Status': 'OK', 'Flag': True, 'course_section': 'master_bachelor',
+                    'data': [{'role': find_query_bachelor.role,
+                                      'course_section': find_query_bachelor.course_section,
+                                      'start_date': make_gero_to_jalali(find_query_bachelor.start_date),
+                                      'end_date': make_gero_to_jalali(find_query_bachelor.end_date)},
+                             {'role': find_query_master.role,
+                                    'course_section': find_query_master.course_section,
+                                    'start_date': make_gero_to_jalali(find_query_master.start_date),
+                                    'end_date': make_gero_to_jalali(find_query_master.end_date)
+                                    }]}
+
+        elif is_period_of_student_bachelor:
+            find_query = Period_Course_Selection.query.filter(and_(Period_Course_Selection.role == 'student',
+                                                                   Period_Course_Selection.course_section == 'bachelor')).first()
+            return {'Status': 'OK', 'Flag': True, 'course_section': find_query.course_section,
+                    'data': [{'role': find_query.role,
+                             'course_section': find_query.course_section,
+                             'start_date': make_gero_to_jalali(find_query.start_date),
+                             'end_date': make_gero_to_jalali(find_query.end_date)}]}
+        elif is_period_of_student_master:
+            find_query = Period_Course_Selection.query.filter(and_(Period_Course_Selection.role == 'student',
+                                                                   Period_Course_Selection.course_section == 'master')).first()
+            return {'Status': 'OK', 'Flag': True, 'course_section': find_query.course_section,
+                    'data': [{'role': find_query.role,
+                             'course_section': find_query.course_section,
+                             'start_date': make_gero_to_jalali(find_query.start_date),
+                             'end_date': make_gero_to_jalali(find_query.end_date)}]}
+        else:
+            return {'Status': 'OK', 'Flag': False}
+    elif is_this_person_student:
+        student = Student.query.filter(Student.student_number == user_id).first()
+
+        is_period_of_this_student = is_in_period_of_student_course_selection(student.cross_section)
+        if is_period_of_this_student:
+            find_query = Period_Course_Selection.query.filter(and_(Period_Course_Selection.role == 'student',Period_Course_Selection.course_section == student.cross_section)).first()
+            return {'Status': 'OK', 'Flag': True, 'course_section': find_query.course_section,
+                    'data': {'role': find_query.role,
+                             'course_section': find_query.course_section,
+                             'start_date': make_gero_to_jalali(find_query.start_date),
+                             'end_date': make_gero_to_jalali(find_query.end_date)}}
+        else:
+            return {'Status': 'OK', 'Flag': False}
+
+    else:
+        return {'Status': 'ERROR', "message": "شخص موردنظر معتبر نیست."}

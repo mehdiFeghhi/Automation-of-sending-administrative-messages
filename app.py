@@ -9,7 +9,7 @@ from sqlalchemy.sql.functions import user
 
 from handler.cours_selection import find_permitted_courses, create_permitted_course, add_initial_course, \
     find_initial_course_selection, create_permitted_courses, delete_permitted_course_by, \
-    update_permitted_course_prof_by, delete_initial_course_by, create_course_selection_period
+    update_permitted_course_prof_by, delete_initial_course_by, create_course_selection_period, is_time_of_course_section
 from handler.model.modelDB import StatusStep, Supervisor
 from handler.ticket_handler import capacity_incresessase_by_student, lessons_from_another_section, class_change_time, \
     master_course_request, course_from_another_orientation, exam_time_change, normal_ticket, delete_ticket_user, \
@@ -567,6 +567,22 @@ def change_student_pass():
     except Exception as ex:
         print(ex)
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
+@app.route('/api/time-of-course-section', methods=['GET'])
+@jwt_required()
+def time_of_course_section():
+    # try:
+        user_id = get_jwt_identity()
+        response = is_time_of_course_section(user_id)
+        if response.get('Status') == 'OK':
+            return jsonify(response), 200
+        else:
+            return jsonify(response), 400
+
+    # except Exception as ex:
+    #     print(ex)
+    #     return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+
 
 
 if __name__ == '__main__':
