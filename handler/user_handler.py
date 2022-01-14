@@ -296,16 +296,34 @@ def update_student_info(user_id,
     if(student == None):
         return {'message': 'دانشجو یافت نشد'}
 
-    student.user.firs_name = firs_name
-    student.user.last_name = last_name
-    student.user.password = str(hashlib.sha256(password.encode()).hexdigest())
-    student.orientation = orientation
-    student.cross_section = cross_section
-    student.time_enter = enter_year
-    student.adviser_id = adviser_id
-    student.supervisor_id = superviser_id
-    student.student_number = new_std_num
-    student.user.username = new_std_num
+    if(firs_name != None):
+        student.user.firs_name = firs_name
+    
+    if(last_name != None):
+        student.user.last_name = last_name
+
+    if(password != None):
+        student.user.password = str(hashlib.sha256(password.encode()).hexdigest())
+
+    if(orientation != None):
+        student.orientation = orientation
+
+    if(cross_section != None):
+        student.cross_section = cross_section
+
+    if(enter_year != None):
+        student.time_enter = enter_year
+
+    if(adviser_id != None):
+        student.adviser_id = adviser_id
+
+    if(superviser_id != None):
+        student.supervisor_id = superviser_id
+
+    if(new_std_num != None):
+        student.student_number = new_std_num
+        student.user.username = new_std_num
+
     session.commit()
     return {'message': 'OK'}
 
