@@ -321,6 +321,8 @@ def update_student_info(user_id,
         student.supervisor_id = superviser_id
 
     if(new_std_num != None):
+        if(len(new_std_num) == 0):
+            return {'message': 'طول شماره دانشجویی نمیتواند صفر باشد'}
         student.student_number = new_std_num
         student.user.username = new_std_num
 

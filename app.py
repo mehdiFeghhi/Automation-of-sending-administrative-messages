@@ -541,6 +541,9 @@ def edit_student_info():
         if (resp['message'] == 'دانشجو یافت نشد'):
             return jsonify(resp), 400
 
+        if (resp['message'] == 'طول شماره دانشجویی نمیتواند صفر باشد'):
+            return jsonify(resp), 400
+
         return jsonify(resp), 200
 
 
