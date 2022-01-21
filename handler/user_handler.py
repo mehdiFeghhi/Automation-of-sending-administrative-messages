@@ -167,7 +167,6 @@ def create_students_handler(user_id,
 
     new_student = Student(student_number=new_user.username, time_enter= enter_year, cross_section= cross_section,
                           orientation= orientation)
-
     supervisor = session.query(Supervisor).filter(Supervisor.email == superviser_id).first()
 
     new_student.adviser= advisor

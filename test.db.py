@@ -126,7 +126,7 @@ def add_item_to_db():
                                        firs_name='maryam',
                                        last_name='Hossainy')
     educationAssistant_one = EducationAssistant(username=user_educationAssistant_one.username,
-                                                date_start_duty=datetime(2017, 5, 17))
+                                                date_start_duty=datetime(2021, 5, 17))
 
     session.add_all([
         user_student_one, user_student_two, user_student_three, user_student_four, user_student_five, user_student_six,
