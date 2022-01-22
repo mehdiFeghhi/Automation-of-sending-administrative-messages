@@ -291,7 +291,7 @@ def add_permitted_course():
 
     except Exception as ex:
         print(ex)
-        return jsonify(status='ERROR', message=' داده ارسالی اشتباه است'+str(ex)), 400
+        return jsonify(status='ERROR', message=' داده ارسالی اشتباه است'), 400
 
 
 @app.route('/api/add-permitted-courses', methods=['POST'])
@@ -310,7 +310,7 @@ def add_permitted_courses():
 
     except Exception as ex:
         print(ex)
-        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'+str(ex)), 400
 
 
 @app.route('/api/get-permitted-course', methods=['GET'])
