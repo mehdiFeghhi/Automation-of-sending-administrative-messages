@@ -256,7 +256,7 @@ def update_professor_handler(user_id,
 
     if(is_departman_boss != None):
         if (is_departman_boss):
-            current_head = DepartmentHead.query.filter(DepartmentHead.date_end_duty != None).one_or_none()
+            current_head = DepartmentHead.query.filter(DepartmentHead.date_end_duty == None).one_or_none()
             if not current_head:
                 hed = DepartmentHead(email=email, date_start_duty=date.today())
                 session.add(hed)
