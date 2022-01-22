@@ -121,6 +121,7 @@ class Professor(Base):
     professor_permitted_course = relationship(PermittedCourse, backref=backref('professor'))
     # professor_initial_course = relationship('InitialCourseSelection', backref=backref('professor'))
 
+
 class EducationAssistant(Base):
     __tablename__ = 'educationAssistants'
 

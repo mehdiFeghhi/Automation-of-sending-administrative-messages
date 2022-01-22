@@ -311,23 +311,15 @@ def update_permitted_course_prof_by(permitted_course_id, professor_id, user_id):
     else:
         presented_course = find_present_course
 
-    find_present_course = PresentedCourse.query.filter(
-        and_(PresentedCourse.course_id == course_id, PresentedCourse.year == year,
-             PresentedCourse.semester == semester)).first()
-    if find_present_course is None:
-        return {'Status': 'ERROR', 'message': 'خطایی  در سیسم رخ داده هست .'}
-
     professorLinkPresentedCourse = ProfessorLinkPresentedCourse.query.filter(
-        and_(ProfessorLinkPresentedCourse.professor_email == professor_id,
-             ProfessorLinkPresentedCourse.presentedCourse == presented_course.id)).first()
+                                   ProfessorLinkPresentedCourse.presentedCourse == presented_course.id).first()
 
     if professorLinkPresentedCourse is None:
         professorLinkPresentedCourse = ProfessorLinkPresentedCourse(professor_email=professor_id,
-                                                                     presentedCourse=find_present_course.course_id)
+                                                                    presentedCourse=find_present_course.course_id)
         session.add(professorLinkPresentedCourse)
 
     else:
-
         professorLinkPresentedCourse.professor_email = professor_id
     permitted_course.professor_id = professor_id
     session.commit()
