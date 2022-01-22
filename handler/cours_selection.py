@@ -307,15 +307,18 @@ def update_permitted_course_prof_by(permitted_course_id, professor_id, user_id):
         # professorLinkPresentedCourse_three = ProfessorLinkPresentedCourse(professor_email=,
         #                                                                   presentedCourse=15)
         session.commit()
-        presented_course= PresentedCourse.query.filter(
+        presented_course = PresentedCourse.query.filter(
             and_(PresentedCourse.course_id == course_id, PresentedCourse.year == year,
                  PresentedCourse.semester == semester)).first()
 
     else:
         presented_course = find_present_course
 
-    professorLinkPresentedCourse = ProfessorLinkPresentedCourse.query.filter(
-                                   ProfessorLinkPresentedCourse.presentedCourse == presented_course.id).first()
+    try:
+        professorLinkPresentedCourse = ProfessorLinkPresentedCourse.query.filter(
+            ProfessorLinkPresentedCourse.presentedCourse == presented_course.id).first()
+    except Exception as ex:
+        return {'Status': 'OK', 'message': 'ارور مال خط مذکور هست .'}
 
     if professorLinkPresentedCourse is None:
         professorLinkPresentedCourse = ProfessorLinkPresentedCourse(professor_email=professor_id,
