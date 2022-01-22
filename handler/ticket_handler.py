@@ -11,7 +11,8 @@ import jdatetime
 def check_step_this_ticket_is_finish_or_not(tickets):
     for ticket in tickets:
         find = Step.query.filter(and_(Step.ticket_id == ticket.id, or_(Step.status_step == StatusStep(6),
-                                                                       Step.status_step == StatusStep(7)))).first()
+                                                                       Step.status_step == StatusStep(7),
+                                                                       Step.status_step == StatusStep(4)))).first()
         if find is None:
             return False
     return True
