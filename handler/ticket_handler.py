@@ -7,7 +7,6 @@ from handler.connect_db import session
 import jdatetime
 
 
-# TODO : check step if not end return True else return false
 def check_step_this_ticket_is_finish_or_not(tickets):
     for ticket in tickets:
         find = Step.query.filter(and_(Step.ticket_id == ticket.id, or_(Step.status_step == StatusStep(6),
