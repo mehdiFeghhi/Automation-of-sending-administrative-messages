@@ -129,7 +129,10 @@ def find_user_by_user_id(user_id: str):
 
 
 def get_professors_handler():
-    dephead_email = session.query(DepartmentHead).filter(DepartmentHead.date_end_duty == None).first().email
+    try:
+        dephead_email = session.query(DepartmentHead).filter(DepartmentHead.date_end_duty == None).first().email
+    except Exception as e:
+        pass    
     profs = session.query(Professor).all()
     res = []
     for prof in profs:
