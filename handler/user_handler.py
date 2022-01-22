@@ -241,31 +241,38 @@ def update_professor_handler(user_id,
         return {'message': 'استاد یافت نشد'}
 
     user = session.query(User).filter(User.username == email).first()
-    user.firs_name = first_name
-    user.last_name = last_name
-    user.password = str(hashlib.sha256(password.encode()).hexdigest())
-    if (is_departman_boss):
-        dep_head = session.query(DepartmentHead).filter(DepartmentHead.email == email).first()
-        if (dep_head != None):
-            dep_head.date_end_duty = None
-            dep_head.date_start_duty = date.today()
-            last_dep_head = session.query(DepartmentHead).filter(DepartmentHead.date_end_duty == None).first()
-            if (last_dep_head != None):
-                last_dep_head.date_end_duty = date.today()
+    if(first_name != None):
+        user.firs_name = first_name
+
+    if(last_name != None):
+        user.last_name = last_name
+
+    if(password != None):
+        user.password = str(hashlib.sha256(password.encode()).hexdigest())
+
+    if(is_departman_boss != None):
+        if (is_departman_boss):
+            dep_head = session.query(DepartmentHead).filter(DepartmentHead.email == email).first()
+            if (dep_head != None):
+                dep_head.date_end_duty = None
+                dep_head.date_start_duty = date.today()
+                last_dep_head = session.query(DepartmentHead).filter(DepartmentHead.date_end_duty == None).first()
+                if (last_dep_head != None):
+                    last_dep_head.date_end_duty = date.today()
+
+            else:
+                last_dep_head = session.query(DepartmentHead).filter(DepartmentHead.date_end_duty == None).first()
+                if (last_dep_head != None):
+                    last_dep_head.date_end_duty = date.today()
+                new_head = DepartmentHead(email=email, date_start_duty=date.today())
+                session.add(new_head)
+
 
         else:
-            last_dep_head = session.query(DepartmentHead).filter(DepartmentHead.date_end_duty == None).first()
-            if (last_dep_head != None):
-                last_dep_head.date_end_duty = date.today()
-            new_head = DepartmentHead(email=email, date_start_duty=date.today())
-            session.add(new_head)
-
-
-    else:
-        dep_head = session.query(DepartmentHead).filter(DepartmentHead.email == email,
-                                                        DepartmentHead.date_end_duty == None).first()
-        if (dep_head != None):
-            dep_head.date_end_duty = date.today()
+            dep_head = session.query(DepartmentHead).filter(DepartmentHead.email == email,
+                                                            DepartmentHead.date_end_duty == None).first()
+            if (dep_head != None):
+                dep_head.date_end_duty = date.today()
 
     session.commit()
     return {'message': 'OK'}
