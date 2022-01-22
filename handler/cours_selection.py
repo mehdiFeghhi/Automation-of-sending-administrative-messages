@@ -308,6 +308,9 @@ def update_permitted_course_prof_by(permitted_course_id, professor_id, user_id):
         #                                                                   presentedCourse=15)
         session.commit()
 
+    else:
+        presented_course = find_present_course
+
     find_present_course = PresentedCourse.query.filter(
         and_(PresentedCourse.course_id == course_id, PresentedCourse.year == year,
              PresentedCourse.semester == semester)).first()
