@@ -151,21 +151,21 @@ def class_change_time(user_id, receiver_id, description, course_id):
         None)).first()
 
     if student is None:
-        return {'Status': "ERROR", 'error': "this user isn't student."}
+        return {'Status': "ERROR", 'error': "این کاربر دانشجو نیست ."}
     elif course is None:
-        return {'Status': "ERROR", 'error': "this course wasn't found."}
+        return {'Status': "ERROR", 'error': "درس موردنظر پیدا نشد ."}
     elif educationAssistant is None:
-        return {'Status': "ERROR", 'error': "this educationAssistant isn't exist."}
+        return {'Status': "ERROR", 'error': "معاون آموزشی یافت نشد ."}
     presentedCourse = session.query(PresentedCourse).filter(and_(PresentedCourse.course_id == course_id,
                                                                  PresentedCourse.year == year,
                                                                  PresentedCourse.semester == semester)).first()
     if presentedCourse is None:
-        return {'Status': "ERROR", 'error': "this course haven't any present Course in this semester."}
+        return {'Status': "ERROR", 'error': "این درس این ترم ارائه نمی‌شود."}
 
     flag = is_this_ticket_is_exist_or_finish(topic='class_change_time', course_relation=course_id, year=year,
                                              semester=semester)
     if not flag:
-        return {'Status': "ERROR", 'error': "you give this request before please be calm."}
+        return {'Status': "ERROR", 'error': "این درخواست قبلا توسط شما داده شده بود ."}
 
     ticket = Ticket(sender=user_id, topic='class_change_time', message=description, course_relation=course_id)
     step = Step(receiver_id=educationAssistant.username)
@@ -189,21 +189,21 @@ def exam_time_change(user_id, receiver_id, description, course_id):
     educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(None)).first()
 
     if student is None:
-        return {'Status': "ERROR", 'error': "this user isn't student."}
+        return {'Status': "ERROR", 'error': "این کاربر دانشجو نیست ."}
     elif course is None:
-        return {'Status': "ERROR", 'error': "this course wasn't found."}
+        return {'Status': "ERROR", 'error': "این درس یافت نشد ."}
     elif educationAssistant is None:
-        return {'Status': "ERROR", 'error': "this educationAssistant isn't exist."}
+        return {'Status': "ERROR", 'error': "معاون آموزشی موردنظر یافت نشد ."}
     presentedCourse = session.query(PresentedCourse).filter(and_(PresentedCourse.course_id == course_id,
                                                                  PresentedCourse.year == year,
                                                                  PresentedCourse.semester == semester)).first()
     if presentedCourse is None:
-        return {'Status': "ERROR", 'error': "this course haven't any present Course in this semester."}
+        return {'Status': "ERROR", 'error': "این درس در این ترم ارائه نمی‌شود."}
 
     flag = is_this_ticket_is_exist_or_finish(topic='exam_time_change', course_relation=course_id, year=year,
                                              semester=semester)
     if not flag:
-        return {'Status': "ERROR", 'error': "you give this request before please be calm."}
+        return {'Status': "ERROR", 'error': "این درخواست قبلا توسط شما داده شده بود ."}
 
     ticket = Ticket(sender=user_id, topic='exam_time_change', message=description, course_relation=course_id)
     step = Step(receiver_id=educationAssistant.username)
@@ -228,20 +228,24 @@ def master_course_request(user_id, receiver_id, description, course_id):
     # educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(
     #     None)).first()
     if student is None:
-        return {'Status': "ERROR", 'error': "this user isn't student."}
+        return {'Status': "ERROR", 'error': "این یوزر دانشجو نیست ."}
     elif student.cross_section != 'bachelor':
-        return {'Status': "ERROR", 'error': "this user isn't bachelor student."}
+        return {'Status': "ERROR", 'error': "این یوزر دانشجوی کارشناسی نیست ."}
 
     elif course is None:
-        return {'Status': "ERROR", 'error': "this course wasn't found."}
-    elif not is_this_course_in_sinore_chart(course.id):
-        return {'Status': "ERROR", 'error': "this course wasn't senior course."}
+        return {'Status': "ERROR", 'error': "این درس پیدا نشد ."}
+
+
+    #TODO : make it better our make init.db better
+
+    # elif not is_this_course_in_sinore_chart(course.id):
+    #     return {'Status': "ERROR", 'error': "this course wasn't senior course."}
     # elif educationAssistant is None:
     #     return {'Status': "ERROR", 'error': "this educationAssistant isn't exist."}
     adviser_id = student.adviser_id
 
     if adviser_id is None:
-        return {'Status': "ERROR", 'error': "this adviser isn't exist."}
+        return {'Status': "ERROR", 'error': "این استاد مشاور موجود نیست ."}
 
     presentedCourse = session.query(PresentedCourse).filter(and_(PresentedCourse.course_id == course_id,
                                                                  PresentedCourse.year == year,

@@ -32,6 +32,7 @@ charts = [
         'name': 'کارشناسی',
         'year_create': '00'
     },
+
 ]
 
 courses = [

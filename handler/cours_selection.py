@@ -227,7 +227,8 @@ def is_this_permitted_course_ok_for_this_student(student: Student, list_id_permi
 
 
 def add_initial_course(user_id, list_id_permitted_course):
-    is_time_of_course_selection = is_in_period_of_student_course_selection()
+    student = Student.query.filter(Student.student_number == user_id).first()
+    is_time_of_course_selection = is_in_period_of_student_course_selection(student.cross_section)
 
     if not is_time_of_course_selection:
         return {'Status': 'ERROR', 'message': 'در بازه انتخاب واحد نیستیم.'}
