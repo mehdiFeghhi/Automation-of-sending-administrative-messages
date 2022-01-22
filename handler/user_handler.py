@@ -285,6 +285,11 @@ def get_students_handler(user_id):
 
     students = session.query(Student).all()
     for student in students:
+        superviser_email = None
+        superviser = session.query(Supervisor).filter(Supervisor.id == student.supervisor_id).first()
+        if(superviser != None):
+            superviser_email = superviser.email
+
         std_data = {'first_name': student.user.firs_name,
                     'last_name': student.user.last_name,
                     'student_number': student.student_number,
@@ -293,7 +298,8 @@ def get_students_handler(user_id):
                     'cross_section': student.cross_section,
                     'enter_year': student.time_enter,
                     'adviser_id': student.adviser_id,
-                    'superviser_id': student.supervisor_id
+                    'superviser_id': student.supervisor_id,
+                    'superviser_email': superviser_email
                     }
 
         resp.append(std_data)
