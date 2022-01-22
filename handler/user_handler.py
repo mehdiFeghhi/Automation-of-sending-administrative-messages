@@ -99,7 +99,7 @@ def find_user_by_username_and_password(user_name: str, password: str):
     result = session.query(User).filter(and_(User.username == user_name, User.password == hash_password)).all()
 
     if len(result) == 0:
-        return {'status': 'ERROR'}
+        return {'status': 'ERROR', 'message': 'نام کاربری یا پسورد اشتباه است .'}
     elif len(result) == 1:
         user = result[0]
         role, main_role = find_main_role_of_person_information(user)
@@ -109,7 +109,7 @@ def find_user_by_username_and_password(user_name: str, password: str):
                                          "main_role": main_role,
                                          'role': role}}
     else:
-        raise "User model in db work wrong"
+        raise "این شخص نمی تواند در دیتابیس به این شکل باشد ."
 
 
 def find_user_by_user_id(user_id: str):

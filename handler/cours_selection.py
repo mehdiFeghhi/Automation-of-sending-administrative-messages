@@ -5,7 +5,7 @@ from sqlalchemy.sql.elements import and_
 
 from handler.connect_db import session
 from handler.model.modelDB import EducationAssistant, Course, PermittedCourse, Professor, Student, \
-    InitialCourseSelection, Semester, Period_Course_Selection
+    InitialCourseSelection, Semester, Period_Course_Selection, PresentedCourse, ProfessorLinkPresentedCourse
 
 
 def give_year_mount():
@@ -163,6 +163,7 @@ def create_permitted_courses(user_id, course_id_list, course_section):
         is_course_exist = is_this_course_exist(course_id)
         is_this_permitted_course_exist = PermittedCourse.query.filter(PermittedCourse.course_id == course_id,
                                                                       PermittedCourse.cross_section == course_section).first()
+        # res = create_permitted_course(user_id, course_id, course_section)
 
         if not is_course_exist:
             return {'Status': 'ERROR', 'message': 'یک درس موردنظر موجود نیست'}
@@ -242,6 +243,7 @@ def add_initial_course(user_id, list_id_permitted_course):
     if not this_permitted_course_ok:
         return {'Status': 'ERROR', 'message': 'این انتخاب واحد برای این شخص مجاز نیست .'}
     else:
+
         list_of_initial_course = []
         for id_permitted_Course in list_id_permitted_course:
             list_of_initial_course.append(InitialCourseSelection(student_number=user_id, year=year, semester=semester,
@@ -281,12 +283,40 @@ def delete_permitted_course_by(permitted_course_id, user_id):
     return {'Status': 'OK', 'message': 'با موفقیت تغییر اعمال شد.'}
 
 
+# TODO : ADD some presented course by this function that should be add in another where
 def update_permitted_course_prof_by(permitted_course_id, professor_id, user_id):
     is_user_assignment_eduction = is_assignment_education(user_id)
+
     if not is_user_assignment_eduction:
         return {'Status': 'ERROR', 'message': 'شخص موردنظر مسئول آموزش نیست'}
 
     permitted_course = PermittedCourse.query.filter(PermittedCourse.permittedCourse_id == permitted_course_id).first()
+    if permitted_course is None:
+        return {'Status': 'ERROR', 'message': 'همچین درسی موجود نیست .'}
+
+    course_id = permitted_course.course_id
+    year, semester = give_year_mount()
+
+    find_present_course = PresentedCourse.query.filter(
+        and_(PresentedCourse.course_id == course_id, PresentedCourse.year == year,
+             PresentedCourse.semester == semester)).first()
+
+    if find_present_course is None:
+        presented_course = PresentedCourse(course_id=course_id, year=year, semester=semester)
+        session.add(presented_course)
+        # professorLinkPresentedCourse_three = ProfessorLinkPresentedCourse(professor_email=,
+        #                                                                   presentedCourse=15)
+        session.commit()
+
+    find_present_course = PresentedCourse.query.filter(
+        and_(PresentedCourse.course_id == course_id, PresentedCourse.year == year,
+             PresentedCourse.semester == semester)).first()
+    if find_present_course is None:
+        return {'Status': 'ERROR', 'message': 'خطایی  در سیسم رخ داده هست .'}
+
+    professorLinkPresentedCourse = ProfessorLinkPresentedCourse(professor_email=professor_id,
+                                                                presentedCourse=find_present_course.course_id)
+    session.add(professorLinkPresentedCourse)
     permitted_course.professor_id = professor_id
     session.commit()
     return {'Status': 'OK', 'message': 'با موفقیت تغییر اعمال شد.'}
@@ -367,31 +397,31 @@ def is_time_of_course_section(user_id):
                                                                           Period_Course_Selection.course_section == 'master')).first()
             return {'Status': 'OK', 'Flag': True, 'course_section': 'master_bachelor',
                     'data': [{'role': find_query_bachelor.role,
-                                      'course_section': find_query_bachelor.course_section,
-                                      'start_date': make_gero_to_jalali(find_query_bachelor.start_date),
-                                      'end_date': make_gero_to_jalali(find_query_bachelor.end_date)},
+                              'course_section': find_query_bachelor.course_section,
+                              'start_date': make_gero_to_jalali(find_query_bachelor.start_date),
+                              'end_date': make_gero_to_jalali(find_query_bachelor.end_date)},
                              {'role': find_query_master.role,
-                                    'course_section': find_query_master.course_section,
-                                    'start_date': make_gero_to_jalali(find_query_master.start_date),
-                                    'end_date': make_gero_to_jalali(find_query_master.end_date)
-                                    }]}
+                              'course_section': find_query_master.course_section,
+                              'start_date': make_gero_to_jalali(find_query_master.start_date),
+                              'end_date': make_gero_to_jalali(find_query_master.end_date)
+                              }]}
 
         elif is_period_of_student_bachelor:
             find_query = Period_Course_Selection.query.filter(and_(Period_Course_Selection.role == 'student',
                                                                    Period_Course_Selection.course_section == 'bachelor')).first()
             return {'Status': 'OK', 'Flag': True, 'course_section': find_query.course_section,
                     'data': [{'role': find_query.role,
-                             'course_section': find_query.course_section,
-                             'start_date': make_gero_to_jalali(find_query.start_date),
-                             'end_date': make_gero_to_jalali(find_query.end_date)}]}
+                              'course_section': find_query.course_section,
+                              'start_date': make_gero_to_jalali(find_query.start_date),
+                              'end_date': make_gero_to_jalali(find_query.end_date)}]}
         elif is_period_of_student_master:
             find_query = Period_Course_Selection.query.filter(and_(Period_Course_Selection.role == 'student',
                                                                    Period_Course_Selection.course_section == 'master')).first()
             return {'Status': 'OK', 'Flag': True, 'course_section': find_query.course_section,
                     'data': [{'role': find_query.role,
-                             'course_section': find_query.course_section,
-                             'start_date': make_gero_to_jalali(find_query.start_date),
-                             'end_date': make_gero_to_jalali(find_query.end_date)}]}
+                              'course_section': find_query.course_section,
+                              'start_date': make_gero_to_jalali(find_query.start_date),
+                              'end_date': make_gero_to_jalali(find_query.end_date)}]}
         else:
             return {'Status': 'OK', 'Flag': False}
     elif is_this_person_student:
@@ -399,7 +429,8 @@ def is_time_of_course_section(user_id):
 
         is_period_of_this_student = is_in_period_of_student_course_selection(student.cross_section)
         if is_period_of_this_student:
-            find_query = Period_Course_Selection.query.filter(and_(Period_Course_Selection.role == 'student',Period_Course_Selection.course_section == student.cross_section)).first()
+            find_query = Period_Course_Selection.query.filter(and_(Period_Course_Selection.role == 'student',
+                                                                   Period_Course_Selection.course_section == student.cross_section)).first()
             return {'Status': 'OK', 'Flag': True, 'course_section': find_query.course_section,
                     'data': {'role': find_query.role,
                              'course_section': find_query.course_section,

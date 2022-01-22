@@ -119,7 +119,7 @@ class Professor(Base):
 
     presented_courses = relationship(PresentedCourse, secondary='professorLinkPresentedCourse')
     professor_permitted_course = relationship(PermittedCourse, backref=backref('professor'))
-
+    # professor_initial_course = relationship('InitialCourseSelection', backref=backref('professor'))
 
 class EducationAssistant(Base):
     __tablename__ = 'educationAssistants'
@@ -362,6 +362,7 @@ class InitialCourseSelection(Base):
     student = relationship(Student, backref=backref('initialCourseSelection'))
     year = Column(Integer, nullable=False)
     semester = Column(Enum(Semester), nullable=False)
+    # email_professor = Column(Integer, ForeignKey('professors.email'))
     # permittedCourse_year = Column(Integer, ForeignKey('permittedCourses.year'), primary_key=True)
     # permittedCourse_semester = Column(Integer, ForeignKey('permittedCourses.semester'), primary_key=True)
     # permittedCourse_id = Column(Integer, ForeignKey('permittedCourses.course_id'), primary_key=True)
