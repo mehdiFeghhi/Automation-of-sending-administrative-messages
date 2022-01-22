@@ -316,7 +316,7 @@ def update_permitted_course_prof_by(permitted_course_id, professor_id, user_id):
 
     if professorLinkPresentedCourse is None:
         professorLinkPresentedCourse = ProfessorLinkPresentedCourse(professor_email=professor_id,
-                                                                    presentedCourse=find_present_course.course_id)
+                                                                    presentedCourse=find_present_course.id)
         session.add(professorLinkPresentedCourse)
 
     else:

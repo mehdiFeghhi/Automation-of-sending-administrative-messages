@@ -91,6 +91,7 @@ class PresentedCourse(Base):
     professors = relationship('Professor', secondary='professorLinkPresentedCourse')
 
 
+
 class PermittedCourse(Base):
     __tablename__ = 'permittedCourses'
 
