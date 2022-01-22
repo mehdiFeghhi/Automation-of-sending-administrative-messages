@@ -314,9 +314,20 @@ def update_permitted_course_prof_by(permitted_course_id, professor_id, user_id):
     if find_present_course is None:
         return {'Status': 'ERROR', 'message': 'خطایی  در سیسم رخ داده هست .'}
 
-    professorLinkPresentedCourse = ProfessorLinkPresentedCourse(professor_email=professor_id,
+    professorLinkPresentedCourse = ProfessorLinkPresentedCourse.query.filter(and_(ProfessorLinkPresentedCourse.professor_email == professor_id,
+                                                                                  ProfessorLinkPresentedCourse.presentedCourse == presented_course.id)).first()
+
+    if professorLinkPresentedCourse is None:
+        professorLinkPresentedCourse1 = ProfessorLinkPresentedCourse(professor_email=professor_id,
                                                                 presentedCourse=find_present_course.course_id)
-    session.add(professorLinkPresentedCourse)
+    else:
+        ProfessorLinkPresentedCourse.query.filter(
+            and_(ProfessorLinkPresentedCourse.professor_email == professor_id,
+                 ProfessorLinkPresentedCourse.presentedCourse == presented_course.id)).delete()
+
+        professorLinkPresentedCourse1 = ProfessorLinkPresentedCourse(professor_email=professor_id,
+                                                                     presentedCourse=find_present_course.course_id)
+    session.add(professorLinkPresentedCourse1)
     permitted_course.professor_id = professor_id
     session.commit()
     return {'Status': 'OK', 'message': 'با موفقیت تغییر اعمال شد.'}
