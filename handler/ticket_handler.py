@@ -9,7 +9,12 @@ import jdatetime
 
 # TODO : check step if not end return True else return false
 def check_step_this_ticket_is_finish_or_not(tickets):
-    return False
+    for ticket in tickets:
+        find = Step.query.filter(and_(Step.ticket_id == ticket.id, or_(Step.status_step == StatusStep(6),
+                                                                       Step.status_step == StatusStep(7)))).first()
+        if find is None:
+            return False
+    return True
 
 
 # TODO : check this course just in sinore chart
@@ -36,18 +41,20 @@ def give_year_mount():
     return year, semester
 
 
-def is_this_ticket_is_exist_or_finish(topic, course_relation, year, semester):
+def is_this_ticket_is_exist_or_finish(topic, course_relation, year, semester, id_creator):
     tickets = session.query(Ticket).filter(and_(Ticket.topic == topic, Ticket.course_relation == course_relation,
-                                                Ticket.year_create == year, Ticket.semester == semester)).all()
+                                                Ticket.year_create == year, Ticket.semester == semester,
+                                                Ticket.sender == id_creator)).all()
     if len(tickets) > 0:
         return check_step_this_ticket_is_finish_or_not(tickets)
     else:
         return True
 
 
-def is_this_ticket_is_exist_or_finish_two(topic, year, semester):
+def is_this_ticket_is_exist_or_finish_two(topic, year, semester, id_creator):
     tickets = session.query(Ticket).filter(and_(Ticket.topic == topic,
-                                                Ticket.year_create == year, Ticket.semester == semester)).all()
+                                                Ticket.year_create == year, Ticket.semester == semester,
+                                                Ticket.sender == id_creator)).all()
     if len(tickets) > 0:
         return check_step_this_ticket_is_finish_or_not(tickets)
     else:
@@ -67,27 +74,27 @@ def capacity_incresessase_by_student(user_id, receiver_id, description, course_i
     # professor = session.query(Professor).filter(Professor.email == receiver_id).first()
 
     if student is None:
-        return {'Status': "ERROR", 'error': "این شخص دانشجو نیست "}
+        return {'Status': "ERROR", 'massage': "این شخص دانشجو نیست "}
     elif course is None:
-        return {'Status': "ERROR", 'error': "این درس پیدا نشد ."}
+        return {'Status': "ERROR", 'massage': "این درس پیدا نشد ."}
     # elif professor is None:
     #     return {'Status': "ERROR", 'error': "this professor isn't exist."}
     presentedCourse = session.query(PresentedCourse).filter(and_(PresentedCourse.course_id == course_id,
                                                                  PresentedCourse.year == year,
                                                                  PresentedCourse.semester == semester)).first()
     if presentedCourse is None:
-        return {'Status': "ERROR", 'error': "این درس توسط هیچ شخصی در این ترم ارائه نمی شود ."}
+        return {'Status': "ERROR", 'massage': "این درس توسط هیچ شخصی در این ترم ارائه نمی شود ."}
 
     professorLinkPresentedCourse1 = session.query(ProfessorLinkPresentedCourse).filter(
         ProfessorLinkPresentedCourse.presentedCourse == presentedCourse.id).first()
     if professorLinkPresentedCourse1 is None:
-        return {'Status': "ERROR", 'error': "این استاد همچین درسی را ندارد ."}
+        return {'Status': "ERROR", 'massage': "این استاد همچین درسی را ندارد ."}
     professor_email = professorLinkPresentedCourse1.professor_email
 
     flag = is_this_ticket_is_exist_or_finish(topic='capacity_increase', course_relation=course_id, year=year,
-                                             semester=semester)
+                                             semester=semester, id_creator=user_id)
     if not flag:
-        return {'Status': "ERROR", 'error': "این درخواست قبلا توسط شما ثبت شده است صبور باشید ."}
+        return {'Status': "ERROR", 'massage': "این درخواست قبلا توسط شما ثبت شده است صبور باشید ."}
 
     ticket = Ticket(sender=user_id, topic='capacity_increase', message=description, course_relation=course_id)
     step = Step(receiver_id=professor_email)
@@ -112,16 +119,16 @@ def lessons_from_another_section(user_id, receiver_id, description, url):
     #                                                                        None))).first()
     educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(None)).first()
 
-    flag = is_this_ticket_is_exist_or_finish_two('lessons_from_another_section', year, semester)
+    flag = is_this_ticket_is_exist_or_finish_two('lessons_from_another_section', year, semester, id_creator=user_id)
 
     if student is None:
-        return {'Status': "ERROR", 'error': "این شخص دانشجو نیست ."}
+        return {'Status': "ERROR", 'massage': "این شخص دانشجو نیست ."}
 
     elif educationAssistant is None:
-        return {'Status': "ERROR", 'error': "این شخص معاون آموزشی نیست ."}
+        return {'Status': "ERROR", 'massage': "این شخص معاون آموزشی نیست ."}
 
     elif not flag:
-        return {'Status': "ERROR", 'error': "این درخواست قبلا توسط شما ثبت شده است صبور باشید ."}
+        return {'Status': "ERROR", 'massage': "این درخواست قبلا توسط شما ثبت شده است صبور باشید ."}
 
     ticket = Ticket(sender=user_id, topic='lessons_from_another_section', message=description, attach_file=url)
     step = Step(receiver_id=educationAssistant.username)
@@ -151,21 +158,21 @@ def class_change_time(user_id, receiver_id, description, course_id):
         None)).first()
 
     if student is None:
-        return {'Status': "ERROR", 'error': "این کاربر دانشجو نیست ."}
+        return {'Status': "ERROR", 'massage': "این کاربر دانشجو نیست ."}
     elif course is None:
-        return {'Status': "ERROR", 'error': "درس موردنظر پیدا نشد ."}
+        return {'Status': "ERROR", 'massage': "درس موردنظر پیدا نشد ."}
     elif educationAssistant is None:
-        return {'Status': "ERROR", 'error': "معاون آموزشی یافت نشد ."}
+        return {'Status': "ERROR", 'massage': "معاون آموزشی یافت نشد ."}
     presentedCourse = session.query(PresentedCourse).filter(and_(PresentedCourse.course_id == course_id,
                                                                  PresentedCourse.year == year,
                                                                  PresentedCourse.semester == semester)).first()
     if presentedCourse is None:
-        return {'Status': "ERROR", 'error': "این درس این ترم ارائه نمی‌شود."}
+        return {'Status': "ERROR", 'massage': "این درس این ترم ارائه نمی‌شود."}
 
     flag = is_this_ticket_is_exist_or_finish(topic='class_change_time', course_relation=course_id, year=year,
-                                             semester=semester)
+                                             semester=semester, id_creator=user_id)
     if not flag:
-        return {'Status': "ERROR", 'error': "این درخواست قبلا توسط شما داده شده بود ."}
+        return {'Status': "ERROR", 'massage': "این درخواست قبلا توسط شما داده شده بود ."}
 
     ticket = Ticket(sender=user_id, topic='class_change_time', message=description, course_relation=course_id)
     step = Step(receiver_id=educationAssistant.username)
@@ -189,21 +196,21 @@ def exam_time_change(user_id, receiver_id, description, course_id):
     educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(None)).first()
 
     if student is None:
-        return {'Status': "ERROR", 'error': "این کاربر دانشجو نیست ."}
+        return {'Status': "ERROR", 'massage': "این کاربر دانشجو نیست ."}
     elif course is None:
-        return {'Status': "ERROR", 'error': "این درس یافت نشد ."}
+        return {'Status': "ERROR", 'massage': "این درس یافت نشد ."}
     elif educationAssistant is None:
-        return {'Status': "ERROR", 'error': "معاون آموزشی موردنظر یافت نشد ."}
+        return {'Status': "ERROR", 'massage': "معاون آموزشی موردنظر یافت نشد ."}
     presentedCourse = session.query(PresentedCourse).filter(and_(PresentedCourse.course_id == course_id,
                                                                  PresentedCourse.year == year,
                                                                  PresentedCourse.semester == semester)).first()
     if presentedCourse is None:
-        return {'Status': "ERROR", 'error': "این درس در این ترم ارائه نمی‌شود."}
+        return {'Status': "ERROR", 'massage': "این درس در این ترم ارائه نمی‌شود."}
 
     flag = is_this_ticket_is_exist_or_finish(topic='exam_time_change', course_relation=course_id, year=year,
-                                             semester=semester)
+                                             semester=semester, id_creator=user_id)
     if not flag:
-        return {'Status': "ERROR", 'error': "این درخواست قبلا توسط شما داده شده بود ."}
+        return {'Status': "ERROR", 'massage': "این درخواست قبلا توسط شما داده شده بود ."}
 
     ticket = Ticket(sender=user_id, topic='exam_time_change', message=description, course_relation=course_id)
     step = Step(receiver_id=educationAssistant.username)
@@ -228,15 +235,14 @@ def master_course_request(user_id, receiver_id, description, course_id):
     # educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(
     #     None)).first()
     if student is None:
-        return {'Status': "ERROR", 'error': "این یوزر دانشجو نیست ."}
+        return {'Status': "ERROR", 'massage': "این یوزر دانشجو نیست ."}
     elif student.cross_section != 'bachelor':
-        return {'Status': "ERROR", 'error': "این یوزر دانشجوی کارشناسی نیست ."}
+        return {'Status': "ERROR", 'massage': "این یوزر دانشجوی کارشناسی نیست ."}
 
     elif course is None:
-        return {'Status': "ERROR", 'error': "این درس پیدا نشد ."}
+        return {'Status': "ERROR", 'massage': "این درس پیدا نشد ."}
 
-
-    #TODO : make it better our make init.db better
+    # TODO : make it better our make init.db better
 
     # elif not is_this_course_in_sinore_chart(course.id):
     #     return {'Status': "ERROR", 'error': "this course wasn't senior course."}
@@ -245,18 +251,18 @@ def master_course_request(user_id, receiver_id, description, course_id):
     adviser_id = student.adviser_id
 
     if adviser_id is None:
-        return {'Status': "ERROR", 'error': "استاد راهنماش موجود نیست ."}
+        return {'Status': "ERROR", 'massage': "استاد راهنماش موجود نیست ."}
 
     presentedCourse = session.query(PresentedCourse).filter(and_(PresentedCourse.course_id == course_id,
                                                                  PresentedCourse.year == year,
                                                                  PresentedCourse.semester == semester)).first()
     if presentedCourse is None:
-        return {'Status': "ERROR", 'error': "این درس در این ترم ارائه نمی‌شود ."}
+        return {'Status': "ERROR", 'massage': "این درس در این ترم ارائه نمی‌شود ."}
 
     flag = is_this_ticket_is_exist_or_finish(topic='master_course_request', course_relation=course_id, year=year,
-                                             semester=semester)
+                                             semester=semester, id_creator=user_id)
     if not flag:
-        return {'Status': "ERROR", 'error': "این درخواست قبلا توسط شما ثبت شده است صبور باشید ."}
+        return {'Status': "ERROR", 'massage': "این درخواست قبلا توسط شما ثبت شده است صبور باشید ."}
 
     ticket = Ticket(sender=user_id, topic='master_course_request', message=description, course_relation=course_id)
     step = Step(receiver_id=adviser_id)
@@ -285,35 +291,35 @@ def course_from_another_orientation(user_id, receiver_id, description, course_id
     #     None)).first()
 
     if student is None:
-        return {'Status': "ERROR", 'error': "این شخص دانشجو نیست ."}
+        return {'Status': "ERROR", 'massage': "این شخص دانشجو نیست ."}
     elif student.cross_section != 'master':
-        return {'Status': "ERROR", 'error': "این شخص دانشجوی ارشد نیست ."}
+        return {'Status': "ERROR", 'massage': "این شخص دانشجوی ارشد نیست ."}
 
     elif course is None:
-        return {'Status': "ERROR", 'error': "این درخواست قبلا توسط شما ثبت شده است صبور باشید ."}
+        return {'Status': "ERROR", 'massage': "این درخواست قبلا توسط شما ثبت شده است صبور باشید ."}
 
     elif course.orientation == student.orientation:
-        return {'Status': "ERROR", 'error': "این درس متعلق به گرایش خود شما هست ."}
+        return {'Status': "ERROR", 'massage': "این درس متعلق به گرایش خود شما هست ."}
     # elif educationAssistant is None:
     #     return {'Status': "ERROR", 'error': "this educationAssistant isn't exist."}
 
     supervisor_id = student.supervisor_id
 
     if supervisor_id is None:
-        return {'Status': "ERROR", 'error': "این دانشجو استاد راهنما ندارد ."}
+        return {'Status': "ERROR", 'massage': "این دانشجو استاد راهنما ندارد ."}
 
     presentedCourse = session.query(PresentedCourse).filter(and_(PresentedCourse.course_id == course_id,
                                                                  PresentedCourse.year == year,
                                                                  PresentedCourse.semester == semester)).first()
 
     if presentedCourse is None:
-        return {'Status': "ERROR", 'error': "این درس این ترم ارائه نمی شود ."}
+        return {'Status': "ERROR", 'massage': "این درس این ترم ارائه نمی شود ."}
 
     flag = is_this_ticket_is_exist_or_finish(topic='course_from_another_orientation', course_relation=course_id,
                                              year=year,
-                                             semester=semester)
+                                             semester=semester, id_creator=user_id)
     if not flag:
-        return {'Status': "ERROR", 'error': "این درخواست قبلا توسط شما ثبت شده است صبور باشید ."}
+        return {'Status': "ERROR", 'massage': "این درخواست قبلا توسط شما ثبت شده است صبور باشید ."}
 
     ticket = Ticket(sender=user_id, topic='course_from_another_orientation', message=description,
                     course_relation=course_id)
@@ -336,11 +342,11 @@ def normal_ticket(user_id, receiver_id, subject, description, course_id, url):
     course = session.query(Course).filter(Course.id == course_id).first()
 
     if sender_is_user is False:
-        return {'Status': "ERROR", 'error': "این کاربر وجود ندارد."}
+        return {'Status': "ERROR", 'massage': "این کاربر وجود ندارد."}
     elif course is None:
-        return {'Status': "ERROR", 'error': "این درس پیدا نشد ."}
+        return {'Status': "ERROR", 'massage': "این درس پیدا نشد ."}
     elif receiver_is_user is False:
-        return {'Status': "ERROR", 'error': "این شخص برای دریافت پیام موجود نیست ."}
+        return {'Status': "ERROR", 'massage': "این شخص برای دریافت پیام موجود نیست ."}
 
     ticket = Ticket(sender=user_id, topic=subject, message=description, course_relation=course_id, attach_file=url)
     step = Step(receiver_id=receiver_id)
@@ -354,7 +360,7 @@ def normal_ticket(user_id, receiver_id, subject, description, course_id, url):
 def delete_ticket_user(user_id, ticket_id, ):
     ticket = session.query(Ticket).filter(and_(Ticket.id == ticket_id, Ticket.sender == user_id)).first()
     if ticket is None:
-        return {'Status': "ERROR", 'error': "این تیکت متعلق به این شخص نیست ."}
+        return {'Status': "ERROR", 'massage': "این تیکت متعلق به این شخص نیست ."}
     else:
         session.query(Step).filter(Step.ticket_id == ticket_id).update(
             {Step.status_step: StatusStep(6)})
@@ -440,7 +446,7 @@ def update_ticket_user(user_id, ticket_id, step, massage, url):
 
     ticket = session.query(Ticket).filter(Ticket.id == ticket_id).first()
     if len(steps_of_user) != 1:
-        return {'Status': "ERROR", 'error': "مشکلی در سیستم رخ داده است ."}
+        return {'Status': "ERROR", 'massage': "مشکلی در سیستم رخ داده است ."}
     step_one = steps_of_user[0]
     step_one.status_step = step
     if massage is not None:
@@ -723,7 +729,7 @@ def get_receivers_handler(user_id):
         res.append(supervisor_info)
         return res
 
-    elif(session.query(Advisor).filter(Advisor.id == user_id).first() != None):
+    elif (session.query(Advisor).filter(Advisor.id == user_id).first() != None):
         advisor = session.query(Advisor).filter(Advisor.id == user_id).first()
         dep_head_user = session.query(User).filter(User.username == curr_dep_head.email).first()
         dep_head_data = {
@@ -743,7 +749,7 @@ def get_receivers_handler(user_id):
         return res
     # elif(session.query(Supervisor).filter(Supervisor.id == user_id).first() != None):
 
-    elif(session.query(Student).filter(Student.student_number == user_id).first() != None):
+    elif (session.query(Student).filter(Student.student_number == user_id).first() != None):
         student = session.query(Student).filter(Student.student_number == user_id).first()
         dep_head_user = session.query(User).filter(User.username == curr_dep_head.email).first()
         dep_head_data = {
