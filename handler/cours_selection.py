@@ -314,12 +314,13 @@ def update_permitted_course_prof_by(permitted_course_id, professor_id, user_id):
     if find_present_course is None:
         return {'Status': 'ERROR', 'message': 'خطایی  در سیسم رخ داده هست .'}
 
-    professorLinkPresentedCourse = ProfessorLinkPresentedCourse.query.filter(and_(ProfessorLinkPresentedCourse.professor_email == professor_id,
-                                                                                  ProfessorLinkPresentedCourse.presentedCourse == presented_course.id)).first()
+    professorLinkPresentedCourse = ProfessorLinkPresentedCourse.query.filter(
+        and_(ProfessorLinkPresentedCourse.professor_email == professor_id,
+             ProfessorLinkPresentedCourse.presentedCourse == presented_course.id)).first()
 
     if professorLinkPresentedCourse is None:
         professorLinkPresentedCourse1 = ProfessorLinkPresentedCourse(professor_email=professor_id,
-                                                                presentedCourse=find_present_course.course_id)
+                                                                     presentedCourse=find_present_course.course_id)
     else:
         ProfessorLinkPresentedCourse.query.filter(
             and_(ProfessorLinkPresentedCourse.professor_email == professor_id,
