@@ -401,7 +401,7 @@ def update_permitted_course_prof():
 
     except Exception as ex:
         print(ex)
-        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است' + str(ex)), 400
 
 
 @app.route('/api/delete-initial-course-selection', methods=['POST'])
