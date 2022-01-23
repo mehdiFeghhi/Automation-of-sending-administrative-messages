@@ -111,8 +111,10 @@ def permitted_course_eduassignment_prof():
         # print(obj.professor)
         if obj.professor is not None:
             name_professor = obj.professor.user.firs_name + " " + obj.professor.user.last_name
+            email = obj.professor.email
         else:
             name_professor = ""
+            email = ""
         course_section = obj.cross_section
         orientation = obj.course.orientation.name
         unit_numbers = obj.course.numbers_unit
@@ -126,7 +128,7 @@ def permitted_course_eduassignment_prof():
             {'name_professor': name_professor, 'course_section': course_section, 'orientation': orientation,
              'unit_numbers': unit_numbers, 'id_permitted_course': id_permitted_Course,
              'number_get_it_in_initial_course_this_term': number_get_it_in_initial_course_this_term,
-             'course_name': course_name})
+             'course_name': course_name, "email": email})
 
     return {'Status': 'OK', 'data': list_send}
 
@@ -269,9 +271,12 @@ def find_initial_course_selection(user_id):
     for initial_course_selection in initial_course_list:
         name_professor = ""
         email = ""
-        if initial_course_selection.PermittedCourse.professor is None:
-            name_professor = initial_course_selection.PermittedCourse.professor.user.firs_name + " " + initial_course_selection.PermittedCourse.professor.user.last_name
-            email = initial_course_selection.PermittedCourse.professor.email
+        if initial_course_selection.PermittedCourse.professor_id is not None:
+            prof_email = initial_course_selection.PermittedCourse.professor_id
+            professor = Professor.query.filter(Professor.email == prof_email).first()
+            if professor is not None:
+                name_professor = professor.user.firs_name + " " + professor.user.last_name
+            email = prof_email
         list_dic.append({'id_initial_course_selection': initial_course_selection.id,
                          'course_name': initial_course_selection.PermittedCourse.course.name,
                          'orientation': initial_course_selection.PermittedCourse.course.orientation.name,
