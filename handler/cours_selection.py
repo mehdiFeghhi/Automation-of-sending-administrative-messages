@@ -270,8 +270,8 @@ def find_initial_course_selection(user_id):
         name_professor = ""
         email = ""
         if initial_course_selection.PermittedCourse.professor is None:
-            name_professor = initial_course_selection.professor.user.firs_name + " " + initial_course_selection.professor.user.last_name
-            email = initial_course_selection.professor.email
+            name_professor = initial_course_selection.PermittedCourse.professor.user.firs_name + " " + initial_course_selection.PermittedCourse.professor.user.last_name
+            email = initial_course_selection.PermittedCourse.professor.email
         list_dic.append({'id_initial_course_selection': initial_course_selection.id,
                          'course_name': initial_course_selection.PermittedCourse.course.name,
                          'orientation': initial_course_selection.PermittedCourse.course.orientation.name,
