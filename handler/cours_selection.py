@@ -82,18 +82,21 @@ def permitted_course_student(user_id):
     for obj in permitted_course_list:
         if obj.permittedCourse_id not in list_not_show_permitted_course:
             print(obj.professor_id)
+            email = ""
             if obj.professor is not None:
                 name_professor = obj.professor.user.firs_name + " " + obj.professor.user.last_name
+                email = obj.professor.email
             else:
                 name_professor = ""
             course_section = obj.cross_section
             orientation = obj.course.orientation.name
             unit_numbers = obj.course.numbers_unit
             course_name = obj.course.name
+
             id_permitted_Course = obj.permittedCourse_id
             list_send.append({'name_professor': name_professor, 'course_section': course_section,
                               'orientation': orientation, 'unit_numbers': unit_numbers,
-                              'id_permitted_course': id_permitted_Course, 'course_name': course_name})
+                              'id_permitted_course': id_permitted_Course, 'course_name': course_name, 'email': email})
 
     return {'Status': 'OK', 'data': list_send}
 
@@ -264,10 +267,17 @@ def find_initial_course_selection(user_id):
                                                                    InitialCourseSelection.semester == semester)).all()
     list_dic = []
     for initial_course_selection in initial_course_list:
+        name_professor = ""
+        email = ""
+        if initial_course_selection.PermittedCourse.professor is None:
+            name_professor = initial_course_selection.professor.user.firs_name + " " + initial_course_selection.professor.user.last_name
+            email = initial_course_selection.professor.email
         list_dic.append({'id_initial_course_selection': initial_course_selection.id,
                          'course_name': initial_course_selection.PermittedCourse.course.name,
                          'orientation': initial_course_selection.PermittedCourse.course.orientation.name,
-                         'unit_numbers': initial_course_selection.PermittedCourse.course.numbers_unit
+                         'unit_numbers': initial_course_selection.PermittedCourse.course.numbers_unit,
+                         'name_professor': name_professor,
+                         'email': email
                          })
 
     return {'Status': 'OK', 'data': list_dic}
@@ -316,7 +326,7 @@ def update_permitted_course_prof_by(permitted_course_id, professor_id, user_id):
 
     # try:
     professorLinkPresentedCourse = ProfessorLinkPresentedCourse.query.filter(
-            ProfessorLinkPresentedCourse.presentedCourse == presented_course.id).first()
+        ProfessorLinkPresentedCourse.presentedCourse == presented_course.id).first()
     # except Exception as ex:
     #     return {'Status': 'OK', 'message': 'ارور مال خط مذکور هست .'}
 
