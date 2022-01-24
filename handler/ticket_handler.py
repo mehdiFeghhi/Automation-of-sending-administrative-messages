@@ -550,7 +550,14 @@ def get_procedure_steps(procedure):
 def get_tickets_handler(user_id):
     response = []
     sent_tickets = session.query(Ticket).filter(Ticket.sender == user_id).all()
-    received_tickets = session.query(Step).filter(Step.receiver_id == user_id).all()
+    received_tickets_get = session.query(Step).filter(Step.receiver_id == user_id).all()
+    received_tickets = []
+    list_of_ticket_id_receiver = []
+    for step in received_tickets_get:
+        if step.ticket_id not in list_of_ticket_id_receiver:
+            list_of_ticket_id_receiver.append(step.ticket_id)
+            received_tickets.append(step)
+
     for ticket in sent_tickets:
         all_steps = get_procedure_steps(ticket.topic)
         steps = session.query(Step).filter(Step.ticket_id == ticket.id).order_by(asc(Step.id)).all()
@@ -558,10 +565,12 @@ def get_tickets_handler(user_id):
         course = session.query(Course).filter(Course.id == ticket.course_relation).first()
         step_num = 0
         descriptions = {}
+        can_user_change_step = False
+        if steps[-1].receiver_id == user_id:
+            can_user_change_step = True
         for step in steps:
             step_num += 1
             descriptions[step_num] = step.message
-
         response.append({"id": ticket.id,
                          "sender_id": sender.username,
                          "sender_fname": sender.firs_name,
@@ -573,7 +582,8 @@ def get_tickets_handler(user_id):
                          "descriptions": descriptions,
                          "status_step": steps[-1].status_step,
                          "current_step": {step_num: steps[-1].message},
-                         "all_steps": all_steps})
+                         "all_steps": all_steps,
+                         "can_change": can_user_change_step})
 
     for step in received_tickets:
         ticket_id = step.ticket_id
@@ -587,6 +597,9 @@ def get_tickets_handler(user_id):
         rest_steps = session.query(Step).filter(Step.ticket_id == ticket_id).order_by(asc(Step.id)).all()
         step_num = 0
         descriptions = {}
+        can_user_change_step = False
+        if rest_steps[-1].receiver_id == user_id:
+            can_user_change_step = True
         for step in rest_steps:
             step_num += 1
             descriptions[step_num] = step.message
@@ -602,7 +615,8 @@ def get_tickets_handler(user_id):
                          "descriptions": descriptions,
                          "status_step": rest_steps[-1].status_step,
                          "current_step": {step_num: rest_steps[-1].message},
-                         "all_steps": all_steps})
+                         "all_steps": all_steps,
+                         "can_change": can_user_change_step})
     return response
 
 
