@@ -133,7 +133,7 @@ def get_professors_handler():
     try:
         dephead_email = session.query(DepartmentHead).filter(DepartmentHead.date_end_duty == None).first().email
     except Exception as e:
-        pass    
+        pass
     profs = session.query(Professor).all()
     res = []
     for prof in profs:
@@ -246,23 +246,16 @@ def update_professor_handler(user_id,
         return {'message': 'استاد یافت نشد'}
 
     user = session.query(User).filter(User.username == email).first()
-    if(first_name != None):
+    if (first_name != None):
         user.firs_name = first_name
 
-    if(last_name != None):
+    if (last_name != None):
         user.last_name = last_name
 
-    if(password != None):
+    if (password != None):
         user.password = str(hashlib.sha256(password.encode()).hexdigest())
 
-    if new_email != None:
-        if (len(new_email) == 0):
-            return {'message': 'طول ایمیل نمیتواند صفر باشد'}
-        prof.email= new_email
-        user.username = new_email
-
-
-    if(is_departman_boss != None):
+    if (is_departman_boss != None):
         if (is_departman_boss):
             current_head = DepartmentHead.query.filter(DepartmentHead.date_end_duty == None).one_or_none()
             if not current_head:
@@ -272,6 +265,12 @@ def update_professor_handler(user_id,
                 current_head.date_end_duty = date.today()
                 hed = DepartmentHead(email=email, date_start_duty=date.today())
                 session.add(hed)
+    if new_email != None:
+        if (len(new_email) == 0):
+            return {'message': 'طول ایمیل نمیتواند صفر باشد'}
+        prof.email = new_email
+        user.username = new_email
+
     session.commit()
     return {'message': 'OK'}
 
@@ -285,7 +284,7 @@ def get_students_handler(user_id):
     for student in students:
         superviser_email = None
         superviser = session.query(Supervisor).filter(Supervisor.id == student.supervisor_id).first()
-        if(superviser != None):
+        if (superviser != None):
             superviser_email = superviser.email
 
         std_data = {'first_name': student.user.firs_name,
