@@ -246,6 +246,14 @@ def update_professor_handler(user_id,
         return {'message': 'استاد یافت نشد'}
 
     user = session.query(User).filter(User.username == email).first()
+
+    if new_email != None:
+        if (len(new_email) == 0):
+            return {'message': 'طول ایمیل نمیتواند صفر باشد'}
+        prof.email = new_email
+        user.username = new_email
+
+
     if (first_name != None):
         user.firs_name = first_name
 
@@ -265,11 +273,6 @@ def update_professor_handler(user_id,
                 current_head.date_end_duty = date.today()
                 hed = DepartmentHead(email=email, date_start_duty=date.today())
                 session.add(hed)
-    if new_email != None:
-        if (len(new_email) == 0):
-            return {'message': 'طول ایمیل نمیتواند صفر باشد'}
-        prof.email = new_email
-        user.username = new_email
 
     session.commit()
     return {'message': 'OK'}
