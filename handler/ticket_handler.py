@@ -454,7 +454,7 @@ def update_ticket_user(user_id, ticket_id, step, massage, url):
 
     ticket = session.query(Ticket).filter(Ticket.id == ticket_id).first()
     if len(steps_of_user) != 1:
-        return {'Status': "ERROR", 'message': "مشکلی در سیستم رخ داده است ."}
+        return {'Status': "ERROR", 'message': "نمی تواند این مرحله را تایید یا رد کند . ."}
     step_one = steps_of_user[0]
     step_one.status_step = step
     if massage is not None:

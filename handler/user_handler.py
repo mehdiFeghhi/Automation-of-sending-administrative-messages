@@ -256,7 +256,11 @@ def update_professor_handler(user_id,
         user.password = str(hashlib.sha256(password.encode()).hexdigest())
 
     if new_email != None:
+        if (len(new_email) == 0):
+            return {'message': 'طول ایمیل نمیتواند صفر باشد'}
+        prof.email= new_email
         user.username = new_email
+
 
     if(is_departman_boss != None):
         if (is_departman_boss):
