@@ -247,9 +247,7 @@ def update_professor_handler(user_id,
 
     user = session.query(User).filter(User.username == email).first()
 
-    if new_email != None:
-        if (len(new_email) == 0):
-            return {'message': 'طول ایمیل نمیتواند صفر باشد'}
+    if new_email != None and not (len(new_email) == 0):
         prof.email = new_email
         user.username = new_email
 
