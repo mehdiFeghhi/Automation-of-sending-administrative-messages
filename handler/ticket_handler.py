@@ -573,6 +573,12 @@ def get_tickets_handler(user_id):
         course = session.query(Course).filter(Course.id == ticket.course_relation).first()
         step_num = 0
         descriptions = {}
+
+        receiver_user = session.query(User).fitler(User.username == steps[-1].receiver_id).first()
+        receiver_name = ""
+        if receiver_user is not None:
+            receiver_name = receiver_user.firs_name + " " + receiver_user.last_name
+
         can_user_change_step = False
         if steps[-1].receiver_id == user_id:
             can_user_change_step = True
@@ -591,7 +597,8 @@ def get_tickets_handler(user_id):
                          "status_step": steps[-1].status_step,
                          "current_step": {step_num: steps[-1].message},
                          "all_steps": all_steps,
-                         "can_change": can_user_change_step})
+                         "can_change": can_user_change_step,
+                         "receiver_user": receiver_name})
 
     for step in received_tickets:
         ticket_id = step.ticket_id
@@ -605,6 +612,12 @@ def get_tickets_handler(user_id):
         rest_steps = session.query(Step).filter(Step.ticket_id == ticket_id).order_by(asc(Step.id)).all()
         step_num = 0
         descriptions = {}
+
+        receiver_user = session.query(User).fitler(User.username == rest_steps[-1].receiver_id).first()
+        receiver_name = ""
+        if receiver_user is not None:
+            receiver_name = receiver_user.firs_name + " " + receiver_user.last_name
+
         can_user_change_step = False
         if rest_steps[-1].receiver_id == user_id:
             can_user_change_step = True
@@ -624,7 +637,8 @@ def get_tickets_handler(user_id):
                          "status_step": rest_steps[-1].status_step,
                          "current_step": {step_num: rest_steps[-1].message},
                          "all_steps": all_steps,
-                         "can_change": can_user_change_step})
+                         "can_change": can_user_change_step,
+                         "receiver_name": receiver_name})
     return response
 
 
