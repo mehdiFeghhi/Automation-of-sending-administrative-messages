@@ -210,7 +210,7 @@ def get_tickets():
 
     except Exception as ex:
         print(ex)
-        return jsonify(status='ERROR', message='داده ارسالی اشتباه است' + str(ex)), 400
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
 
 @app.route('/api/get-tickets-inprogress', methods=['GET'])
