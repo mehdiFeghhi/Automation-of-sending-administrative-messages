@@ -1,5 +1,6 @@
 import unittest
 
+from handler.cours_selection import is_person_professor, is_person_student, is_assignment_education
 from user_handler import find_user_by_username_and_password
 import pprint
 
@@ -12,6 +13,16 @@ def test_find_user_by_username_and_password(user_name, password, status):
     pprint.pprint(data)
 
     assert data.get('Status') == status
+
+
+def test_is_this_user_student(user_id,boolean):
+    assert  is_person_student(user_id) == boolean
+
+def test_is_person_professor(user_id, boolean):
+    assert is_person_professor(user_id) == boolean
+
+def test_is_assignment_education(user_id, boolean):
+    assert is_assignment_education(user_id) == boolean
 
 
 def test_is_this_token_is_authentication(token, status):
@@ -44,10 +55,11 @@ def test_login(user, password):
 
 
 if __name__ == '__main__':
+    pass
     # test_find_user_by_username_and_password('9732527', '1234', 'OK')
     # test_find_user_by_username_and_password('9732527', '4321', 'ERROR')
     # test_find_user_by_username_and_password('sami@gmail.com', '4231', 'OK')
     # test_find_user_by_us9732527ername_and_password('Parsain', '4231', 'OK')
     # test_find_user_by_username_and_password('Hossainy', '4231', 'OK')
     # test_login("9732527", "1234")
-    test_is_this_token_is_authentication(eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0MDUyNzk2MCwianRpIjoiNWEwNWIxMTctYmQ5ZC00NGM0LThmMjktNmI5OTUxYjJkZjY3IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Ijk3MzI1MjciLCJuYmYiOjE2NDA1Mjc5NjAsImV4cCI6MTY0MDYxNDM2MH0.GqmFs_PVMtjdsMjs0RbbQkuUoJvXtX_pV1bVDO8DiFw,'OK')
+    #test_is_this_token_is_authentication(eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY0MDUyNzk2MCwianRpIjoiNWEwNWIxMTctYmQ5ZC00NGM0LThmMjktNmI5OTUxYjJkZjY3IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Ijk3MzI1MjciLCJuYmYiOjE2NDA1Mjc5NjAsImV4cCI6MTY0MDYxNDM2MH0.GqmFs_PVMtjdsMjs0RbbQkuUoJvXtX_pV1bVDO8DiFw,'OK')

@@ -204,8 +204,13 @@ def get_courses():
 @app.route('/api/get-tickets', methods=['GET'])
 @jwt_required()
 def get_tickets():
-    user_id = get_jwt_identity()
-    return jsonify(get_tickets_handler(user_id))
+    try:
+        user_id = get_jwt_identity()
+        return jsonify(get_tickets_handler(user_id))
+
+    except Exception as ex:
+        print(ex)
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است' + str(ex)), 400
 
 
 @app.route('/api/get-tickets-inprogress', methods=['GET'])
@@ -498,7 +503,7 @@ def update_professor():
 
     except Exception as ex:
         print(ex)
-        return jsonify(status='ERROR', message='داده ارسالی اشتباه است'+str(ex)), 400
+        return jsonify(status='ERROR', message='داده ارسالی اشتباه است' + str(ex)), 400
 
 
 @app.route('/api/get-students', methods=['get'])
@@ -526,16 +531,16 @@ def edit_student_info():
         user_id = get_jwt_identity()
         params = request.get_json()
         resp = update_student_info(user_id,
-                                    params['student_number'],
-                                    params['new_student_number'],
-                                    params['first_name'],
-                                    params['last_name'],
-                                    params['password'],
-                                    params['orientation'],
-                                    params['cross_section'],
-                                    params['enter_year'],
-                                    params['adviser_id'],
-                                    params['superviser_id'])
+                                   params['student_number'],
+                                   params['new_student_number'],
+                                   params['first_name'],
+                                   params['last_name'],
+                                   params['password'],
+                                   params['orientation'],
+                                   params['cross_section'],
+                                   params['enter_year'],
+                                   params['adviser_id'],
+                                   params['superviser_id'])
         if (resp['message'] == 'شما مجوز انجام اینکار را ندارید'):
             return jsonify(resp), 401
 
@@ -572,21 +577,22 @@ def change_student_pass():
         print(ex)
         return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
+
 @app.route('/api/time-of-course-section', methods=['GET'])
 @jwt_required()
 def time_of_course_section():
     # try:
-        user_id = get_jwt_identity()
-        response = is_time_of_course_section(user_id)
-        if response.get('Status') == 'OK':
-            return jsonify(response), 200
-        else:
-            return jsonify(response), 400
+    user_id = get_jwt_identity()
+    response = is_time_of_course_section(user_id)
+    if response.get('Status') == 'OK':
+        return jsonify(response), 200
+    else:
+        return jsonify(response), 400
 
-    # except Exception as ex:
-    #     print(ex)
-    #     return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
+# except Exception as ex:
+#     print(ex)
+#     return jsonify(status='ERROR', message='داده ارسالی اشتباه است'), 400
 
 
 if __name__ == '__main__':

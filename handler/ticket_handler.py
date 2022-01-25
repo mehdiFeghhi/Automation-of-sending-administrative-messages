@@ -638,7 +638,7 @@ def get_tickets_handler(user_id):
                          "current_step": {step_num: rest_steps[-1].message},
                          "all_steps": all_steps,
                          "can_change": can_user_change_step,
-                         "receiver_name": receiver_name})
+                         "receiver_user": receiver_name})
     return response
 
 
