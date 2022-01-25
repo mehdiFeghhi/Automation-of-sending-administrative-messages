@@ -1,6 +1,9 @@
 import requests
 from itsdangerous import json
 
+from handler.ticket_handler import check_step_this_ticket_is_finish_or_not
+
+
 
 def create_ticket_test(type_create, token, course_id, description, subject, receiver_id, status):
     url = f"http://127.0.0.1:5000/api/{type_create}"
@@ -53,19 +56,30 @@ def add_step_to_ticket_test(token, id_ticket, message, step, url_file, status):
     assert json.loads(response.json()).get('Status') == status
 
 
-def delete_step_ticket_test(token, id_ticket, status):
-    url = "http://127.0.0.1:5000/api/step-ticket"
+def test_check_step_this_ticket_is_finish_or_not(tickets,boolean):
+    assert check_step_this_ticket_is_finish_or_not(tickets) == boolean
 
-    payload = json.dumps({
-        "id_ticket": id_ticket
-    })
-    headers = {
-        'Authorization': f'Bearer {token}',
-        'Content-Type': 'application/json'
-    }
 
-    response = requests.request("DELETE", url, headers=headers, data=payload)
-
-    assert json.loads(response.json()).get('Status') == status
+# def delete_step_ticket_test(token, id_ticket, status):
+#     url = "http://127.0.0.1:5000/api/step-ticket"
+#
+#     payload = json.dumps({
+#         "id_ticket": id_tidef check_step_this_ticket_is_finish_or_not(tickets):
+#     for ticket in tickets:
+#         find = Step.query.filter(and_(Step.ticket_id == ticket.id, or_(Step.status_step == StatusStep(6),
+#                                                                        Step.status_step == StatusStep(7),
+#                                                                        Step.status_step == StatusStep(4)))).first()
+#         if find is None:
+#             return False
+#     return Truecket
+#     })
+#     headers = {
+#         'Authorization': f'Bearer {token}',
+#         'Content-Type': 'application/json'
+#     }
+#
+#     response = requests.request("DELETE", url, headers=headers, data=payload)
+#
+#     assert json.loads(response.json()).get('Status') == status
 
 
