@@ -220,6 +220,12 @@ def exam_time_change(user_id, receiver_id, description, course_id):
     return {'Status': "OK"}
 
 
+# TODO : Temperory for this time
+def master_orientation():
+    list_of_orientation_master = [7, 8, 9, 10, 11]
+    return list_of_orientation_master
+
+
 def master_course_request(user_id, receiver_id, description, course_id):
     print("in master_course_request")
     print(user_id)
@@ -231,7 +237,7 @@ def master_course_request(user_id, receiver_id, description, course_id):
 
     student = Student.query.filter(Student.student_number == user_id).first()
     course = session.query(Course).filter(Course.id == course_id).first()
-
+    ids_master_orientation = master_orientation()
     # educationAssistant = session.query(EducationAssistant).filter(EducationAssistant.date_end_duty.is_(
     #     None)).first()
     if student is None:
@@ -242,6 +248,8 @@ def master_course_request(user_id, receiver_id, description, course_id):
     elif course is None:
         return {'Status': "ERROR", 'message': "این درس پیدا نشد ."}
 
+    elif course.orientation_id not in ids_master_orientation:
+        return {'Status': "ERROR", 'message': "این درس ارشد نیست ."}
     # TODO : make it better our make init.db better
 
     # elif not is_this_course_in_sinore_chart(course.id):
@@ -251,7 +259,7 @@ def master_course_request(user_id, receiver_id, description, course_id):
     adviser_id = student.adviser_id
 
     if adviser_id is None:
-        return {'Status': "ERROR", 'message': "استاد راهنماش موجود نیست ."}
+        return {'Status': "ERROR", 'message': "استاد مشاورش موجود نیست ."}
 
     presentedCourse = session.query(PresentedCourse).filter(and_(PresentedCourse.course_id == course_id,
                                                                  PresentedCourse.year == year,

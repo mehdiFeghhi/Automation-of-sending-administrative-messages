@@ -234,6 +234,7 @@ def update_professor_handler(user_id,
                              first_name,
                              last_name,
                              email,
+                             new_email,
                              password,
                              is_departman_boss
                              ):
@@ -253,6 +254,9 @@ def update_professor_handler(user_id,
 
     if(password != None):
         user.password = str(hashlib.sha256(password.encode()).hexdigest())
+
+    if new_email != None:
+        user.username = new_email
 
     if(is_departman_boss != None):
         if (is_departman_boss):

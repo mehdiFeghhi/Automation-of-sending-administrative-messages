@@ -485,6 +485,7 @@ def update_professor():
                                         params['first_name'],
                                         params['last_name'],
                                         params['email'],
+                                        params['new_email'],
                                         params['pass'],
                                         params['is_departman_boss'])
         if (resp['message'] == 'شما مجوز انجام اینکار را ندارید'):
