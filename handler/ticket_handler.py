@@ -574,7 +574,7 @@ def get_tickets_handler(user_id):
         step_num = 0
         descriptions = {}
 
-        receiver_user = session.query(User).fitler(User.username == steps[-1].receiver_id).first()
+        receiver_user = session.query(User).filter(User.username == steps[-1].receiver_id).first()
         receiver_name = ""
         if receiver_user is not None:
             receiver_name = receiver_user.firs_name + " " + receiver_user.last_name
@@ -613,7 +613,7 @@ def get_tickets_handler(user_id):
         step_num = 0
         descriptions = {}
 
-        receiver_user = session.query(User).fitler(User.username == rest_steps[-1].receiver_id).first()
+        receiver_user = session.query(User).filter(User.username == rest_steps[-1].receiver_id).first()
         receiver_name = ""
         if receiver_user is not None:
             receiver_name = receiver_user.firs_name + " " + receiver_user.last_name
